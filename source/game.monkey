@@ -5,11 +5,12 @@ Import player
 Import enemy
 Import menu
 Import medals
+Import feed
 
 
 Class GameScene Extends VScene Implements VActionEventHandler
 
-	Global Highscore:Int
+	Global Highscore:Int = 23
 		
 	Field player:Player
 	Field enemies:List<Enemy>
@@ -28,36 +29,47 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	
 '--------------------------------------------------------------------------
-' * Init & Helpers
+' * Init
 '--------------------------------------------------------------------------
 	Method OnInit:Void()
 		player = New Player
 		enemies = New List<Enemy>
+		
+		InitBackgroundEffect()
 		
 		scoreFont = New AngelFont
 		scoreFont.LoadFromXml("lane_narrow")
 		
 		surpriseSound = LoadSound("surprise.mp3")
 		
+		medalFeed = New LabelFeed
+		medalFeed.InitWithSizeAndFont(5, "lane_narrow")
+		medalFeed.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.8)
+		
 		ResetGame()
 		FadeInAnimation()
 		randomTip = GetRandomTip()
 		
+		Vsat.displayFps = True
 	End
 	
 	Method FadeInAnimation:Void()
 		Local mainMenu:Object = Vsat.RestoreFromClipboard("MainMenu")
 		If mainMenu
+			Self.mainMenuObject = MainMenu(mainMenu)
+			
 			Local delay:= New VDelayAction(2.3)
 			delay.Name = "TransitionInDone"
 			AddAction(delay)
 			
 			Local transition:= New MoveDownTransition(1.5)
-			transition.SetScene(MainMenu(mainMenu))
+			transition.SetScene(Self.mainMenuObject)
 			Vsat.StartFadeIn(transition)
 			
 			FadeInPlayerAnimation(1.5)
 			isFirstTime = True
+		Else
+			transitionInDone = True
 		End
 	End
 	
@@ -79,7 +91,18 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		AddAction(sequence)
 	End
 	
-
+	Method InitBackgroundEffect:Void()
+		Local effect:Object = Vsat.RestoreFromClipboard("BgEffect")
+		If effect
+			backgroundEffect = ParticleBackground(effect)
+			backgroundEffect.emitter.size.Mul(0.5)
+		End
+	End
+	
+	
+'--------------------------------------------------------------------------
+' * Helpers
+'--------------------------------------------------------------------------
 	Method AddAction:Void(action:VAction)
 		action.AddToList(actions)
 		action.SetListener(Self)
@@ -106,6 +129,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 '--------------------------------------------------------------------------
 	Method OnUpdate:Void(dt:Float)
 		UpdateActions(dt)
+		UpdateBackgroundEffect(dt)
 		
 		If gameOver
 			If UsedActionKey()
@@ -128,12 +152,23 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		UpdateCollision()
 		
 		Medals.Update(Self)
+		medalFeed.Update(dt)
 	End
 	
 	Method UpdateActions:Void(dt:Float)
 		For Local action:= EachIn actions
 			action.Update(dt)
 		Next
+	End
+	
+	Method UpdateBackgroundEffect:Void(dt:Float)
+		If backgroundEffect
+			If gameOver
+				backgroundEffect.Update(dt * 0.25)
+			Else
+				backgroundEffect.Update(dt)
+			End
+		End
 	End
 	
 	Method UpdateEnemyPhysics:Void(dt:Float)
@@ -160,11 +195,12 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method UpdateCollision:Void()
 		For Local enemy:= EachIn enemies
 			If enemy.hasBeenScored = False And enemy.CollidesWith(player)
+				enemy.collidedWithPlayer = True
 				OnGameOver()
 			End
 		Next
 	End
-
+	
 	Method CheckForScore:Void()
 		For Local e:= EachIn enemies
 			If Not e.hasBeenScored And e.position.y > player.position.y + player.size.y
@@ -179,11 +215,14 @@ Class GameScene Extends VScene Implements VActionEventHandler
 ' * Render
 '--------------------------------------------------------------------------	
 	Method OnRender:Void()
+		If backgroundEffect Then backgroundEffect.Render()
 		RenderTip()
 		
 		player.Render()
 		RenderEnemies()
 		RenderScore()
+		medalFeed.Render()
+		
 		RenderScreenFlash()
 		
 		RenderGameOver()
@@ -208,8 +247,6 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method RenderGameOver:Void()
 		If gameOver
-			Color.NewRed.Use()
-			DrawRect(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight)
 			Color.White.Use()
 			If score = 1
 				scoreFont.DrawText("You dodged 1 object", Vsat.ScreenWidth2, Vsat.ScreenHeight2, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
@@ -244,7 +281,11 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method ClearScreen:Void()
-		ClearScreenWithColor(Color.Silver)
+		If gameOver
+			ClearScreenWithColor(Color.NewRed)
+		Else
+			ClearScreenWithColor(Color.Silver)
+		End
 	End
 	
 	
@@ -351,10 +392,11 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			NewHighscore()
 		End
 		Medals.UpdatePostGame(Self)
+		medalFeed.Clear()
 	End
 	
 	Method GotMedal:Void(id:String)
-		Print "Medal: " + id
+		medalFeed.Push(id)
 	End
 	
 	Private
@@ -362,6 +404,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field randomTipAlpha:Float = 1.0
 	Field scoreFont:AngelFont
 	Field actions:List<VAction> = New List<VAction>
+	Field mainMenuObject:MainMenu
+	Field backgroundEffect:ParticleBackground
+	Field medalFeed:LabelFeed
 	
 End
 

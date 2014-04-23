@@ -1,5 +1,6 @@
 Strict
 Import vsat
+Import particles
 
 Class Enemy Extends VRect
 	
@@ -7,6 +8,7 @@ Class Enemy Extends VRect
 	Field gravity:Float = Vsat.ScreenHeight / 38
 	Field link:ListNode<Enemy>
 	Field widthRelative:Float = 9.6
+	Field collidedWithPlayer:Bool
 	
 '--------------------------------------------------------------------------
 ' * helpers for medals, etc.

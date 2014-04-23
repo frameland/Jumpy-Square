@@ -8,6 +8,7 @@ Class Medals
 '--------------------------------------------------------------------------
 ' * Medals
 '--------------------------------------------------------------------------	
+	Global NormalDodge:Int
 	Global DoubleDodge:Int
 	Global TripleDodge:Int
 	Global MultiDodge:Int
@@ -22,7 +23,7 @@ Class Medals
 '--------------------------------------------------------------------------
 	Global DoubleDodgeTime:Float = 1.0
 	Global TripleDodgeTime:Float = 2.0
-	Global MultiDodgeTime:Float = 2.6
+	Global MultiDodgeTime:Float = 2.8
 
 
 '--------------------------------------------------------------------------
@@ -71,7 +72,7 @@ Class Medals
 			For Local v:= EachIn gameScene.player.lastPositions
 				MedalState.playerCopy.position.Set(v)
 				
-				If e.wasClose = False And MedalState.playerCopy.CollidesWith(e)
+				If (e.wasClose = False) And (e.collidedWithPlayer = False) And MedalState.playerCopy.CollidesWith(e)
 					e.wasClose = True
 					CloseOne += 1
 					FireEvent("Close One")
@@ -88,6 +89,9 @@ Class Medals
 	End
 
 	Function OnScoreChange:Void(gameScene:GameScene)
+		NormalDodge += 1
+		FireEvent("Normal-Dodge")
+		
 		
 		'Double/Triple/Multi Dodge
 		MedalState.LastScoreTime.Push(Vsat.Seconds)
@@ -137,6 +141,7 @@ Class Medals
 		'Set vars
 		MedalState.LastScoreTime.Clear()
 		MedalState.LastScore = 0
+		MedalState.CouldGoHalfDead = False
 		
 		'Scoreman
 		If MedalState.PreviousHighscore < gameScene.score

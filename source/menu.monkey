@@ -3,6 +3,8 @@ Import vsat
 Import enemy
 Import game
 Import extra
+Import particles
+Import particlebg
 
 
 Class MainMenu Extends VScene Implements VActionEventHandler
@@ -18,6 +20,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		fontBig = New AngelFont
 		fontBig.LoadFromXml("lane_narrow_big")
 		
+		Print fontBig.TextHeight("0")
+		
 		titleTopSpacing = Vsat.ScreenHeight * 0.1
 		lineHeight = font.TextHeight("Play") * 1.5
 		
@@ -26,6 +30,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		menuOptions[1] = New MenuItem("Medals", font)
 		menuOptions[2] = New MenuItem("GameCenter", font)
 		MenuIntroAnimation()
+		
+		backgroundEffect = New ParticleBackground
 		
 		Local transition:= New VFadeInLinear(1.2)
 		transition.SetColor(Color.White)
@@ -36,7 +42,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		For Local i:Int = 0 Until menuOptions.Length
 			Local item:MenuItem = menuOptions[i]
 			item.position.x = Vsat.ScreenWidth2 - item.size.x/2
-			item.position.y = (Vsat.ScreenHeight - lineHeight * menuOptions.Length) * 0.7 + (lineHeight * i)
+			item.position.y = (Vsat.ScreenHeight - lineHeight * menuOptions.Length) * 0.75 + (lineHeight * i)
 			item.SetScale(1.5 + (1.0 - Float(i)/menuOptions.Length))
 			Local scaleAction:= New VVec2ToAction(item.scale, 1.0, 1.0, 0.8, EASE_OUT_EXPO)
 			Local delay:= New VDelayAction(0.2)
@@ -59,6 +65,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		UpdateCursor()
 		UpdateEnemySpawning(dt)
 		UpdateEnemies(dt)
+		UpdateParticles(dt)
 	End
 	
 	Method UpdateCursor:Void()
@@ -109,7 +116,11 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			e.UpdatePhysics(dt)
 		Next
 	End
-
+	
+	Method UpdateParticles:Void(dt:Float)
+		backgroundEffect.Update(dt)
+	End
+	
 
 '--------------------------------------------------------------------------
 ' * Render
@@ -122,6 +133,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			ScaleAt(Vsat.ScreenWidth2, Vsat.ScreenHeight2, scale, scale)
 		End
 		
+		If Vsat.IsActiveScene(Self) Then backgroundEffect.Render()
 		RenderEnemies()
 		RenderHighscore()
 		RenderTitle()
@@ -135,6 +147,27 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		fontBig.DrawText(TITLE, Vsat.ScreenWidth2, titleTopSpacing, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
 	End
 	
+	Method RenderHighscore:Void()
+		ResetBlend()
+		Color.NewRed.Use()
+		SetAlpha(0.8)
+		
+		PushMatrix()
+			Translate(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.4)
+			Rotate(Sin(Vsat.Seconds * 100) * 5 + 45)
+			Local scale:Float = 0.8 + Abs(Sin(Vsat.Seconds * 100) * 0.1)
+			Scale(scale, scale)
+			Local pos:Float = Vsat.ScreenWidth * 0.14
+			DrawRectOutline(-pos, -pos, pos * 2, pos * 2)
+			DrawRectOutline(-pos * 0.8, -pos * 0.8, pos * 1.6, pos * 1.6)
+			pos = Vsat.ScreenWidth * 0.17
+			' DrawCircleOutline(0, 0, pos)
+			Rotate(-45)
+			'DrawRectOutline(-pos, -pos, pos * 2, pos * 2)
+			fontBig.DrawText(GameScene.Highscore, 0, -15, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
+		PopMatrix()
+	End
+	
 	Method RenderMenu:Void()
 		ResetBlend()
 		For Local i:Int = 0 Until menuOptions.Length
@@ -146,14 +179,6 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		For Local e:= EachIn enemies
 			e.Render()
 		Next
-	End
-	
-	Method RenderHighscore:Void()
-		ResetBlend()
-		Color.NewRed.Use()
-		PushMatrix()
-		fontBig.DrawText(23, Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.3, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
-		PopMatrix()
 	End
 	
 	Method ClearScreen:Void()
@@ -186,7 +211,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
 		For Local i:Int = 0 Until menuOptions.Length
 			Local item:= menuOptions[i]
-			If item.PointInside(cursor)
+			If item.WasTouched(cursor)
 				If up
 					OnMenuClicked(item)
 				ElseIf lockedMenuItem = Null
@@ -212,6 +237,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		End
 		
 		Vsat.SaveToClipboard(Self, "MainMenu")
+		Vsat.SaveToClipboard(Self.backgroundEffect, "BgEffect")
 		Self.shouldClearScreen = False
 		Local game:GameScene = New GameScene
 		Vsat.ChangeScene(game)
@@ -241,6 +267,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field lastTouchDown:Bool
 	
 	Field actions:List<VAction> = New List<VAction>
+	
+	Field backgroundEffect:ParticleBackground
 	
 End
 
@@ -279,7 +307,13 @@ Class MenuItem Extends VRect
 			Draw()
 		PopMatrix()
 	End
-
+	
+	Method WasTouched:Bool(cursor:Vec2)
+		Local touchsizeBufferX:Float = size.x * 0.2
+		Local touchsizeBufferY:Float = size.y * 0.2
+		Return PointInRect(cursor.x, cursor.y, position.x-touchsizeBufferX, position.y-touchsizeBufferY, size.x+touchsizeBufferX*2, size.y+touchsizeBufferY*2)
+	End
+	
 End
 
 

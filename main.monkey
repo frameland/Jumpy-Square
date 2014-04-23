@@ -3,6 +3,8 @@ Strict
 Import vsat
 Import source.menu
 Import source.game
+Import source.feed
+
 
 Function Main:Int()
 	Vsat = New VsatApp
