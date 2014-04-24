@@ -11,7 +11,8 @@ Class ParticleBackground
 		Local baseUnit:Float = Vsat.ScreenWidth2
 		emitter = New ParticleEmitter
 		emitter.InitWithSize(100)
-		emitter.particleLifeSpan = 15.0
+		emitter.particleLifeSpan = 12.0
+		emitter.particleLifeSpanVariance = 4.0
 		emitter.emissionRate = 6
 		
 		emitter.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.1)

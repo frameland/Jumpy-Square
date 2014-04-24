@@ -3,7 +3,7 @@ Strict
 Import vsat
 Import source.menu
 Import source.game
-Import source.feed
+Import source.medalscene
 
 
 Function Main:Int()

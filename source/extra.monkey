@@ -11,6 +11,8 @@ End
 
 Class MoveDownTransition Extends VTransition
 	
+	Field startPoint:Float = 0
+	
 	Method New()
 		Super.New()
 	End
@@ -29,7 +31,7 @@ Class MoveDownTransition Extends VTransition
 		ResetMatrix()
 		ResetBlend()
 		Local progress:Float = Tweening(easingType, Time, 0.0, 1.0, Duration)
-		Translate(0, Vsat.ScreenHeight * progress)
+		Translate(0, Vsat.ScreenHeight * progress + startPoint)
 		scene.OnRender()
 		PopMatrix()
 	End
@@ -44,5 +46,43 @@ Class MoveDownTransition Extends VTransition
 	
 	Private
 	Field scene:VScene
-	Field easingType:Int = EASE_OUT_CIRC
+	Field easingType:Int = EASE_OUT_EXPO
 End
+
+
+Class MoveUpTransition Extends MoveDownTransition
+	
+	Method New()
+		Super.New()
+	End
+	
+	Method New(duration:Float)
+		Super.New(duration)
+	End
+	
+	Method Render:Void()
+		PushMatrix()
+		ResetMatrix()
+		ResetBlend()
+		Local progress:Float = Tweening(easingType, Time, 0.0, 1.0, Duration)
+		Translate(0, -Vsat.ScreenHeight * progress + startPoint)
+		scene.OnRender()
+		PopMatrix()
+	End
+
+End
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

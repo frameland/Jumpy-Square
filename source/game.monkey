@@ -269,7 +269,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method RenderTip:Void()
 		If isFirstTime
 			ResetBlend()
-			Color.Gray.Use()
+			Color.Gray.UseWithoutAlpha()
 			If Vsat.transition
 				SetAlpha(Vsat.transition.Progress * 3)
 			Else

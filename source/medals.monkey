@@ -16,6 +16,7 @@ Class Medals
 	Global Scoreman:Int
 	Global NotSurprised:Int
 	Global HalfDead:Int
+	Global Feeder:Int
 
 
 '--------------------------------------------------------------------------
@@ -30,13 +31,15 @@ Class Medals
 ' * Init
 '--------------------------------------------------------------------------
 	Function InitWithKeyValuePair:Void(keyValue:KeyValuePair)
-		DoubleDodge = keyValue.GetInt("Double Dodge")
-		TripleDodge = keyValue.GetInt("Triple Dodge")
-		MultiDodge = keyValue.GetInt("Multi Dodge")
-		CloseOne = keyValue.GetInt("Close One")
+		NormalDodge = keyValue.GetInt("Normal-Dodge")
+		DoubleDodge = keyValue.GetInt("Double-Dodge")
+		TripleDodge = keyValue.GetInt("Triple-Dodge")
+		MultiDodge = keyValue.GetInt("Multi-Dodge")
+		CloseOne = keyValue.GetInt("Close-One")
 		Scoreman = keyValue.GetInt("Scoreman")
 		NotSurprised = keyValue.GetInt("Not Surprised")
 		HalfDead = keyValue.GetInt("Half-Dead")
+		Feeder = keyValue.GetInt("Feeder")
 	End
 	
 
@@ -91,7 +94,6 @@ Class Medals
 	Function OnScoreChange:Void(gameScene:GameScene)
 		NormalDodge += 1
 		FireEvent("Normal-Dodge")
-		
 		
 		'Double/Triple/Multi Dodge
 		MedalState.LastScoreTime.Push(Vsat.Seconds)
@@ -187,6 +189,34 @@ Class Medals
 			FireEvent("Scoreman")
 		End
 		
+	End
+
+'--------------------------------------------------------------------------
+' * Helpers
+'--------------------------------------------------------------------------
+	Function HowManyOf:Int(medalName:String)
+		Select medalName
+			Case "Normal-Dodge"
+				Return NormalDodge
+			Case "Double-Dodge"
+				Return DoubleDodge
+			Case "Triple-Dodge"
+				Return TripleDodge
+			Case "Multi-Dodge"
+				Return MultiDodge
+			Case "Close One"
+				Return CloseOne
+			Case "Half-Dead"
+				Return HalfDead
+			Case "Not Surprised"
+				Return NotSurprised
+			Case "Scoreman"
+				Return Scoreman
+			Case "Feeder"
+				Return Feeder
+			Default
+				Throw New Exception("False medal name: " + medalName)
+		End
 	End
 	
 	

@@ -5,7 +5,7 @@ Import game
 Import extra
 Import particles
 Import particlebg
-
+Import medalscene
 
 Class MainMenu Extends VScene Implements VActionEventHandler
 	
@@ -15,6 +15,12 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 ' * Init & Helpers
 '--------------------------------------------------------------------------
 	Method OnInit:Void()
+		If initialized
+			IntroAnimationWhenAlreadyInitialized()
+			Return
+		End
+		initialized = True
+		
 		font = New AngelFont
 		font.LoadFromXml("lane_narrow")
 		fontBig = New AngelFont
@@ -49,6 +55,11 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		
 	End
 	
+	Method IntroAnimationWhenAlreadyInitialized:Void()
+		backgroundEffect.emitter.size.Set(Vsat.ScreenWidth2/15, Vsat.ScreenWidth2/15)
+	End
+	
+	
 	Method AddAction:Void(action:VAction)
 		action.AddToList(actions)
 		action.SetListener(Self)
@@ -61,8 +72,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Method OnUpdate:Void(dt:Float)
 		VAction.UpdateList(actions, dt)
 		UpdateCursor()
-		UpdateEnemySpawning(dt)
-		UpdateEnemies(dt)
+		'UpdateEnemySpawning(dt)
+		'UpdateEnemies(dt)
 		UpdateParticles(dt)
 	End
 	
@@ -132,7 +143,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		End
 		
 		If Vsat.IsActiveScene(Self) Then backgroundEffect.Render()
-		RenderEnemies()
+		'RenderEnemies()
 		RenderHighscore()
 		RenderTitle()
 		RenderMenu()
@@ -223,8 +234,10 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Select item.text
 			Case "Play"
 				GoToGame()
-			Case "Stats"
-				GoToStats()
+			Case "Medals"
+				GoToMedals()
+			Case "GameCenter"
+				
 		End
 	End
 	
@@ -240,8 +253,16 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Vsat.ChangeScene(game)
 	End
 	
-	Method GoToStats:Void()
+	Method GoToMedals:Void()
+		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+			Return
+		End
 		
+		Vsat.SaveToClipboard(Self, "MainMenu")
+		Vsat.SaveToClipboard(Self.backgroundEffect, "BgEffect")
+		Self.shouldClearScreen = False
+		Local medals:= New MedalScene
+		Vsat.ChangeScene(medals)
 	End
 	
 	
@@ -249,6 +270,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 ' * Private
 '--------------------------------------------------------------------------
 	Private
+	Field initialized:Bool
+	
 	Field font:AngelFont
 	Field fontBig:AngelFont
 	
@@ -266,7 +289,6 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field actions:List<VAction> = New List<VAction>
 	
 	Field backgroundEffect:ParticleBackground
-	
 End
 
 
