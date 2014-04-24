@@ -14,7 +14,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 	Field player:Player
 	Field enemies:List<Enemy>
-	Field enemyTimer:Float = 2.5
+	Field enemyTimer:Float = 1.0
 	Field gameOver:Bool
 	Field score:Int
 	
@@ -44,13 +44,11 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		medalFeed = New LabelFeed
 		medalFeed.InitWithSizeAndFont(5, "lane_narrow")
-		medalFeed.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.8)
+		medalFeed.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.65)
 		
 		ResetGame()
 		FadeInAnimation()
 		randomTip = GetRandomTip()
-		
-		Vsat.displayFps = True
 	End
 	
 	Method FadeInAnimation:Void()
@@ -132,10 +130,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		UpdateBackgroundEffect(dt)
 		
 		If gameOver
-			If UsedActionKey()
-				FadeInPlayerAnimation(0.25)
-				ResetGame()
-			End
+			UpdateWhileGameOver(dt)
 			Return
 		End
 		
@@ -164,7 +159,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method UpdateBackgroundEffect:Void(dt:Float)
 		If backgroundEffect
 			If gameOver
-				backgroundEffect.Update(dt * 0.25)
+				backgroundEffect.Update(dt * 0.3)
 			Else
 				backgroundEffect.Update(dt)
 			End
@@ -182,7 +177,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			
 		enemyTimer -= dt
 		If enemyTimer <= 0.0
-			enemyTimer = 0.6 + Rnd() * 2
+			enemyTimer = 0.7 + Rnd() * 2.0
 			If HasSurprise()
 				FlashScreenBeforeSurprise()
 				If enemyTimer < 1.2 Then enemyTimer = 1.2
@@ -208,6 +203,15 @@ Class GameScene Extends VScene Implements VActionEventHandler
 				e.hasBeenScored = True
 			End
 		Next
+	End
+	
+	Method UpdateWhileGameOver:Void(dt:Float)
+		If UsedActionKey() And backgroundColor.Equals(Color.NewRed)
+			FadeInPlayerAnimation(0.25)
+			ResetGame()
+			Local fadeColor:= New VFadeToColorAction(backgroundColor, Color.Silver, 0.3, LINEAR_TWEEN)
+			AddAction(fadeColor)
+		End
 	End
 	
 	
@@ -281,11 +285,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method ClearScreen:Void()
-		If gameOver
-			ClearScreenWithColor(Color.NewRed)
-		Else
-			ClearScreenWithColor(Color.Silver)
-		End
+		ClearScreenWithColor(backgroundColor)
 	End
 	
 	
@@ -393,6 +393,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		End
 		Medals.UpdatePostGame(Self)
 		medalFeed.Clear()
+		Local fadeColor:= New VFadeToColorAction(backgroundColor, Color.NewRed, 0.3, LINEAR_TWEEN)
+		AddAction(fadeColor)
 	End
 	
 	Method GotMedal:Void(id:String)
@@ -407,6 +409,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field mainMenuObject:MainMenu
 	Field backgroundEffect:ParticleBackground
 	Field medalFeed:LabelFeed
+	Field backgroundColor:Color = New Color(Color.Silver)
 	
 End
 

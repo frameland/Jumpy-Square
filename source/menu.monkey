@@ -20,8 +20,6 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		fontBig = New AngelFont
 		fontBig.LoadFromXml("lane_narrow_big")
 		
-		Print fontBig.TextHeight("0")
-		
 		titleTopSpacing = Vsat.ScreenHeight * 0.1
 		lineHeight = font.TextHeight("Play") * 1.5
 		
@@ -150,7 +148,6 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Method RenderHighscore:Void()
 		ResetBlend()
 		Color.NewRed.Use()
-		SetAlpha(0.8)
 		
 		PushMatrix()
 			Translate(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.4)

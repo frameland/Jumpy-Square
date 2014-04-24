@@ -122,6 +122,44 @@ Class Medals
 			MedalState.LastScoreTime.Push(c)
 			MedalState.LastScoreTime.Push(b)
 			MedalState.LastScoreTime.Push(a)
+			
+		ElseIf MedalState.LastScoreTime.Length >= 3
+			Local a:Float = MedalState.LastScoreTime.Pop()
+			Local b:Float = MedalState.LastScoreTime.Pop()
+			Local c:Float = MedalState.LastScoreTime.Pop()
+			Local dodged:Bool = False
+			If a - c < TripleDodgeTime
+				TripleDodge += 1
+				FireEvent("Triple-Dodge")
+			End
+			If a - b < DoubleDodgeTime
+				DoubleDodge += 1
+				FireEvent("Double-Dodge")
+			End
+			
+			If MedalState.LastScoreTime.Length > 30
+				MedalState.LastScoreTime.Clear()
+			End
+			
+			MedalState.LastScoreTime.Push(c)
+			MedalState.LastScoreTime.Push(b)
+			MedalState.LastScoreTime.Push(a)
+		
+		ElseIf MedalState.LastScoreTime.Length >= 2
+			Local a:Float = MedalState.LastScoreTime.Pop()
+			Local b:Float = MedalState.LastScoreTime.Pop()
+			Local dodged:Bool = False
+			If a - b < DoubleDodgeTime
+				DoubleDodge += 1
+				FireEvent("Double-Dodge")
+			End
+			
+			If MedalState.LastScoreTime.Length > 30
+				MedalState.LastScoreTime.Clear()
+			End
+			
+			MedalState.LastScoreTime.Push(b)
+			MedalState.LastScoreTime.Push(a)
 		End
 		
 		'Not surprised

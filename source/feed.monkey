@@ -146,6 +146,7 @@ Class LabelFeedItem Extends VLabel
 		If Not medalIcon
 			medalIcon = ImageCache.GetImage("medal.png", Image.MidHandle)
 		End
+		color.Set(Color.Gray)
 	End
 	
 	Method SetFont:Void(font:AngelFont)
@@ -164,8 +165,8 @@ Class LabelFeedItem Extends VLabel
 	
 	Method Draw:Void()
 		If Self.Text
-			#If TARGET <> "html5"
-				Color.NewBlue.UseWithoutAlpha()
+			#If TARGET = "html5"
+				Color.White.UseWithoutAlpha()
 			#End
 			DrawImage(medalIcon, medalX, 4)
 			Super.Draw()
