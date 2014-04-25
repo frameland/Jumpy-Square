@@ -63,8 +63,8 @@ Class Medals
 		End
 		
 		'Double/Triple/Multi Dodge | Not Surprised
-		If gameScene.score <> MedalState.LastScore
-			MedalState.LastScore = gameScene.score
+		If gameScene.dodged <> MedalState.LastScore
+			MedalState.LastScore = gameScene.dodged
 			OnScoreChange(gameScene)
 		End
 		
@@ -173,6 +173,12 @@ Class Medals
 			End
 		Next
 		
+		'Scoreman
+		If MedalState.PreviousHighscore < gameScene.score
+			Scoreman += 1
+			FireEvent("Scoreman")
+		End
+		
 	End
 	
 	Function UpdatePostGame:Void(gameScene:GameScene)
@@ -182,14 +188,8 @@ Class Medals
 		MedalState.LastScoreTime.Clear()
 		MedalState.LastScore = 0
 		MedalState.CouldGoHalfDead = False
-		
-		'Scoreman
-		If MedalState.PreviousHighscore < gameScene.score
-			Scoreman += 1
-			FireEvent("Scoreman")
-		End
-		
 	End
+
 
 '--------------------------------------------------------------------------
 ' * Helpers
@@ -219,6 +219,32 @@ Class Medals
 		End
 	End
 	
+	Function HowMuchPointsFor:Int(medalName:String)
+		Select medalName
+			Case "Normal-Dodge"
+				Return 5
+			Case "Double-Dodge"
+				Return 10
+			Case "Triple-Dodge"
+				Return 15
+			Case "Multi-Dodge"
+				Return 20
+			Case "Close One"
+				Return 5
+			Case "Half-Dead"
+				Return 5
+			Case "Not Surprised"
+				Return 15
+			Case "Scoreman"
+				Return 5
+			Case "Feeder"
+				Return 25
+			Default
+				Throw New Exception("False medal name: " + medalName)
+		End
+	End
+	
+	
 	
 '--------------------------------------------------------------------------
 ' * Private
@@ -228,6 +254,7 @@ Class Medals
 	
 	Function FireEvent:Void(id:String)
 		MedalEvent.id = "medal_" + id
+		MedalEvent.x = HowMuchPointsFor(id)
 		Vsat.FireEvent(MedalEvent)
 	End
 	

@@ -17,9 +17,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field enemyTimer:Float = 1.0
 	Field gameOver:Bool
 	Field score:Int
+	Field targetScore:Int
+	Field dodged:Int
 	
-	Field surpriseChance:Int = 20
-	Field surpriseCounter:Int
 	Field surpriseColor:Color = New Color
 	Field waitForSpurprise:Bool
 	Field surpriseSound:Sound
@@ -42,9 +42,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		surpriseSound = LoadSound("surprise.mp3")
 		
-		medalFeed = New LabelFeed
-		medalFeed.InitWithSizeAndFont(5, "lane_narrow")
-		medalFeed.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.65)
+		InitFeeds()
 		
 		ResetGame()
 		FadeInAnimation()
@@ -97,7 +95,21 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		End
 	End
 	
+	Method InitFeeds:Void()
+		medalFeed = New LabelFeed
+		medalFeed.InitWithSizeAndFont(5, "scorefont")
+		medalFeed.SetIcon("medal.png")
+		medalFeed.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.65)
+		
+		scoreFeed = New LabelFeed
+		scoreFeed.InitWithSizeAndFont(5, "scorefont")
+		scoreFeed.SetAlignment(AngelFont.ALIGN_LEFT, AngelFont.ALIGN_CENTER)
+		scoreFeed.sampleText = "+45"
+		scoreFeed.position.Set(Vsat.ScreenWidth * 0.85, Vsat.ScreenHeight * 0.65 + 8)
+		scoreFeed.lineHeightMultiplier = 0.7
+	End
 	
+
 '--------------------------------------------------------------------------
 ' * Helpers
 '--------------------------------------------------------------------------
@@ -107,7 +119,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method HasSurprise:Bool()
-		Return Rnd() < 0.1 And score >= 8
+		Return Rnd() < 0.1 And dodged >= 5
 	End
 	
 	Method UsedActionKey:Bool()
@@ -143,11 +155,13 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		player.UpdatePhysics(dt)
 		UpdateEnemySpawning(dt)
 		UpdateEnemyPhysics(dt)
-		CheckForScore()
+		CheckForDodged()
 		UpdateCollision()
+		UpdateScore()
 		
 		Medals.Update(Self)
 		medalFeed.Update(dt)
+		scoreFeed.Update(dt)
 	End
 	
 	Method UpdateActions:Void(dt:Float)
@@ -196,13 +210,25 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		Next
 	End
 	
-	Method CheckForScore:Void()
+	Method CheckForDodged:Void()
 		For Local e:= EachIn enemies
 			If Not e.hasBeenScored And e.position.y > player.position.y + player.size.y
-				score += 1
+				dodged += 1
 				e.hasBeenScored = True
 			End
 		Next
+	End
+	
+	Method UpdateScore:Void()
+		If score < targetScore
+			If targetScore - score <= 5
+				If Vsat.Frame Mod 2 = 0
+					score += 1
+				End
+			Else
+				score += 1
+			End
+		End
 	End
 	
 	Method UpdateWhileGameOver:Void(dt:Float)
@@ -226,6 +252,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		RenderEnemies()
 		RenderScore()
 		medalFeed.Render()
+		scoreFeed.Render()
 		
 		RenderScreenFlash()
 		
@@ -240,7 +267,14 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		Else
 			SetAlpha(0.5)
 		End
-		scoreFont.DrawText(score, Vsat.ScreenWidth2, 16, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+		
+		Local scoreRatio:Float = 1.5 - Float(score)/targetScore * 0.5
+		PushMatrix()
+			If score > 0 And targetScore > 0
+				ScaleAt(Vsat.ScreenWidth2, 16 + scoreFont.height/2, scoreRatio, scoreRatio)
+			End
+			scoreFont.DrawText(score, Vsat.ScreenWidth2, 16, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+		PopMatrix()
 	End
 	
 	Method RenderEnemies:Void()
@@ -294,7 +328,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 '--------------------------------------------------------------------------
 	Method HandleEvent:Void(event:VEvent)
 		If event.id.StartsWith("medal_")
-			GotMedal(event.id[6..])
+			GotMedal(event.id[6..], event.x)
 			Return
 		End
 		
@@ -359,6 +393,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method ResetGame:Void()
 		score = 0
+		targetScore = 0
+		dodged = 0
 		gameOver = False
 		
 		player.Reset()
@@ -387,20 +423,36 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method OnGameOver:Void()
 		gameOver = True
+		scoreMannedThisRound = False
+		
 		If score > Highscore
 			Highscore = score
 			NewHighscore()
 		End
+		
 		Medals.UpdatePostGame(Self)
 		medalFeed.Clear()
+		scoreFeed.Clear()
+		
 		Local fadeColor:= New VFadeToColorAction(backgroundColor, Color.NewRed, 0.3, LINEAR_TWEEN)
 		AddAction(fadeColor)
 	End
 	
-	Method GotMedal:Void(id:String)
+	Method GotMedal:Void(id:String, andPoints:Int)
+		If (id = "Scoreman")
+			If scoreMannedThisRound Return
+			scoreMannedThisRound = True
+		End
+		
 		medalFeed.Push(id)
+		scoreFeed.Push("+" + andPoints)
+		targetScore += andPoints
 	End
 	
+
+'--------------------------------------------------------------------------
+' * Private
+'--------------------------------------------------------------------------
 	Private
 	Field randomTip:String
 	Field randomTipAlpha:Float = 1.0
@@ -408,8 +460,13 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field actions:List<VAction> = New List<VAction>
 	Field mainMenuObject:MainMenu
 	Field backgroundEffect:ParticleBackground
+	
 	Field medalFeed:LabelFeed
+	Field scoreFeed:LabelFeed
+	
 	Field backgroundColor:Color = New Color(Color.Silver)
+	
+	Field scoreMannedThisRound:Bool
 	
 End
 

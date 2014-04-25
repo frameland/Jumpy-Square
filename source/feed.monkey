@@ -1,6 +1,7 @@
 Strict
 Import vsat
 
+#rem
 Class LabelScene Extends VScene
 	Field feed:LabelFeed = New LabelFeed
 	
@@ -12,7 +13,7 @@ Class LabelScene Extends VScene
 	Method OnUpdate:Void(dt:Float)
 		feed.Update(dt)
 		If KeyHit(KEY_SPACE) 
-			feed.Push("Double Didge")
+			feed.Push("Double Dodge")
 		End
 		
 	End
@@ -22,11 +23,14 @@ Class LabelScene Extends VScene
 	End
 	
 End
-
+#end
 
 
 
 Class LabelFeed Extends VRect
+	
+	Field lineHeightMultiplier:Float = 1.0
+	Field sampleText:String = "Normal-Dodge" 'half of this texts width will be translated to the left
 	
 	Method New()
 		Super.New(0, 0, 0, 0)
@@ -34,7 +38,7 @@ Class LabelFeed Extends VRect
 	
 	Method InitWithSizeAndFont:Void(initSize:Int, fontName:String)
 		usedFont = FontCache.GetFont(fontName)
-		lineHeight = usedFont.height
+		lineHeight = usedFont.height * 0.9
 		maxItems = initSize
 		items = New LabelFeedItem[maxItems]
 		timeAlive = New Float[maxItems]
@@ -43,6 +47,21 @@ Class LabelFeed Extends VRect
 			items[i].SetFont(usedFont)
 		Next
 	End
+	
+	Method SetIcon:Void(imagePath:String)
+		Local icon:Image = ImageCache.GetImage(imagePath)
+		For Local i:Int = 0 Until maxItems
+			items[i].SetIcon(icon)
+		Next
+	End
+	
+	Method SetAlignment:Void(horizontal:Int, vertical:Int)
+		For Local i:Int = 0 Until maxItems
+			items[i].alignHorizontal = horizontal
+			items[i].alignVertical = vertical
+		Next
+	End
+	
 	
 	Method Push:Void(itemText:String)
 		tempLabels.AddLast(itemText)
@@ -80,16 +99,23 @@ Class LabelFeed Extends VRect
 	
 	Method Render:Void()
 		PushMatrix()
-			Translate(position.x, position.y)
+			Translate(position.x - usedFont.TextWidth(sampleText)/2, position.y)
 			Local offsetY:Float = -lineHeight
+			Local currentScore:Int = 0
 			For Local i:Int = 0 Until maxItems
-				PushMatrix()
-					Translate(0, offsetY + items[0].scale.y * lineHeight)
-					items[i].Render()
-					offsetY += lineHeight
-				PopMatrix()
+				If IsVisible(items[i])
+					PushMatrix()
+						Translate(0, offsetY + items[0].scale.y * lineHeight * lineHeightMultiplier)
+						items[i].Render()
+						offsetY += lineHeight
+					PopMatrix()
+				End
 			Next
 		PopMatrix()
+	End
+	
+	Method IsVisible:Bool(item:LabelFeedItem)
+		Return item.color.Alpha > 0.0 And item.scale.y > 0.0 And item.Text.Length > 0
 	End
 	
 	Method Clear:Void()
@@ -127,7 +153,6 @@ Class LabelFeed Extends VRect
 	Field nextPush:Float = PUSH_MINIMUM_TIME
 	Const PUSH_MINIMUM_TIME:Float = 0.2
 	
-	
 	Field usedFont:AngelFont
 	Field lineHeight:Float
 	
@@ -137,26 +162,25 @@ End
 
 Class LabelFeedItem Extends VLabel
 	
-	Global medalIcon:Image
-	
 	Method New(text:String)
 		Super.New(text)
-		alignHorizontal = AngelFont.ALIGN_CENTER
+		alignHorizontal = AngelFont.ALIGN_LEFT
 		alignVertical = AngelFont.ALIGN_CENTER
-		If Not medalIcon
-			medalIcon = ImageCache.GetImage("medal.png", Image.MidHandle)
-		End
-		color.Set(Color.Gray)
 	End
 	
 	Method SetFont:Void(font:AngelFont)
 		Super.SetFont(font)
-		UpdateMedalXPos()
+		UpdateIconPosition()
+	End
+	
+	Method SetIcon:Void(icon:Image)
+		Self.icon = icon
+		UpdateIconPosition()
 	End
 	
 	Method Text:Void(text:String) Property
 		Super.Text(text)
-		UpdateMedalXPos()
+		UpdateIconPosition()
 	End
 	
 	Method Text:String() Property
@@ -168,16 +192,23 @@ Class LabelFeedItem Extends VLabel
 			#If TARGET = "html5"
 				Color.White.UseWithoutAlpha()
 			#End
-			DrawImage(medalIcon, medalX, 4)
+			If icon
+				DrawImage(icon, iconX, iconY)
+			End
 			Super.Draw()
 		End
 	End
 	
 	Private
-	Field medalX:Float
+	Field iconX:Float
+	Field iconY:Float
+	Field icon:Image
 	
-	Method UpdateMedalXPos:Void()
-		medalX = -size.x * 0.55 - medalIcon.HandleX()
+	Method UpdateIconPosition:Void()
+		If icon
+			iconX = -icon.Width() * 1.2
+			iconY = -icon.Height() * 0.5 + 3
+		End
 	End
 	
 End
