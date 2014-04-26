@@ -4,7 +4,7 @@ Import vsat
 Import source.menu
 Import source.game
 Import source.medalscene
-
+Import source.particles
 
 Function Main:Int()
 	Vsat = New VsatApp

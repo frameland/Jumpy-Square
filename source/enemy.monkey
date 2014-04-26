@@ -1,6 +1,7 @@
 Strict
 Import vsat
 Import particles
+Import extra
 
 Class Enemy Extends VRect
 	
@@ -24,7 +25,7 @@ Class Enemy Extends VRect
 '--------------------------------------------------------------------------
 	Method New()
 		Super.New(0, -Vsat.ScreenHeight/widthRelative, Vsat.ScreenHeight/widthRelative, Vsat.ScreenHeight/widthRelative)
-		color.Set(Color.NewRed)
+		color.Set(Color.White)
 		color.Alpha = 0.0
 		renderOutline = True
 		velocity = New Vec2
@@ -65,8 +66,9 @@ Class Enemy Extends VRect
 	End
 	
 	Method DrawOutline:Void()
-		DrawRectOutline(0, 0, size.x, size.y)
-		DrawRectOutline(-1, -1, size.x+2, size.y+2)
+		DrawGlowRect(0, 0, size.x, size.y)
+		' DrawRectOutline(0, 0, size.x, size.y)
+		' DrawRectOutline(-1, -1, size.x+2, size.y+2)
 	End
 
 	

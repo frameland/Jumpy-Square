@@ -14,7 +14,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 	Field player:Player
 	Field enemies:List<Enemy>
-	Field enemyTimer:Float = 1.0
+	Field enemyTimer:Float = 0.1
 	Field gameOver:Bool
 	Field score:Int
 	Field targetScore:Int
@@ -27,6 +27,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field transitionInDone:Bool = False
 	Field isFirstTime:Bool
 	
+	Field normalBgColor:Color = New Color(Color.Navy)'$bad0d9
+	
 	
 '--------------------------------------------------------------------------
 ' * Init
@@ -35,10 +37,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		player = New Player
 		enemies = New List<Enemy>
 		
-		InitBackgroundEffect()
+		InitEffects()
 		
-		scoreFont = New AngelFont
-		scoreFont.LoadFromXml("lane_narrow")
+		scoreFont = FontCache.GetFont("scorefont")
 		
 		surpriseSound = LoadSound("surprise.mp3")
 		
@@ -61,6 +62,10 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			Local transition:= New MoveDownTransition(1.5)
 			transition.SetScene(Self.mainMenuObject)
 			Vsat.StartFadeIn(transition)
+			
+			backgroundColor.Set(mainMenuObject.backgroundColor)
+			Local fadeColor:= New VFadeToColorAction(backgroundColor, normalBgColor, 0.5, LINEAR_TWEEN)
+			AddAction(fadeColor)
 			
 			FadeInPlayerAnimation(1.5)
 			isFirstTime = True
@@ -87,12 +92,23 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		AddAction(sequence)
 	End
 	
-	Method InitBackgroundEffect:Void()
+	Method InitEffects:Void()
 		Local effect:Object = Vsat.RestoreFromClipboard("BgEffect")
 		If effect
 			backgroundEffect = ParticleBackground(effect)
-			backgroundEffect.emitter.size.Mul(0.5)
 		End
+		
+		Local baseUnit:Float = Vsat.ScreenWidth * 0.5
+		explosionEffect = New ExplosionEmitter
+		explosionEffect.InitWithSize(60)
+		explosionEffect.particleLifeSpan = 0.8
+		explosionEffect.oneShot = True
+		explosionEffect.speed = baseUnit * 4
+		explosionEffect.slowDownSpeed = 0.85
+		explosionEffect.size.Set(baseUnit/20, baseUnit/20)
+		explosionEffect.endSize.Set(baseUnit/500, baseUnit/500)
+		explosionEffect.endColor.Alpha = 0.0
+		explosionEffect.emissionAngleVariance = 360
 	End
 	
 	Method InitFeeds:Void()
@@ -104,8 +120,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		scoreFeed = New LabelFeed
 		scoreFeed.InitWithSizeAndFont(5, "scorefont")
 		scoreFeed.SetAlignment(AngelFont.ALIGN_LEFT, AngelFont.ALIGN_CENTER)
-		scoreFeed.sampleText = "+45"
-		scoreFeed.position.Set(Vsat.ScreenWidth * 0.85, Vsat.ScreenHeight * 0.65 + 8)
+		scoreFeed.sampleText = "+5"
+		scoreFeed.position.Set(Vsat.ScreenWidth * 0.8, Vsat.ScreenHeight * 0.65 + 8)
 		scoreFeed.lineHeightMultiplier = 0.7
 	End
 	
@@ -140,6 +156,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method OnUpdate:Void(dt:Float)
 		UpdateActions(dt)
 		UpdateBackgroundEffect(dt)
+		explosionEffect.Update(dt)
 		
 		If gameOver
 			UpdateWhileGameOver(dt)
@@ -232,10 +249,10 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method UpdateWhileGameOver:Void(dt:Float)
-		If UsedActionKey() And backgroundColor.Equals(Color.NewRed)
+		If UsedActionKey() And backgroundColor.Equals(Color.NewBlack)
 			FadeInPlayerAnimation(0.25)
 			ResetGame()
-			Local fadeColor:= New VFadeToColorAction(backgroundColor, Color.Silver, 0.3, LINEAR_TWEEN)
+			Local fadeColor:= New VFadeToColorAction(backgroundColor, normalBgColor, 0.3, LINEAR_TWEEN)
 			AddAction(fadeColor)
 		End
 	End
@@ -250,6 +267,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		player.Render()
 		RenderEnemies()
+		explosionEffect.Render()
 		RenderScore()
 		medalFeed.Render()
 		scoreFeed.Render()
@@ -261,11 +279,11 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method RenderScore:Void()
 		ResetColor()
-		Color.NewBlack.Use()
+		Color.White.UseWithoutAlpha()
 		If Vsat.transition
-			SetAlpha(Min(Vsat.transition.Progress*2, 0.5))
+			SetAlpha(Min(Vsat.transition.Progress*2, 1.0))
 		Else
-			SetAlpha(0.5)
+			SetAlpha(1.0)
 		End
 		
 		Local scoreRatio:Float = 1.5 - Float(score)/targetScore * 0.5
@@ -286,11 +304,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method RenderGameOver:Void()
 		If gameOver
 			Color.White.Use()
-			If score = 1
-				scoreFont.DrawText("You dodged 1 object", Vsat.ScreenWidth2, Vsat.ScreenHeight2, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
-			Else
-				scoreFont.DrawText("You dodged " + score + " objects", Vsat.ScreenWidth2, Vsat.ScreenHeight2, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
-			End
+			scoreFont.DrawText("Game Over " + score, Vsat.ScreenWidth2, Vsat.ScreenHeight2, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
 		End
 	End
 	
@@ -303,9 +317,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method RenderTip:Void()
 		If isFirstTime
 			ResetBlend()
-			Color.Gray.UseWithoutAlpha()
+			Color.White.UseWithoutAlpha()
 			If Vsat.transition
-				SetAlpha(Vsat.transition.Progress * 3)
+				SetAlpha(Min(Vsat.transition.Progress * 3.0, 1.0))
 			Else
 				randomTipAlpha -= Vsat.DeltaTime * 2
 				If randomTipAlpha <= 0
@@ -425,6 +439,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		gameOver = True
 		scoreMannedThisRound = False
 		
+		score = targetScore
 		If score > Highscore
 			Highscore = score
 			NewHighscore()
@@ -434,8 +449,14 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		medalFeed.Clear()
 		scoreFeed.Clear()
 		
-		Local fadeColor:= New VFadeToColorAction(backgroundColor, Color.NewRed, 0.3, LINEAR_TWEEN)
+		player.color.Alpha = 0.0
+		enemies.Clear()
+		
+		Local fadeColor:= New VFadeToColorAction(backgroundColor, Color.NewBlack, 0.3, LINEAR_TWEEN)
 		AddAction(fadeColor)
+		
+		explosionEffect.position.Set(player.position)
+		explosionEffect.Start()
 	End
 	
 	Method GotMedal:Void(id:String, andPoints:Int)
@@ -458,13 +479,15 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field randomTipAlpha:Float = 1.0
 	Field scoreFont:AngelFont
 	Field actions:List<VAction> = New List<VAction>
+	
 	Field mainMenuObject:MainMenu
 	Field backgroundEffect:ParticleBackground
+	Field explosionEffect:ExplosionEmitter
 	
 	Field medalFeed:LabelFeed
 	Field scoreFeed:LabelFeed
 	
-	Field backgroundColor:Color = New Color(Color.Silver)
+	Field backgroundColor:Color = New Color
 	
 	Field scoreMannedThisRound:Bool
 	

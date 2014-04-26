@@ -26,7 +26,7 @@ Class Player Extends VRect
 '--------------------------------------------------------------------------
 	Method New()
 		Super.New(0, 0, Int(Vsat.ScreenWidth/widthRelative), Int(Vsat.ScreenHeight/heightRelative))
-		color.Set(Color.NewBlue)
+		color.Set(Color.White)
 		renderOutline = True
 		velocity = New Vec2
 		lastPositions = New List<Vec2>
@@ -138,6 +138,7 @@ Class Player Extends VRect
 ' * Render
 '--------------------------------------------------------------------------	
 	Method Render:Void()
+		ResetBlend()
 		If isIntroAnimating And TouchesRightWall()
 			RenderIntroAnimation()
 		Else
@@ -147,11 +148,10 @@ Class Player Extends VRect
 		If Not isJumping And lastPositions.IsEmpty() = False
 			lastPositions.RemoveLast()
 		End
-		'Version1()
-		Version2()
+		Version1()
 	End
 	
-	Method Version1:Void()
+	Method Version2:Void()
 		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
 		Local alphaCounter:Float = 0.5
 		Local previous:Vec2 = position
@@ -169,13 +169,13 @@ Class Player Extends VRect
 		Next
 	End
 	
-	Method Version2:Void()
+	Method Version1:Void()
 		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
 		Local alphaCounter:Float = 0.3
 		Local previous:Vec2 = position
 		For Local vector:= EachIn lastPositions
 			alphaCounter -= incrementAlpha
-			SetAlpha(alphaCounter)
+			SetAlpha(alphaCounter * Self.color.Alpha)
 			PushMatrix()
 			TranslateV(vector)
 			DrawOutline()
@@ -185,8 +185,9 @@ Class Player Extends VRect
 	End
 	
 	Method DrawOutline:Void()
-		DrawRectOutline(0, 0, size.x, size.y)
-		DrawRectOutline(-1, -1, size.x+2, size.y+2)
+		DrawGlowRect(0, 0, size.x, size.y)
+		' DrawRectOutline(0, 0, size.x, size.y)
+		' DrawRectOutline(-1, -1, size.x+2, size.y+2)
 	End
 	
 	Method RenderIntroAnimation:Void()

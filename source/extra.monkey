@@ -8,6 +8,24 @@ Function VPlaySound:Void(sound:Sound, channel:Int = 0)
 	PlaySound(sound, channel)
 End
 
+Function DrawGlowRect:Void(x:Float, y:Float, w:Float, h:Float)
+	If TheGlowImage = Null
+		TheGlowImage = LoadImage("glow.png")
+	End
+	Local imgWidth:Int = TheGlowImage.Width()
+	Local imgHeight:Int = TheGlowImage.Height()
+	Local sx:Float = w / imgWidth
+	Local sy:Float = h / imgHeight
+	DrawImage(TheGlowImage, x, y - imgHeight/2, 0, sx, 1) 'topLeft -> topRight
+	DrawImage(TheGlowImage, x, y + h - imgHeight/2, 0, sx, 1) 'bottomLeft -> bottomRight
+	DrawImage(TheGlowImage, x + imgHeight/2, y, -90, sy, 1) 'topLeft -> bottomLeft
+	DrawImage(TheGlowImage, x + w + imgHeight/2, y, -90, sy, 1) 'topLeft -> bottomLeft
+	SetBlend(AdditiveBlend)
+	DrawRectOutline(x,y,w,h)
+	SetBlend(AlphaBlend)
+End
+
+
 
 Class MoveDownTransition Extends VTransition
 	
@@ -79,10 +97,4 @@ End
 
 
 
-
-
-
-
-
-
-
+Global TheGlowImage:Image

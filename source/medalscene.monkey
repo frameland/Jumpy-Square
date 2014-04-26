@@ -10,7 +10,9 @@ Global globalAlpha:Color = New Color(Color.White)
 
 Public
 Class MedalScene Extends VScene Implements VActionEventHandler
-
+	
+	Field normalBgColor:Color = New Color($1a2d40)
+	
 '--------------------------------------------------------------------------
 ' * Init
 '--------------------------------------------------------------------------	
@@ -39,6 +41,10 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 			Local transition:= New MoveUpTransition(1.2)
 			transition.SetScene(Self.mainMenuObject)
 			Vsat.StartFadeIn(transition)
+			
+			backgroundColor.Set(mainMenuObject.backgroundColor)
+			Local fadeColor:= New VFadeToColorAction(backgroundColor, normalBgColor, 0.5, LINEAR_TWEEN)
+			AddAction(fadeColor)
 		End
 	End
 	
@@ -46,8 +52,6 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		Local effect:Object = Vsat.RestoreFromClipboard("BgEffect")
 		If effect
 			backgroundEffect = ParticleBackground(effect)
-			backgroundEffect.emitter.size.Set(Vsat.ScreenWidth2/15, Vsat.ScreenWidth2/15)
-			backgroundEffect.emitter.speed = 30
 		End
 	End
 	
@@ -88,7 +92,6 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		End
 		
 	End
-	
 	
 	Method AddAction:Void(action:VAction)
 		action.AddToList(actions)
@@ -186,7 +189,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method ClearScreen:Void()
-		ClearScreenWithColor(Color.Silver)
+		ClearScreenWithColor(backgroundColor)
 	End
 	
 
@@ -225,6 +228,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 			back.isDown = True
 			Return
 		End
+		If back.isDown Return
 		
 		If lastTouchDown = False
 			touchStartX = cursor.x + (Vsat.ScreenWidth * (currentSite-1))
@@ -242,6 +246,9 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		transition.startPoint = -Vsat.ScreenHeight
 		transition.SetScene(mainMenuObject)
 		Vsat.ChangeSceneWithTransition(mainMenuObject, transition)
+		
+		Local fadeColor:= New VFadeToColorAction(backgroundColor, mainMenuObject.backgroundColor, 0.5, LINEAR_TWEEN)
+		AddAction(fadeColor)
 	End
 	
 	Method OnActionEvent:Void(id:Int, action:VAction)
@@ -255,6 +262,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	Private
 	Field mainMenuObject:MainMenu
 	Field backgroundEffect:ParticleBackground
+	Field backgroundColor:Color = New Color
 	
 	Field backFont:AngelFont
 	Field descriptionFont:AngelFont
@@ -285,11 +293,11 @@ Private
 Class BackButton Extends VLabel
 	
 	Field isDown:Bool
-	Field downColor:Color = Color.White
+	Field downColor:Color = Color.NewBlue
 	
 	Method New()
 		Super.New("Back")
-		color.Set(Color.NewBlue)
+		color.Set(Color.White)
 		alignVertical = True
 	End
 	
@@ -312,7 +320,7 @@ Class BackButton Extends VLabel
 		Local length:Float = Vsat.ScreenWidth * 0.03
 		Local touchsizeBufferX:Float = (size.x + length) * 0.2
 		Local touchsizeBufferY:Float = size.y * 0.2
-		Return PointInRect(cursor.x, cursor.y, position.x - touchsizeBufferX, position.y - touchsizeBufferX, size.x+touchsizeBufferX*2, size.y+touchsizeBufferY*2)
+		Return PointInRect(cursor.x, cursor.y, position.x, position.y - size.y/2 - touchsizeBufferY, size.x+touchsizeBufferX*2, size.y+touchsizeBufferY*2)
 	End
    	    
    	    
@@ -322,6 +330,7 @@ End
 Class CustomMedalItem Extends MedalItem
 	Method New(name:String, fileName:String)
 		Super.New(name, fileName)
+		color.Set(Color.White)
 	End
 	
 	Method Draw:Void()

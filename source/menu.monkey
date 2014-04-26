@@ -10,6 +10,8 @@ Import medalscene
 Class MainMenu Extends VScene Implements VActionEventHandler
 	
 	Const TITLE:String = "Jumpy Square"
+	Field backgroundColor:Color = New Color($10273f)
+	
 	
 '--------------------------------------------------------------------------
 ' * Init & Helpers
@@ -21,10 +23,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		End
 		initialized = True
 		
-		font = New AngelFont
-		font.LoadFromXml("lane_narrow")
-		fontBig = New AngelFont
-		fontBig.LoadFromXml("lane_narrow_big")
+		font = FontCache.GetFont("lane_narrow")
+		fontBig = FontCache.GetFont("lane_narrow_big")
 		
 		titleTopSpacing = Vsat.ScreenHeight * 0.1
 		lineHeight = font.TextHeight("Play") * 1.5
@@ -151,14 +151,14 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	
 	Method RenderTitle:Void()
 		ResetBlend()
-		Color.NewBlack.Use()
+		Color.White.Use()
 		SetAlpha(0.7)
 		fontBig.DrawText(TITLE, Vsat.ScreenWidth2, titleTopSpacing, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
 	End
 	
 	Method RenderHighscore:Void()
 		ResetBlend()
-		Color.NewRed.Use()
+		Color.NewBlue.Use()
 		
 		PushMatrix()
 			Translate(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.4)
@@ -190,7 +190,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	Method ClearScreen:Void()
-		ClearScreenWithColor(Color.Silver)
+		ClearScreenWithColor(backgroundColor)
 	End
 	
 	
@@ -289,6 +289,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field actions:List<VAction> = New List<VAction>
 	
 	Field backgroundEffect:ParticleBackground
+	
 End
 
 
@@ -303,7 +304,7 @@ Class MenuItem Extends VRect
 	
 	Method New(withText:String, withFont:AngelFont)
 		Super.New(0, 0, 100, 20)
-		color.Set(Color.Gray)
+		color.Set(Color.White)
 		usedFont = withFont
 		text = withText
 		size.x = usedFont.TextWidth(text)

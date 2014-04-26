@@ -74,14 +74,13 @@ Class Medals
 			Local counter:Int
 			For Local v:= EachIn gameScene.player.lastPositions
 				MedalState.playerCopy.position.Set(v)
-				
+
 				If (e.wasClose = False) And (e.collidedWithPlayer = False) And MedalState.playerCopy.CollidesWith(e)
 					e.wasClose = True
-					CloseOne += 1
-					FireEvent("Close One")
+					MedalState.CouldBeClose = True
 					Exit
 				End
-				
+
 				counter += 1
 				If counter > gameScene.player.maxPositions/2
 					Exit
@@ -92,8 +91,17 @@ Class Medals
 	End
 
 	Function OnScoreChange:Void(gameScene:GameScene)
+		'Normal Dodge
 		NormalDodge += 1
 		FireEvent("Normal-Dodge")
+		
+		'Close One
+		If MedalState.CouldBeClose
+			CloseOne += 1
+			FireEvent("Close One")
+			MedalState.CouldBeClose = False
+		End
+		
 		
 		'Double/Triple/Multi Dodge
 		MedalState.LastScoreTime.Push(Vsat.Seconds)
@@ -188,6 +196,7 @@ Class Medals
 		MedalState.LastScoreTime.Clear()
 		MedalState.LastScore = 0
 		MedalState.CouldGoHalfDead = False
+		MedalState.CouldBeClose = False
 	End
 
 
@@ -267,6 +276,7 @@ End
 Private
 Class MedalState
 	Global CouldGoHalfDead:Bool
+	Global CouldBeClose:Bool
 	Global PreviousHighscore:Int
 	Global LastScoreTime:FloatStack = New FloatStack
 	Global LastScore:Int

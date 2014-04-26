@@ -31,7 +31,10 @@ Class LabelFeed Extends VRect
 	
 	Field lineHeightMultiplier:Float = 1.0
 	Field sampleText:String = "Normal-Dodge" 'half of this texts width will be translated to the left
-	
+
+'--------------------------------------------------------------------------
+' * Init
+'--------------------------------------------------------------------------	
 	Method New()
 		Super.New(0, 0, 0, 0)
 	End
@@ -47,7 +50,11 @@ Class LabelFeed Extends VRect
 			items[i].SetFont(usedFont)
 		Next
 	End
-	
+
+
+'--------------------------------------------------------------------------
+' * Settings
+'--------------------------------------------------------------------------	
 	Method SetIcon:Void(imagePath:String)
 		Local icon:Image = ImageCache.GetImage(imagePath)
 		For Local i:Int = 0 Until maxItems
@@ -62,11 +69,33 @@ Class LabelFeed Extends VRect
 		Next
 	End
 	
+	Method SetColor:Void(color:Color)
+		For Local i:Int = 0 Until maxItems
+			items[i].color.Set(color)
+		Next
+	End
 	
+	
+'--------------------------------------------------------------------------
+' * Do
+'--------------------------------------------------------------------------	
 	Method Push:Void(itemText:String)
 		tempLabels.AddLast(itemText)
 	End
 	
+	Method Clear:Void()
+		For Local i:Int = 0 Until maxItems
+			items[i].Text = ""
+			items[i].scale.y = 0.0
+			items[i].color.Alpha = 0.0
+			timeAlive[i] = 0.0
+		Next
+	End
+
+
+'--------------------------------------------------------------------------
+' * Update / Render
+'--------------------------------------------------------------------------
 	Method Update:Void(dt:Float)
 		If Not tempLabels.IsEmpty()
 			nextPush -= dt
@@ -118,16 +147,35 @@ Class LabelFeed Extends VRect
 		Return item.color.Alpha > 0.0 And item.scale.y > 0.0 And item.Text.Length > 0
 	End
 	
-	Method Clear:Void()
+'--------------------------------------------------------------------------
+' * Properties
+'--------------------------------------------------------------------------
+	Method Width:Float() Property
+		Local w:Float = 0
 		For Local i:Int = 0 Until maxItems
-			items[i].Text = ""
-			items[i].scale.y = 0.0
-			items[i].color.Alpha = 0.0
-			timeAlive[i] = 0.0
+			If Not IsVisible(items[i])
+				Exit
+			End
+			w = Max(w, items[i].size.x)
 		Next
+		Return w
+	End
+	
+	Method Height:Float() Property
+		Local h:Float = 0
+		For Local i:Int = 0 Until maxItems
+			If Not IsVisible(items[i])
+				Exit
+			End
+			h = Max(h, items[i].size.y)
+		Next
+		Return h
 	End
 	
 	
+'--------------------------------------------------------------------------
+' * Private
+'--------------------------------------------------------------------------
 	Private
 	Method InitRealPush:Void(itemText:String)
 		Local lastItem:= items[maxItems-1]

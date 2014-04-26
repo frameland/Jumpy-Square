@@ -3,26 +3,26 @@ Import vsat
 
 Class ParticleScene Extends VScene
 	
-	Field emitter:ParticleEmitter
+	Field emitter:ExplosionEmitter
 	
 	Method OnInit:Void()
 		Local baseUnit:Float = Vsat.ScreenWidth * 0.5
-		emitter = New ParticleEmitter
-		emitter.InitWithSize(80)
-		emitter.particleLifeSpan = 2.5
-		emitter.particleLifeSpanVariance = 1.0
+		emitter = New ExplosionEmitter
+		emitter.InitWithSize(60)
+		emitter.particleLifeSpan = 0.8
+		emitter.oneShot = True
+		
 		emitter.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight2)
-		emitter.positionVariance.Set(baseUnit * 0.3, baseUnit * 0.3)
-		emitter.speed = baseUnit * 0.4
-		emitter.size.Set(baseUnit/8, baseUnit/8)
-		emitter.endSize.Set(baseUnit/4, baseUnit/4)
+		emitter.speed = baseUnit * 4
+		emitter.slowDownSpeed = 0.85
+		emitter.size.Set(baseUnit/20, baseUnit/20)
+		emitter.endSize.Set(baseUnit/500, baseUnit/500)
 		emitter.endColor.Alpha = 0.0
-		emitter.emissionAngleVariance = 180
-		emitter.emissionRate = 50
+		emitter.emissionAngleVariance = 360
+		
 	End
 	
 	Method OnUpdate:Void(dt:Float)
-		emitter.speed = Sin(Vsat.Seconds() * 360) * 10 + 5
 		emitter.Update(dt)
 		If KeyHit(KEY_SPACE)
 			emitter.Start()
@@ -34,11 +34,74 @@ Class ParticleScene Extends VScene
 	End
 	
 	Method ClearScreen:Void()
-		ClearScreenWithColor(Color.Silver)
+		ClearScreenWithColor(Color.NewBlack)
 	End
 	
 	
 End
+
+
+
+Class ExplosionEmitter Extends ParticleEmitter
+	
+	Field slowDownSpeed:Float = 0.92
+	
+	Method Stop:Void()
+		For Local i:Int = 0 Until Particles.Length
+			Local p:= Particles[i]
+			Local newAngle:Float = emissionAngleVariance / Particles.Length * (i+1)
+			p.SetDirectionUsingAngle(newAngle, p.speed)
+		Next
+		Super.Stop()
+	End
+	
+	Method UpdateParticles:Void(dt:Float)
+		Local i:Int = 0
+		Local currentParticle:Particle
+
+		While (i < particleCount)
+			currentParticle = Particles[i]
+			currentParticle.lifeTime -= dt
+			
+			If currentParticle.lifeTime > 0
+				'Position
+				currentParticle.position.x += (currentParticle.direction.x + gravity.x) * dt
+				currentParticle.position.y += (currentParticle.direction.y + gravity.y) * dt
+				
+				'Speed
+				currentParticle.ChangeSpeed(currentParticle.speed * slowDownSpeed)
+				
+				'Size
+				currentParticle.size.x += currentParticle.deltaSize.x * dt
+				currentParticle.size.y += currentParticle.deltaSize.y * dt
+				
+				'Angle
+				currentParticle.rotation += currentParticle.deltaRotation * dt
+
+				'Color
+				currentParticle.color.Red   += currentParticle.deltaColor[0] * dt
+				currentParticle.color.Green += currentParticle.deltaColor[1] * dt
+				currentParticle.color.Blue  += currentParticle.deltaColor[2] * dt
+				currentParticle.color.Alpha += currentParticle.deltaColor[3] * dt
+				
+				'Increase Particle Counter
+				i += 1
+				
+			'Particle dies + last particle replaces it's position in the array
+			'This way the active particles are always at the beginning of the array
+			Else
+				If (i <> particleCount-1)
+					Local tmp:Particle = Particles[i]
+					Particles[i] = Particles[particleCount-1]
+					Particles[particleCount-1] = tmp
+				End
+				particleCount -= 1
+			End
+		End
+	End
+	
+End
+
 
 
 Class ParticleEmitter
@@ -221,16 +284,12 @@ Class ParticleEmitter
 			elapsedTime += dt
 			If elapsedTime < emitDelay Return
 			
-			'OneShot Particles will only be created when there are 0 particles alive
 			If oneShot
-				If particleCount = 0
-					Local shootNr:Int = Min(maxParticles, emissionRate)
-					While (particleCount < shootNr)
-						AddParticle()
-					Wend
-					If (duration <> -1) Then Stop()
-				End
-					
+				Local shootNr:Int = Particles.Length
+				While (particleCount < shootNr)
+					AddParticle()
+				Wend
+				Stop()
 			Else
 				Local rate:Float = 1.0/emissionRate
 				emitCounter += dt
@@ -307,12 +366,14 @@ Class ParticleEmitter
 			PushMatrix()
 			currentParticle = Particles[i]
 			TranslateV(currentParticle.position)
-			Rotate(currentParticle.rotation)
+			If currentParticle.rotation
+				Rotate(currentParticle.rotation)
+			End
 			'ScaleV(currentParticle.size)
 			
 			currentParticle.color.UseWithoutAlpha()
 			SetAlpha(currentParticle.color.Alpha)
-			DrawRect(0, 0, currentParticle.size.x, currentParticle.size.y)
+			DrawRect(-currentParticle.size.x/2, -currentParticle.size.y/2, currentParticle.size.x, currentParticle.size.y)
 			PopMatrix()
 		Next
 	End
