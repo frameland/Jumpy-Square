@@ -8,8 +8,12 @@ Class Enemy Extends VRect
 	Field velocity:Vec2
 	Field gravity:Float = Vsat.ScreenHeight / 38
 	Field link:ListNode<Enemy>
-	Field widthRelative:Float = 9.6
+	Field widthRelative:Float = 6.4
 	Field collidedWithPlayer:Bool
+	Field image:Image
+	
+	Field lastPositions:List<Vec2> = New List<Vec2>
+	Field maxPositions:Int = 5
 	
 '--------------------------------------------------------------------------
 ' * helpers for medals, etc.
@@ -24,11 +28,24 @@ Class Enemy Extends VRect
 ' * Init & Helpers
 '--------------------------------------------------------------------------
 	Method New()
-		Super.New(0, -Vsat.ScreenHeight/widthRelative, Vsat.ScreenHeight/widthRelative, Vsat.ScreenHeight/widthRelative)
-		color.Set(Color.White)
+		Super.New(0, -Vsat.ScreenWidth/widthRelative, Vsat.ScreenWidth/widthRelative, Vsat.ScreenWidth/widthRelative)
+		color.Set(Color.Orange)
 		color.Alpha = 0.0
 		renderOutline = True
 		velocity = New Vec2
+		InitImageAndHandle()
+	End
+	
+	Method InitImageAndHandle:Void()
+		Select Vsat.ScreenHeight
+			Case 960, 1136
+				image = ImageCache.GetImage(RealPath("enemy.png"))
+				image.SetHandle(6, 6)
+			Case 1024
+				
+			Case 2048
+				
+		End
 	End
 	
 	Method SetLeft:Void()
@@ -48,6 +65,8 @@ Class Enemy Extends VRect
 ' * Update & Render
 '--------------------------------------------------------------------------	
 	Method UpdatePhysics:Void(dt:Float)
+		UpdateLastPosition()
+		
 		If color.Alpha < 1
 			color.Alpha += 2 * dt
 		End
@@ -65,10 +84,35 @@ Class Enemy Extends VRect
 		End
 	End
 	
+	Method UpdateLastPosition:Void()
+		lastPositions.AddFirst(New Vec2(position))
+		If lastPositions.Count() > maxPositions
+			lastPositions.RemoveLast()
+		End
+	End
+	
+	Method Render:Void()
+		Super.Render()
+		
+		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
+		Local alphaCounter:Float = 0.2
+		Local previous:Vec2 = position
+		For Local vector:= EachIn lastPositions
+			alphaCounter -= incrementAlpha
+			Local multiplier:Float = alphaCounter * Self.color.Alpha
+			SetAlpha(multiplier)
+			PushMatrix()
+			TranslateV(vector)
+			DrawOutline()
+			PopMatrix()
+			previous = vector
+			
+		Next
+	End
+	
+	
 	Method DrawOutline:Void()
-		DrawGlowRect(0, 0, size.x, size.y)
-		' DrawRectOutline(0, 0, size.x, size.y)
-		' DrawRectOutline(-1, -1, size.x+2, size.y+2)
+		DrawImage(image, 0, 0)
 	End
 
 	

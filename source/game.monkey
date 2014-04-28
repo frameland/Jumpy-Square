@@ -6,11 +6,12 @@ Import enemy
 Import menu
 Import medals
 Import feed
+Import back
 
 
 Class GameScene Extends VScene Implements VActionEventHandler
 
-	Global Highscore:Int = 23
+	Global Highscore:Int = 0
 		
 	Field player:Player
 	Field enemies:List<Enemy>
@@ -22,12 +23,16 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Field surpriseColor:Color = New Color
 	Field waitForSpurprise:Bool
+	Field lastSurpriseRound:Int
 	Field surpriseSound:Sound
 	
 	Field transitionInDone:Bool = False
 	Field isFirstTime:Bool
 	
-	Field normalBgColor:Color = New Color(Color.Navy)'$bad0d9
+	Field scoreMannedThisRound:Bool
+	
+	Field normalBgColor:Color = New Color(Color.Navy)
+	Field gameOverColor:Color = New Color($000b15)
 	
 	
 '--------------------------------------------------------------------------
@@ -39,9 +44,15 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		InitEffects()
 		
-		scoreFont = FontCache.GetFont("scorefont")
+		scoreFont = FontCache.GetFont(RealPath("fontGlow"))
 		
-		surpriseSound = LoadSound("surprise.mp3")
+		surpriseSound = LoadSound("audio/surprise.mp3")
+		
+		backButton = New BackButton
+		backButton.SetFont(RealPath("font2"))
+		backButton.color.Alpha = 0.0
+		
+		globalAlpha.Alpha = 1.0
 		
 		InitFeeds()
 		
@@ -113,12 +124,12 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method InitFeeds:Void()
 		medalFeed = New LabelFeed
-		medalFeed.InitWithSizeAndFont(5, "scorefont")
-		medalFeed.SetIcon("medal.png")
+		medalFeed.InitWithSizeAndFont(5, RealPath("fontGlow"))
+		medalFeed.SetIcon(RealPath("medal.png"))
 		medalFeed.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.65)
 		
 		scoreFeed = New LabelFeed
-		scoreFeed.InitWithSizeAndFont(5, "scorefont")
+		scoreFeed.InitWithSizeAndFont(5, RealPath("fontGlow"))
 		scoreFeed.SetAlignment(AngelFont.ALIGN_LEFT, AngelFont.ALIGN_CENTER)
 		scoreFeed.sampleText = "+5"
 		scoreFeed.position.Set(Vsat.ScreenWidth * 0.8, Vsat.ScreenHeight * 0.65 + 8)
@@ -135,7 +146,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method HasSurprise:Bool()
-		Return Rnd() < 0.1 And dodged >= 5
+		Return Rnd() < 0.1 And dodged >= 5 And lastSurpriseRound > 1
 	End
 	
 	Method UsedActionKey:Bool()
@@ -155,6 +166,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 '--------------------------------------------------------------------------
 	Method OnUpdate:Void(dt:Float)
 		UpdateActions(dt)
+		UpdateCursor()
 		UpdateBackgroundEffect(dt)
 		explosionEffect.Update(dt)
 		
@@ -187,6 +199,18 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		Next
 	End
 	
+	Method UpdateCursor:Void()
+		If TouchDown()
+			lastTouchDown = True
+			OnMouseDown()
+		Else
+			If lastTouchDown
+				OnMouseUp()
+			End
+			lastTouchDown = False
+		End
+	End
+	
 	Method UpdateBackgroundEffect:Void(dt:Float)
 		If backgroundEffect
 			If gameOver
@@ -208,6 +232,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			
 		enemyTimer -= dt
 		If enemyTimer <= 0.0
+			lastSurpriseRound += 1
 			enemyTimer = 0.7 + Rnd() * 2.0
 			If HasSurprise()
 				FlashScreenBeforeSurprise()
@@ -249,11 +274,17 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method UpdateWhileGameOver:Void(dt:Float)
-		If UsedActionKey() And backgroundColor.Equals(Color.NewBlack)
+		If backButton.color.Alpha < 1.0
+			backButton.color.Alpha += dt * 4
+		End
+		
+		If UsedActionKey() And backgroundColor.Equals(gameOverColor) And backButton.isDown = False
 			FadeInPlayerAnimation(0.25)
 			ResetGame()
 			Local fadeColor:= New VFadeToColorAction(backgroundColor, normalBgColor, 0.3, LINEAR_TWEEN)
 			AddAction(fadeColor)
+			Local fadeBack:= New VFadeToAlphaAction(backButton.color, 0.0, 0.2, LINEAR_TWEEN)
+			AddAction(fadeBack)
 		End
 	End
 	
@@ -265,6 +296,15 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		If backgroundEffect Then backgroundEffect.Render()
 		RenderTip()
 		
+		If Vsat.IsChangingScenes()
+			If MoveUpTransition(Vsat.transition)
+				Local transition:= MoveUpTransition(Vsat.transition)
+				If transition.startPoint > 0
+					Translate(0, -Vsat.ScreenHeight * Vsat.transition.Progress * 0.2)
+				End
+			End
+		End
+		
 		player.Render()
 		RenderEnemies()
 		explosionEffect.Render()
@@ -275,6 +315,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		RenderScreenFlash()
 		
 		RenderGameOver()
+		backButton.Render()
 	End
 	
 	Method RenderScore:Void()
@@ -304,7 +345,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method RenderGameOver:Void()
 		If gameOver
 			Color.White.Use()
-			scoreFont.DrawText("Game Over " + score, Vsat.ScreenWidth2, Vsat.ScreenHeight2, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
+			SetAlpha(globalAlpha.Alpha)
+			scoreFont.DrawText("Tap to play again", Vsat.ScreenWidth2, Vsat.ScreenHeight2, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
 		End
 	End
 	
@@ -377,6 +419,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method Surprise:Void()
 		waitForSpurprise = False
+		lastSurpriseRound = 0
 		Local rand:Float = Rnd()
 		If rand < 0.5
 			Local e:= New Enemy
@@ -432,7 +475,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		sequence.AddAction(fadeOut)
 		AddAction(sequence)
 		
-		VPlaySound(surpriseSound)
+		VPlaySound(surpriseSound, 30)
 	End
 	
 	Method OnGameOver:Void()
@@ -452,11 +495,13 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		player.color.Alpha = 0.0
 		enemies.Clear()
 		
-		Local fadeColor:= New VFadeToColorAction(backgroundColor, Color.NewBlack, 0.3, LINEAR_TWEEN)
+		Local fadeColor:= New VFadeToColorAction(backgroundColor, gameOverColor, 0.2, LINEAR_TWEEN)
 		AddAction(fadeColor)
 		
 		explosionEffect.position.Set(player.position)
 		explosionEffect.Start()
+		
+		backButton.color.Alpha = 0.0
 	End
 	
 	Method GotMedal:Void(id:String, andPoints:Int)
@@ -469,6 +514,40 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		scoreFeed.Push("+" + andPoints)
 		targetScore += andPoints
 	End
+	
+	Method OnMouseUp:Void()
+		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
+		If backButton.isDown
+			backButton.isDown = False
+			If backButton.WasTouched(cursor)
+				OnBackClicked()
+			End
+			Return
+		End
+	End
+	
+	Method OnMouseDown:Void()
+		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
+		If backButton.WasTouched(cursor)
+			backButton.isDown = True
+		End
+	End
+	
+	Method OnBackClicked:Void()
+		If gameOver
+			If Vsat.transition Return
+			AddAction(New VFadeToAlphaAction(globalAlpha, 0.0, 0.5, EASE_OUT_EXPO))
+			mainMenuObject.shouldClearScreen = True
+			Local transition:= New MoveUpTransition(0.7)
+			transition.startPoint = Vsat.ScreenHeight
+			transition.SetScene(mainMenuObject)
+			Vsat.ChangeSceneWithTransition(mainMenuObject, transition)
+
+			Local fadeColor:= New VFadeToColorAction(backgroundColor, mainMenuObject.backgroundColor, 0.5, LINEAR_TWEEN)
+			AddAction(fadeColor)
+		End
+	End
+	
 	
 
 '--------------------------------------------------------------------------
@@ -489,7 +568,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Field backgroundColor:Color = New Color
 	
-	Field scoreMannedThisRound:Bool
+	Field backButton:BackButton
+	
+	Field lastTouchDown:Bool
 	
 End
 

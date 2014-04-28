@@ -2,16 +2,12 @@ Strict
 Import vsat
 Import menu
 Import medalitem
+Import back
 
 
-Private
-Global globalAlpha:Color = New Color(Color.White)
-
-
-Public
 Class MedalScene Extends VScene Implements VActionEventHandler
 	
-	Field normalBgColor:Color = New Color($1a2d40)
+	Field normalBgColor:Color = New Color($080d11)
 	
 '--------------------------------------------------------------------------
 ' * Init
@@ -20,13 +16,12 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		InitMenuTransition()
 		InitBackgroundEffect()
 		
-		backFont = FontCache.GetFont("lane_narrow")
-		descriptionFont = FontCache.GetFont("lane_narrow")
-		timesFont = FontCache.GetFont("lane_narrow_big")
+		backFont = FontCache.GetFont(RealPath("font2"))
+		descriptionFont = FontCache.GetFont(RealPath("font"))
+		MedalItem.font = descriptionFont
 		
 		back = New BackButton
 		back.SetFont(backFont)
-		back.position.Set(Vsat.ScreenWidth * 0.05, Vsat.ScreenWidth * 0.08)
 		
 		globalAlpha.Alpha = 0.0
 		AddAction(New VFadeToAlphaAction(globalAlpha, 1.0, 0.7, LINEAR_TWEEN))
@@ -57,13 +52,13 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	
 	Method InitMedals:Void()
 		medalItems = New CustomMedalItem[8]
-		medalItems[0] = New CustomMedalItem("Double-Dodge", "double_dodge.png")
-		medalItems[1] = New CustomMedalItem("Triple-Dodge", "triple_dodge.png")
-		medalItems[2] = New CustomMedalItem("Multi-Dodge", "multi_dodge.png")
-		medalItems[3] = New CustomMedalItem("Close One", "close_one.png")
-		medalItems[4] = New CustomMedalItem("Not Surprised", "not_surprised.png")
-		medalItems[5] = New CustomMedalItem("Half-Dead", "half_dead.png")
-		medalItems[6] = New CustomMedalItem("Normal-Dodge", "normal_dodge.png")
+		medalItems[0] = New CustomMedalItem("Normal-Dodge", "normal_dodge.png")
+		medalItems[1] = New CustomMedalItem("Double-Dodge", "double_dodge.png")
+		medalItems[2] = New CustomMedalItem("Triple-Dodge", "triple_dodge.png")
+		medalItems[3] = New CustomMedalItem("Multi-Dodge", "multi_dodge.png")
+		medalItems[4] = New CustomMedalItem("Close One", "close_one.png")
+		medalItems[5] = New CustomMedalItem("Not Surprised", "not_surprised.png")
+		medalItems[6] = New CustomMedalItem("Half-Dead", "half_dead.png")
 		medalItems[7] = New CustomMedalItem("Scoreman", "scoreman.png")
 		
 		Local hasWideScreen:Bool = Vsat.ScreenWidth / Vsat.ScreenHeight > 0.74
@@ -72,11 +67,11 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		Else 'iPhone
 			Local x1:Float = Int(Vsat.ScreenWidth * 0.3)
 			Local x2:Float = Int(Vsat.ScreenWidth * 0.7)
-			Local y:Float = (Vsat.ScreenHeight - medalItems[0].Height * 3 + medalItems[0].Height/2)/2
+			Local y:Float
 
 			For Local i:Int = 0 Until medalItems.Length
 				If i Mod 6 = 0
-					y = (Vsat.ScreenHeight - medalItems[0].Height * 3 + medalItems[0].Height/2)/2
+					y = (Vsat.ScreenHeight - medalItems[0].Height * 3.25)/2
 				End
 				Local item:= medalItems[i]
 				item.position.y = Int(y)
@@ -266,7 +261,6 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	
 	Field backFont:AngelFont
 	Field descriptionFont:AngelFont
-	Field timesFont:AngelFont
 
 	Field back:BackButton
 	
@@ -290,43 +284,6 @@ End
 
 
 Private
-Class BackButton Extends VLabel
-	
-	Field isDown:Bool
-	Field downColor:Color = Color.NewBlue
-	
-	Method New()
-		Super.New("Back")
-		color.Set(Color.White)
-		alignVertical = True
-	End
-	
-	Method Draw:Void()
-		If isDown
-			downColor.UseWithoutAlpha()
-		End
-		SetAlpha(color.Alpha * globalAlpha.Alpha)
-		
-		Local length:Float = Vsat.ScreenWidth * 0.03
-		PushMatrix()
-		Translate(length * 1.1, -6)
-		Super.Draw()
-		PopMatrix()
-		DrawLine(0, 0, length * 0.75, -length)
-		DrawLine(0, 0, length * 0.75, length)
-	End
-	
-	Method WasTouched:Bool(cursor:Vec2)
-		Local length:Float = Vsat.ScreenWidth * 0.03
-		Local touchsizeBufferX:Float = (size.x + length) * 0.2
-		Local touchsizeBufferY:Float = size.y * 0.2
-		Return PointInRect(cursor.x, cursor.y, position.x, position.y - size.y/2 - touchsizeBufferY, size.x+touchsizeBufferX*2, size.y+touchsizeBufferY*2)
-	End
-   	    
-   	    
-End
-
-
 Class CustomMedalItem Extends MedalItem
 	Method New(name:String, fileName:String)
 		Super.New(name, fileName)

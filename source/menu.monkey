@@ -10,7 +10,7 @@ Import medalscene
 Class MainMenu Extends VScene Implements VActionEventHandler
 	
 	Const TITLE:String = "Jumpy Square"
-	Field backgroundColor:Color = New Color($10273f)
+	Field backgroundColor:Color = New Color($132b3b)
 	
 	
 '--------------------------------------------------------------------------
@@ -23,11 +23,16 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		End
 		initialized = True
 		
-		font = FontCache.GetFont("lane_narrow")
-		fontBig = FontCache.GetFont("lane_narrow_big")
+		font = FontCache.GetFont(RealPath("font"))
 		
+		scoreEnemyImage = LoadImage(RealPath("enemy.png"))
+		scoreEnemyImage.SetHandle(scoreEnemyImage.Width()/2, scoreEnemyImage.Height()/2)
+		titleImage = LoadImage(RealPath("title.png"))
+		titleImage.SetHandle(titleImage.Width()/2, 0)
 		titleTopSpacing = Vsat.ScreenHeight * 0.1
 		lineHeight = font.TextHeight("Play") * 1.5
+		highscoreSquareSize = Vsat.ScreenWidth * 0.22
+		
 		
 		menuOptions = New MenuItem[3]
 		menuOptions[0] = New MenuItem("Play", font)
@@ -46,7 +51,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		For Local i:Int = 0 Until menuOptions.Length
 			Local item:MenuItem = menuOptions[i]
 			item.position.x = Vsat.ScreenWidth2 - item.size.x/2
-			item.position.y = (Vsat.ScreenHeight - lineHeight * menuOptions.Length) * 0.75 + (lineHeight * i)
+			item.position.y = (lineHeight * i) + titleTopSpacing + highscoreSquareSize*2.5
 			item.SetScale(1.5 + (1.0 - Float(i)/menuOptions.Length))
 			Local scaleAction:= New VVec2ToAction(item.scale, 1.0, 1.0, 0.8, EASE_OUT_EXPO)
 			Local delay:= New VDelayAction(0.2)
@@ -152,27 +157,21 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Method RenderTitle:Void()
 		ResetBlend()
 		Color.White.Use()
-		SetAlpha(0.7)
-		fontBig.DrawText(TITLE, Vsat.ScreenWidth2, titleTopSpacing, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+		SetAlpha(1.0)
+		DrawImage(titleImage, Vsat.ScreenWidth2, titleTopSpacing)
 	End
 	
 	Method RenderHighscore:Void()
 		ResetBlend()
-		Color.NewBlue.Use()
-		
 		PushMatrix()
-			Translate(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.4)
-			Rotate(Sin(Vsat.Seconds * 100) * 5 + 45)
-			Local scale:Float = 0.8 + Abs(Sin(Vsat.Seconds * 100) * 0.1)
-			Scale(scale, scale)
-			Local pos:Float = Vsat.ScreenWidth * 0.14
-			DrawRectOutline(-pos, -pos, pos * 2, pos * 2)
-			DrawRectOutline(-pos * 0.8, -pos * 0.8, pos * 1.6, pos * 1.6)
-			pos = Vsat.ScreenWidth * 0.17
-			' DrawCircleOutline(0, 0, pos)
-			Rotate(-45)
-			'DrawRectOutline(-pos, -pos, pos * 2, pos * 2)
-			fontBig.DrawText(GameScene.Highscore, 0, -15, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
+			Translate(Vsat.ScreenWidth2, titleTopSpacing + highscoreSquareSize * 1.5)
+			Color.White.Use()
+			PushMatrix()
+				Rotate(-Vsat.Seconds*45)
+				DrawImage(scoreEnemyImage, 0, 0, 0, 1.4, 1.4)
+			PopMatrix()
+			Color.Orange.Use()
+			font.DrawText(GameScene.Highscore, 0, -5, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
 		PopMatrix()
 	End
 	
@@ -273,7 +272,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field initialized:Bool
 	
 	Field font:AngelFont
-	Field fontBig:AngelFont
+	Field titleImage:Image
+	Field scoreEnemyImage:Image
 	
 	Field menuOptions:MenuItem[]
 	Field lockedMenuItem:MenuItem
@@ -282,6 +282,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field enemyTimer:Float = 1.0
 	Field lastSpawnedLeft:Bool = True
 	Field titleTopSpacing:Int
+	Field highscoreSquareSize:Int
 	Field lineHeight:Int
 	
 	Field lastTouchDown:Bool

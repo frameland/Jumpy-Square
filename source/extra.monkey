@@ -1,6 +1,8 @@
 Strict
 Import vsat
 
+Global globalAlpha:Color = New Color(Color.White)
+
 Function VPlaySound:Void(sound:Sound, channel:Int = 0)
 	#If TARGET = "html5"
 		Return
@@ -8,23 +10,16 @@ Function VPlaySound:Void(sound:Sound, channel:Int = 0)
 	PlaySound(sound, channel)
 End
 
-Function DrawGlowRect:Void(x:Float, y:Float, w:Float, h:Float)
-	If TheGlowImage = Null
-		TheGlowImage = LoadImage("glow.png")
+Function RealPath:String(path:String)
+	If IsHD()
+		Return "gfxhd/" + path
 	End
-	Local imgWidth:Int = TheGlowImage.Width()
-	Local imgHeight:Int = TheGlowImage.Height()
-	Local sx:Float = w / imgWidth
-	Local sy:Float = h / imgHeight
-	DrawImage(TheGlowImage, x, y - imgHeight/2, 0, sx, 1) 'topLeft -> topRight
-	DrawImage(TheGlowImage, x, y + h - imgHeight/2, 0, sx, 1) 'bottomLeft -> bottomRight
-	DrawImage(TheGlowImage, x + imgHeight/2, y, -90, sy, 1) 'topLeft -> bottomLeft
-	DrawImage(TheGlowImage, x + w + imgHeight/2, y, -90, sy, 1) 'topLeft -> bottomLeft
-	SetBlend(AdditiveBlend)
-	DrawRectOutline(x,y,w,h)
-	SetBlend(AlphaBlend)
+	Return "gfx/" + path
 End
 
+Function IsHD:Bool()
+	Return Max(Vsat.ScreenWidth, Vsat.ScreenHeight) > 1200
+End
 
 
 Class MoveDownTransition Extends VTransition
@@ -94,7 +89,76 @@ End
 
 
 
+Class TheGlowImage
+	Global all:Image
+	Global width:Int
+	
+	Function Init:Void()
+		If all = Null
+			all = LoadImage(RealPath("glow.png"))
+			If IsHD()
+				width = 28
+			Else
+				width = 14
+			End
+		End
+	End
+	
+	
+	Function DrawTopLeft:Void(x:Int, y:Int)
+		DrawImageRect(all, x-width/2, y-width/2, 0, 0, width, width)
+	End
+	
+	Function DrawTopRight:Void(x:Int, y:Int)
+		DrawImageRect(all, x-width/2, y-width/2, all.Width()-width, 0, width, width)
+	End
+	
+	Function DrawBottomRight:Void(x:Int, y:Int)
+		DrawImageRect(all, x-width/2, y-width/2, all.Width()-width, all.Height()-width, width, width)
+	End
+	
+	Function DrawBottomLeft:Void(x:Int, y:Int)
+		DrawImageRect(all, x-width/2, y-width/2, 0, all.Height()-width, width, width)
+	End
+	
+	
+	Function DrawHorizontal:Void(x:Int, y:Int, sx:Float)
+		DrawImageRect(all, x, y-width/2, width, 0, width, width, 0, sx, 1.0)
+	End
+	
+	Function DrawVertical:Void(x:Int, y:Int, sy:Float)
+		DrawImageRect(all, x-width/2, y, 0, width, width, width, 0, 1.0, sy)
+	End
+	
+End
+
+
+Function DrawGlowRect:Void(x:Float, y:Float, w:Float, h:Float)
+	TheGlowImage.Init()
+	
+	'Corners
+	TheGlowImage.DrawTopLeft(x, y)
+	TheGlowImage.DrawTopRight(x+w, y)
+	TheGlowImage.DrawBottomRight(x+w, y+h)
+	TheGlowImage.DrawBottomLeft(x, y+h)
+	
+	'Horizontal Sides
+	Local sx:Float = w / TheGlowImage.width - 1.0
+	TheGlowImage.DrawHorizontal(x+TheGlowImage.width/2, y, sx)
+	TheGlowImage.DrawHorizontal(x+TheGlowImage.width/2, y+h+1, sx)
+	
+	'Vertical Sides
+	Local sy:Float = h / TheGlowImage.width - 1.0
+	TheGlowImage.DrawVertical(x, y + TheGlowImage.width/2, sy)
+	TheGlowImage.DrawVertical(x+w+1, y + TheGlowImage.width/2, sy)
+	
+End
 
 
 
-Global TheGlowImage:Image
+
+
+
+
+
+

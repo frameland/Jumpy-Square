@@ -2,7 +2,7 @@
  <info size="32" face="Lane - Narrow"/>
  <common lineHeight="38"/>
  <pages>
-  <page id="0" file="scorefont.png"/>
+  <page id="0" file="fontGlow.png"/>
  </pages>
  <chars count="70">
   <char width="16" page="0" x="1" y="26" xoffset="-8" chnl="0" letter="space" height="16" yoffset="30" xadvance="8" id="32"/>

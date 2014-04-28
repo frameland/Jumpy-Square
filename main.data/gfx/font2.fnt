@@ -2,7 +2,7 @@
  <info size="32" face="Lane - Narrow"/>
  <common lineHeight="38"/>
  <pages>
-  <page id="0" file="lane_narrow.PNG"/>
+  <page id="0" file="font.png"/>
  </pages>
  <chars count="95">
   <char width="4" page="0" x="1" y="29" xoffset="-2" chnl="0" letter="space" height="4" yoffset="36" xadvance="8" id="32"/>

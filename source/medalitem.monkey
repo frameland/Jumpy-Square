@@ -1,6 +1,7 @@
 Strict
 Import vsat
 Import medals
+Import extra
 
 Class MedalItem Extends VRect
 	
@@ -8,14 +9,11 @@ Class MedalItem Extends VRect
 	
 	Method New(name:String, fileName:String)
 		Super.New(0, 0, 0, 0)
-		image = ImageCache.GetImage("medals/" + fileName, Image.MidHandle)
+		image = ImageCache.GetImage(RealPath("medals/" + fileName), Image.MidHandle)
 		Self.name = name
 		times = Medals.HowManyOf(name)
 		color.Set(Color.NewBlue)
-		
-		If Not font
-			font = FontCache.GetFont("lane_narrow")
-		End
+		AssertWithException(font, "MedalItem has no font set.")
 	End
 	
 	Method Width:Float() Property
@@ -23,12 +21,20 @@ Class MedalItem Extends VRect
 	End
 	
 	Method Height:Float() Property
-		Return image.Height() + font.TextHeight(times) * 1.5
+		Return image.Height() * 1.5 + font.TextHeight(name) * 0.7
 	End
 	
 	Method Draw:Void()
-		font.DrawText(times, 0, -image.Height()/2, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
-		DrawImage(image, 0, font.TextHeight(times) * 1.5)
+		Local h:Float = image.Height()
+		PushMatrix()
+		Scale(0.8, 0.8)
+		font.DrawText(name, 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+		PopMatrix()
+		PushMatrix()
+			ScaleAt(0, h * 1.55, 0.8, 0.8)
+			font.DrawText("x "+times, 0, font.height + image.Height(), AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+		PopMatrix()
+		DrawImage(image, 0, font.height + image.Height()/2)
 	End
 	
 	Method Name:String() Property

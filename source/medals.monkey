@@ -182,7 +182,7 @@ Class Medals
 		Next
 		
 		'Scoreman
-		If MedalState.PreviousHighscore < gameScene.score
+		If MedalState.PreviousHighscore < gameScene.score And gameScene.scoreMannedThisRound = False
 			Scoreman += 1
 			FireEvent("Scoreman")
 		End

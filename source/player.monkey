@@ -10,8 +10,9 @@ Class Player Extends VRect
 	Field gravity:Float = Vsat.ScreenHeight / 27
 	Field willJump:Bool
 	Field lastPositions:List<Vec2>
-	Field maxPositions:Int = 10
+	Field maxPositions:Int = 12
 	Field jumpSound:Sound
+	Field image:Image
 	
 	Field widthRelative:Float = 12.8
 	Field heightRelative:Float = 9.6
@@ -30,8 +31,26 @@ Class Player Extends VRect
 		renderOutline = True
 		velocity = New Vec2
 		lastPositions = New List<Vec2>
-		jumpSound = LoadSound("jump.mp3")
+		jumpSound = LoadSound("audio/jump.mp3")
+		
+		InitImageAndHandle()
 	End
+	
+	Method InitImageAndHandle:Void()
+		Select Vsat.ScreenHeight
+			Case 960
+				image = ImageCache.GetImage(RealPath("player.png"))
+				image.SetHandle(6, 6)
+			Case 1136
+				image = ImageCache.GetImage(RealPath("player5.png"))
+				image.SetHandle(6, 6)
+			Case 1024
+			
+			Case 2048
+				
+		End
+	End
+	
 	
 	Method Reset:Void()
 		position.y = Vsat.ScreenHeight * 0.1
@@ -51,9 +70,9 @@ Class Player Extends VRect
 '--------------------------------------------------------------------------	
 	Method UpdateLastPosition:Void()
 		If Not isJumping
-			maxPositions = 5
+			maxPositions = 6
 		Else
-			maxPositions = 10
+			maxPositions = 11
 		End
 		
 		lastPositions.AddFirst(New Vec2(position))
@@ -138,7 +157,6 @@ Class Player Extends VRect
 ' * Render
 '--------------------------------------------------------------------------	
 	Method Render:Void()
-		ResetBlend()
 		If isIntroAnimating And TouchesRightWall()
 			RenderIntroAnimation()
 		Else
@@ -149,6 +167,21 @@ Class Player Extends VRect
 			lastPositions.RemoveLast()
 		End
 		Version1()
+	End
+	
+	Method Version1:Void()
+		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
+		Local alphaCounter:Float = 0.3
+		Local previous:Vec2 = position
+		For Local vector:= EachIn lastPositions
+			alphaCounter -= incrementAlpha
+			SetAlpha(alphaCounter * Self.color.Alpha)
+			PushMatrix()
+			TranslateV(vector)
+			DrawOutline()
+			PopMatrix()
+			previous = vector
+		Next
 	End
 	
 	Method Version2:Void()
@@ -169,25 +202,8 @@ Class Player Extends VRect
 		Next
 	End
 	
-	Method Version1:Void()
-		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
-		Local alphaCounter:Float = 0.3
-		Local previous:Vec2 = position
-		For Local vector:= EachIn lastPositions
-			alphaCounter -= incrementAlpha
-			SetAlpha(alphaCounter * Self.color.Alpha)
-			PushMatrix()
-			TranslateV(vector)
-			DrawOutline()
-			PopMatrix()
-			previous = vector
-		Next
-	End
-	
 	Method DrawOutline:Void()
-		DrawGlowRect(0, 0, size.x, size.y)
-		' DrawRectOutline(0, 0, size.x, size.y)
-		' DrawRectOutline(-1, -1, size.x+2, size.y+2)
+		DrawImage(image, 0, 0)
 	End
 	
 	Method RenderIntroAnimation:Void()
@@ -195,7 +211,7 @@ Class Player Extends VRect
 		PushMatrix()
 			Translate(position.x, position.y)
 			Rotate(rotation)
-			ScaleAt(size, scale.x, scale.y)
+			ScaleAt(image.Width(), image.Height(), scale.x, scale.y)
 			If Not renderOutline
 				Draw()
 			Else

@@ -2,9 +2,11 @@
 Strict
 Import vsat
 Import source.menu
-Import source.game
-Import source.medalscene
 Import source.particles
+
+#GLFW_WINDOW_WIDTH = 640
+#GLFW_WINDOW_HEIGHT = 960
+
 
 Function Main:Int()
 	Vsat = New VsatApp
