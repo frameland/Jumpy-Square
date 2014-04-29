@@ -124,12 +124,12 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method InitFeeds:Void()
 		medalFeed = New LabelFeed
-		medalFeed.InitWithSizeAndFont(5, RealPath("fontGlow"))
+		medalFeed.InitWithSizeAndFont(5, RealPath("font"))
 		medalFeed.SetIcon(RealPath("medal.png"))
 		medalFeed.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.65)
 		
 		scoreFeed = New LabelFeed
-		scoreFeed.InitWithSizeAndFont(5, RealPath("fontGlow"))
+		scoreFeed.InitWithSizeAndFont(5, RealPath("font"))
 		scoreFeed.SetAlignment(AngelFont.ALIGN_LEFT, AngelFont.ALIGN_CENTER)
 		scoreFeed.sampleText = "+5"
 		scoreFeed.position.Set(Vsat.ScreenWidth * 0.8, Vsat.ScreenHeight * 0.65 + 8)
