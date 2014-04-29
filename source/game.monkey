@@ -214,7 +214,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method UpdateBackgroundEffect:Void(dt:Float)
 		If backgroundEffect
 			If gameOver
-				backgroundEffect.Update(dt * 0.3)
+				backgroundEffect.Update(dt*0.3)
 			Else
 				backgroundEffect.Update(dt)
 			End

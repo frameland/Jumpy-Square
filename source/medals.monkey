@@ -249,10 +249,34 @@ Class Medals
 			Case "Feeder"
 				Return 25
 			Default
-				Throw New Exception("False medal name: " + medalName)
+				Throw New Exception("Unknown medal name: " + medalName)
 		End
 	End
 	
+	Function DescriptionFor:String(medalName:String)
+		Select medalName
+			Case "Normal-Dodge"
+				Return "Dodged an incoming block."
+			Case "Double-Dodge"
+				Return "Dodged 2 incoming blocks in quick succession."
+			Case "Triple-Dodge"
+				Return "Dodged 3 incoming blocks in quick succession."
+			Case "Multi-Dodge"
+				Return "Dodged more than 3 incoming blocks in quick succession."
+			Case "Close One"
+				Return "Dodged at the last possible moment."
+			Case "Half-Dead"
+				Return "Jumped while nearly out of the bottom of the screen."
+			Case "Not Surprised"
+				Return "Dodged a surprise."
+			Case "Scoreman"
+				Return "Beat your old highscore."
+			Case "Feeder"
+				Return "Filled the entire scorefeed."
+			Default
+				Throw New Exception("Unknown medal name: " + medalName)
+		End
+	End
 	
 	
 '--------------------------------------------------------------------------

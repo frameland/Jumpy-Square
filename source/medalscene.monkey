@@ -7,7 +7,7 @@ Import back
 
 Class MedalScene Extends VScene Implements VActionEventHandler
 	
-	Field normalBgColor:Color = New Color($080d11)
+	Field normalBgColor:Color = New Color(Color.Navy)
 	
 '--------------------------------------------------------------------------
 ' * Init
@@ -22,6 +22,11 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		
 		back = New BackButton
 		back.SetFont(backFont)
+		
+		description = New MedalDescription
+		description.SetFont(descriptionFont)
+		description.Description = ""
+		description.position.y = -description.size.y
 		
 		globalAlpha.Alpha = 0.0
 		AddAction(New VFadeToAlphaAction(globalAlpha, 1.0, 0.7, LINEAR_TWEEN))
@@ -146,6 +151,9 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 			End
 		End
 		
+		RenderDescription()
+		Translate(0, description.position.y + description.size.y)
+		
 		RenderBackButton()
 		RenderMedals()
 		RenderSites()
@@ -153,6 +161,10 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	
 	Method RenderBackButton:Void()
 		back.Render()
+	End
+	
+	Method RenderDescription:Void()
+		description.Render()
 	End
 	
 	Method RenderMedals:Void()
@@ -192,7 +204,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 ' * Events
 '--------------------------------------------------------------------------
 	Method OnMouseUp:Void()
-		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
+		Local cursor:Vec2 = New Vec2(TouchX(), RealY(TouchY()))
 		If back.isDown
 			back.isDown = False
 			If back.WasTouched(cursor)
@@ -202,6 +214,11 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		End
 		
 		touchEndX = cursor.x + (Vsat.ScreenWidth * (currentSite-1))
+		If touchEndX = touchStartX
+			OnItemClicked()
+			Return
+		End
+		
 		touchTime = Vsat.Seconds - touchStartTime
 		Local distance:Float = touchEndX - touchStartX
 		Local speed:Float = distance / touchTime
@@ -213,12 +230,17 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 				currentSite -= 1
 				currentSite = Max(currentSite, 1)
 			End
+			
+			Local expectedSpeed:Float = 400.0
+			Local time:Float = Max(0.5 * expectedSpeed/Abs(speed), 0.3)
+			Local action:= New VVec2ToAction(description.position, 0, -description.size.y, time, EASE_OUT_CIRC)
+			AddAction(action)
 		End
 		targetPosX = Vsat.ScreenWidth * (currentSite-1)
 	End
 	
 	Method OnMouseDown:Void()
-		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
+		Local cursor:Vec2 = New Vec2(TouchX(), RealY(TouchY()))
 		If back.WasTouched(cursor)
 			back.isDown = True
 			Return
@@ -246,14 +268,63 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		AddAction(fadeColor)
 	End
 	
+	Method OnItemClicked:Void()
+		Local x:Float = TouchX() + (Vsat.ScreenWidth * (currentSite-1))
+		Local y:Float = RealY(TouchY())
+		Local cursor:= New Vec2(x, y)
+		Local startIndex:Int = (currentSite-1) * 6
+		Local endIndex:Int = Min(startIndex+6, medalItems.Length)
+		
+		For Local i:Int = startIndex Until endIndex
+			Local item:= medalItems[i]
+			If item.WasTouched(cursor)
+				ItemWasClicked(item)
+				Return
+			End
+		Next
+		
+		'Clicked in empty space
+		Local action:= New VVec2ToAction(description.position, 0, -description.size.y, 0.3, EASE_OUT_CIRC)
+		AddAction(action)
+	End
+	
+	Method ItemWasClicked:Void(item:CustomMedalItem)
+		If description.position.y = 0.0
+			If description.Description = item.Description
+				Return
+			End
+			Local fadeOut:= New VFadeToAlphaAction(description.color, 0.5, 0.1, LINEAR_TWEEN)
+			Local fadeIn:= New VFadeToAlphaAction(description.color, 1.0, 0.1, LINEAR_TWEEN)
+			Local group:= New VActionSequence
+			group.AddAction(fadeOut)
+			group.AddAction(fadeIn)
+			AddAction(group)
+		Else
+			Local action:= New VVec2ToAction(description.position, 0, 0, 0.2, EASE_OUT_CIRC)
+			AddAction(action)
+		End
+		description.Description = item.Description
+	End
+	
 	Method OnActionEvent:Void(id:Int, action:VAction)
 		If id = VAction.FINISHED
 			
 		End
 	End
 	
+
+'--------------------------------------------------------------------------
+' * Helpers
+'--------------------------------------------------------------------------
+	Method RealY:Float(value:Float)
+		Return value -(description.position.y + description.size.y)
+	End
 	
 	
+	
+'--------------------------------------------------------------------------
+' * Private
+'--------------------------------------------------------------------------
 	Private
 	Field mainMenuObject:MainMenu
 	Field backgroundEffect:ParticleBackground
@@ -261,7 +332,8 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	
 	Field backFont:AngelFont
 	Field descriptionFont:AngelFont
-
+	Field description:MedalDescription
+	
 	Field back:BackButton
 	
 	Field lastTouchDown:Bool
@@ -294,8 +366,59 @@ Class CustomMedalItem Extends MedalItem
 		SetAlpha(color.Alpha * globalAlpha.Alpha)
 		Super.Draw()
 	End
+	
+	Method WasTouched:Bool(cursor:Vec2)
+		Return PointInRect(cursor.x, cursor.y, position.x-Width/2, position.y, Width, Height)
+	End
+	
 End
 
+
+Class MedalDescription Extends VRect
+	
+	Method New()
+		Super.New(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight * 0.06)
+		color.Set(Color.White)
+		descriptionLabel = New VLabel("description")
+		descriptionLabel.position.Set(Vsat.ScreenWidth2, 0)
+		descriptionLabel.alignHorizontal = True
+		
+	End
+	
+	Method SetFont:Void(font:AngelFont)
+		descriptionLabel.SetFont(font)
+		size.y = font.height * 0.8 * 1.5
+	End
+	
+	Method Description:Void(text:String) Property
+		descriptionLabel.Text = text
+		If descriptionLabel.size.x > Vsat.ScreenWidth * 0.9
+			factor = (Vsat.ScreenWidth * 0.9) / descriptionLabel.size.x
+		Else
+			factor = 0.8
+		End
+	End
+	
+	Method Description:String() Property
+		Return descriptionLabel.Text
+	End
+	
+	Method Draw:Void()
+		SetAlpha(0.1 * globalAlpha.Alpha * color.Alpha)
+		Super.Draw()
+		PushMatrix()
+			TranslateV(descriptionLabel.position)
+			ScaleAt(0, descriptionLabel.size.y/2, scale.x * factor, scale.y * factor)
+			SetAlpha(0.9 * globalAlpha.Alpha * color.Alpha)
+			Color.White.UseWithoutAlpha()
+			descriptionLabel.Draw()
+		PopMatrix()
+	End
+	
+	Private
+	Field descriptionLabel:VLabel
+	Field factor:Float
+End
 
 
 

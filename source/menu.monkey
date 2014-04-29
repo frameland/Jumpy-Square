@@ -61,9 +61,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	Method IntroAnimationWhenAlreadyInitialized:Void()
-		backgroundEffect.emitter.size.Set(Vsat.ScreenWidth2/15, Vsat.ScreenWidth2/15)
+		
 	End
-	
 	
 	Method AddAction:Void(action:VAction)
 		action.AddToList(actions)
@@ -314,7 +313,7 @@ Class MenuItem Extends VRect
 	
 	Method Draw:Void()
 		If isDown
-			Color.NewBlue.Use()
+			Color.Orange.Use()
 		End
 		usedFont.DrawText(text, 0.5, 0, AngelFont.ALIGN_LEFT, AngelFont.ALIGN_TOP)
 	End

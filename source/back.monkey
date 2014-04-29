@@ -5,7 +5,7 @@ Import extra
 Class BackButton Extends VLabel
 	
 	Field isDown:Bool
-	Field downColor:Color = Color.NewBlue
+	Field downColor:Color = Color.Orange
 	
 	Method New()
 		Super.New("Back")

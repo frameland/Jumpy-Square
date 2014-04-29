@@ -9,19 +9,20 @@ Class MedalItem Extends VRect
 	
 	Method New(name:String, fileName:String)
 		Super.New(0, 0, 0, 0)
-		image = ImageCache.GetImage(RealPath("medals/" + fileName), Image.MidHandle)
 		Self.name = name
+		Self.description = Medals.DescriptionFor(name)
+		image = ImageCache.GetImage(RealPath("medals/" + fileName), Image.MidHandle)
 		times = Medals.HowManyOf(name)
 		color.Set(Color.NewBlue)
 		AssertWithException(font, "MedalItem has no font set.")
 	End
 	
 	Method Width:Float() Property
-		Return image.Width()
+		Return Max(image.Width(), font.TextWidth(name))
 	End
 	
 	Method Height:Float() Property
-		Return image.Height() * 1.5 + font.TextHeight(name) * 0.7
+		Return image.Height() + font.height*2
 	End
 	
 	Method Draw:Void()
@@ -41,9 +42,15 @@ Class MedalItem Extends VRect
 		Return name
 	End
 	
+	Method Description:String() Property
+		Return description
+	End
+	
+	
 	Private
 	Field image:Image
 	Field name:String
+	Field description:String
 	Field times:Int
 End
 

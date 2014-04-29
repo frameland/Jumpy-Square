@@ -1,35 +1,49 @@
 Strict
 Import vsat
 Import particles
+Import extra
 
 
 Class ParticleBackground
 	
 	Field emitter:ParticleEmitter
 	Field lastFrame:Int
+	Field gradient:VSprite
 	
 	Method New()
 		Local baseUnit:Float = Vsat.ScreenWidth2
 		emitter = New ParticleEmitter
 		emitter.InitWithSize(120)
-		emitter.particleLifeSpan = 15.0
+		emitter.particleLifeSpan = 12
 		emitter.particleLifeSpanVariance = 5.0
-		emitter.emissionRate = 6
+		emitter.emissionRate = 10
 		
-		emitter.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 1.0)
-		emitter.positionVariance.Set(baseUnit, baseUnit * 0.5)
-		emitter.size.Set(0, 0)
-		emitter.endSize.Set(baseUnit/12, baseUnit/12)
-		emitter.endSizeVariance.Set(baseUnit*0.1, baseUnit*0.1)
+		emitter.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.75)
+		emitter.positionVariance.Set(baseUnit, Vsat.ScreenHeight2)
+		emitter.size.Set(1, 1)
+		emitter.endSize.Set(24, 24)
+		If IsHD()
+			emitter.endSize.Mul(2)
+		End
 
 		emitter.startColor.Alpha = 0.1
 		emitter.endColor.Alpha = 0.0
 		emitter.emissionAngle = -90
 		emitter.speed = 45
 		emitter.speedVariance = 25
+		If IsHD()
+			emitter.speed *= 2
+			emitter.speedVariance *= 2
+		End
 		
 		emitter.Start()
 		emitter.FastForward(20, 0.01666)
+		
+		gradient = New VSprite
+		gradient.SetImage((RealPath("gradient.png")), 0)
+		gradient.scale.x = Vsat.ScreenWidth / gradient.Width
+		gradient.scale.y = Vsat.ScreenHeight / gradient.Height
+		gradient.color.Alpha = 0.5
 	End
 	
 	Method Update:Void(dt:Float)
@@ -41,6 +55,7 @@ Class ParticleBackground
 	End
 	
 	Method Render:Void()
+		'gradient.Render()
 		emitter.Render()
 	End
 	

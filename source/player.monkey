@@ -6,7 +6,7 @@ Class Player Extends VRect
 	
 	Field velocity:Vec2
 	Field isJumping:Bool
-	Field jumpForce:Vec2 = New Vec2(Vsat.ScreenWidth * 2, -Vsat.ScreenHeight)
+	Field jumpForce:Vec2 = New Vec2(Vsat.ScreenWidth * 2.1, -Vsat.ScreenHeight*1)
 	Field gravity:Float = Vsat.ScreenHeight / 27
 	Field willJump:Bool
 	Field lastPositions:List<Vec2>
@@ -51,7 +51,6 @@ Class Player Extends VRect
 		End
 	End
 	
-	
 	Method Reset:Void()
 		position.y = Vsat.ScreenHeight * 0.1
 		velocity.Set(0,0)
@@ -72,7 +71,7 @@ Class Player Extends VRect
 		If Not isJumping
 			maxPositions = 6
 		Else
-			maxPositions = 11
+			maxPositions = 12
 		End
 		
 		lastPositions.AddFirst(New Vec2(position))
@@ -130,15 +129,16 @@ Class Player Extends VRect
 
 	Method Jump:Void()
 		If Not isJumping
-			VPlaySound(jumpSound)
 			isJumping = True
 			willJump = False
 			If position.x <= 1
-				position.x = 2
+				position.x = 3
 				velocity.Set(jumpForce)
+				VPlaySound(jumpSound, 28)
 			ElseIf position.x + Self.size.x + 1 >= Vsat.ScreenWidth
-				position.x = Vsat.ScreenWidth - 2 - Self.size.x
+				position.x = Vsat.ScreenWidth - 3 - Self.size.x
 				velocity.Set(-jumpForce.x, jumpForce.y)
+				VPlaySound(jumpSound, 29)
 			End
 		Else
 			#rem
