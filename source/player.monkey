@@ -1,6 +1,7 @@
 Strict
 Import vsat
 Import extra
+Import particles
 
 Class Player Extends VRect
 	
@@ -13,6 +14,10 @@ Class Player Extends VRect
 	Field maxPositions:Int = 12
 	Field jumpSound:Sound
 	Field image:Image
+	
+	'effects
+	Field sparks:SparkEmitter
+	Field wallhit:ExplosionEmitter
 	
 	Field widthRelative:Float = 12.8
 	Field heightRelative:Float = 9.6
@@ -34,6 +39,7 @@ Class Player Extends VRect
 		jumpSound = LoadSound("audio/jump.mp3")
 		
 		InitImageAndHandle()
+		InitParticles()
 	End
 	
 	Method InitImageAndHandle:Void()
@@ -51,6 +57,28 @@ Class Player Extends VRect
 		End
 	End
 	
+	Method InitParticles:Void()
+		sparks = New SparkEmitter
+		sparks.InitWithSize(120)
+		sparks.particleLifeSpan = 1.2
+		sparks.particleLifeSpanVariance = 0.3
+		sparks.slowDownSpeed = 0.9
+		sparks.SetEmissionRate(40)
+		sparks.positionVariance.Set(0, size.y/2)
+		
+		wallhit = New ExplosionEmitter
+		wallhit.InitWithSize(30)
+		wallhit.particleLifeSpan = 0.6
+		wallhit.particleLifeSpanVariance = 0.1
+		wallhit.oneShot = True
+		wallhit.positionVariance.Set(0, size.y*0.75)
+		wallhit.emissionAngleVariance = 45
+		wallhit.size.Set(5, 5)
+		wallhit.endSize.Set(0.2, 0.2)
+		wallhit.endColor.Alpha = 0.0
+		wallhit.speed = Vsat.ScreenWidth * 0.5
+	End
+	
 	Method Reset:Void()
 		position.y = Vsat.ScreenHeight * 0.1
 		velocity.Set(0,0)
@@ -61,12 +89,20 @@ Class Player Extends VRect
 		End
 		lastPositions.Clear()
 		willJump = False
+		sparks.StopNow()
+		wallhit.StopNow()
 	End
 	
 
 '--------------------------------------------------------------------------
 ' * Update
 '--------------------------------------------------------------------------	
+	Method Update:Void(dt:Float)
+		UpdatePhysics(dt)
+		UpdateLastPosition()
+		UpdateParticles(dt)
+	End
+	
 	Method UpdateLastPosition:Void()
 		If Not isJumping
 			maxPositions = 6
@@ -81,8 +117,6 @@ Class Player Extends VRect
 	End
 	
 	Method UpdatePhysics:Void(dt:Float)
-		UpdateLastPosition()
-		
 		If isJumping
 			velocity.y += gravity * 1.4
 			velocity.Limit(gravity * 50)
@@ -126,7 +160,19 @@ Class Player Extends VRect
 			didTouchAnyWall = False
 		End
 	End
-
+	
+	Method UpdateParticles:Void(dt:Float)
+		If position.x < 5
+			sparks.SetPosition(1, Self.position.y + size.y/2)
+			sparks.emissionAngle = -45
+		ElseIf position.x > Vsat.ScreenWidth - size.x - 5
+			sparks.SetPosition(Vsat.ScreenWidth-1, Self.position.y + size.y/2)
+			sparks.emissionAngle = 45-180
+		End
+		sparks.Update(dt)
+		wallhit.Update(dt)
+	End
+	
 	Method Jump:Void()
 		If Not isJumping
 			isJumping = True
@@ -157,6 +203,11 @@ Class Player Extends VRect
 ' * Render
 '--------------------------------------------------------------------------	
 	Method Render:Void()
+		If color.Alpha = 0.0 Then Return
+		
+		sparks.Render()
+		wallhit.Render()
+		
 		If isIntroAnimating And TouchesRightWall()
 			RenderIntroAnimation()
 		Else
@@ -166,10 +217,7 @@ Class Player Extends VRect
 		If Not isJumping And lastPositions.IsEmpty() = False
 			lastPositions.RemoveLast()
 		End
-		Version1()
-	End
-	
-	Method Version1:Void()
+		
 		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
 		Local alphaCounter:Float = 0.3
 		Local previous:Vec2 = position
@@ -179,24 +227,6 @@ Class Player Extends VRect
 			PushMatrix()
 			TranslateV(vector)
 			DrawOutline()
-			PopMatrix()
-			previous = vector
-		Next
-	End
-	
-	Method Version2:Void()
-		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
-		Local alphaCounter:Float = 0.5
-		Local previous:Vec2 = position
-		For Local vector:= EachIn lastPositions
-			alphaCounter -= incrementAlpha
-			SetAlpha(alphaCounter)
-			PushMatrix()
-			If previous
-				DrawLineV(previous, vector)
-				Translate(Self.size.x, 0)
-				DrawLineV(previous, vector)
-			End
 			PopMatrix()
 			previous = vector
 		Next
@@ -243,7 +273,20 @@ Class Player Extends VRect
 	
 	
 	Method OnWallImpact:Void()
+		'First jump after game over
+		If lastPositions.IsEmpty()
+			Return
+		End
 		
+		If position.x < 5
+			wallhit.position.Set(1, Self.position.y + size.y/2)
+			wallhit.emissionAngle = 0
+		ElseIf position.x > Vsat.ScreenWidth-size.x-5
+			wallhit.position.Set(Vsat.ScreenWidth-1, Self.position.y + size.y/2)
+			wallhit.emissionAngle = 180
+		End
+		wallhit.StopNow()
+		wallhit.Start()
 	End
 	
 End

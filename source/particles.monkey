@@ -6,25 +6,21 @@ Class ParticleScene Extends VScene
 	Field emitter:ExplosionEmitter
 	
 	Method OnInit:Void()
-		Local baseUnit:Float = Vsat.ScreenWidth * 0.5
 		emitter = New ExplosionEmitter
 		emitter.InitWithSize(60)
-		emitter.particleLifeSpan = 0.8
+		emitter.particleLifeSpan = 1.0
+		emitter.particleLifeSpanVariance = 0.2
+		emitter.slowDownSpeed = 0.9
 		emitter.oneShot = True
-		
-		emitter.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight2)
-		emitter.speed = baseUnit * 4
-		emitter.slowDownSpeed = 0.85
-		emitter.size.Set(baseUnit/20, baseUnit/20)
-		emitter.endSize.Set(baseUnit/500, baseUnit/500)
-		emitter.endColor.Alpha = 0.0
-		emitter.emissionAngleVariance = 360
-		
+		emitter.emissionAngle = 90
+		emitter.emissionAngleVariance = 90
+		emitter.speed = Vsat.ScreenWidth
 	End
 	
 	Method OnUpdate:Void(dt:Float)
 		emitter.Update(dt)
-		If KeyHit(KEY_SPACE)
+		If MouseHit()
+			emitter.position.Set(MouseX(), MouseY())
 			emitter.Start()
 		End
 	End
@@ -41,6 +37,42 @@ Class ParticleScene Extends VScene
 End
 
 
+Class SparkEmitter Extends ExplosionEmitter
+	
+	Method New()
+		Local baseUnit:Float = Vsat.ScreenWidth * 0.5
+		size.Set(2, 2)
+		endSize.Set(0.5, 0.5)
+		speed = baseUnit * 0.5
+		endColor.Alpha = 0.0
+		emissionAngleVariance = 20
+		Start()
+	End
+	
+	Method SetEmissionRate:Void(rate:Int)
+		baseEmission = rate
+		emissionRate = rate
+	End
+	
+	Method SetPosition:Void(x:Float, y:Float)
+		Local distance:Float = Abs(lastPosition.y - y)
+		If distance < 0.01
+			Stop()
+		Else
+			emissionRate = Min(Int(baseEmission * distance * 0.1), baseEmission * 2)
+			Start()
+		End
+		
+		lastPosition.Set(Self.position)
+		Self.position.Set(x, y)
+	End
+	
+	Private
+	Field lastPosition:Vec2 = New Vec2
+	Field baseEmission:Int
+	
+End
+
 
 Class ExplosionEmitter Extends ParticleEmitter
 	
@@ -49,8 +81,8 @@ Class ExplosionEmitter Extends ParticleEmitter
 	Method Stop:Void()
 		For Local i:Int = 0 Until Particles.Length
 			Local p:= Particles[i]
-			Local newAngle:Float = emissionAngleVariance / Particles.Length * (i+1)
-			p.SetDirectionUsingAngle(newAngle, p.speed)
+			Local newAngle:Float = -emissionAngle + (emissionAngleVariance*2 / Particles.Length * (i+1))
+			p.SetDirectionUsingAngle(WrapAngle(newAngle), p.speed)
 		Next
 		Super.Stop()
 	End

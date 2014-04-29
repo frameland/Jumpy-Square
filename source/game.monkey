@@ -119,7 +119,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		explosionEffect.size.Set(baseUnit/20, baseUnit/20)
 		explosionEffect.endSize.Set(baseUnit/500, baseUnit/500)
 		explosionEffect.endColor.Alpha = 0.0
-		explosionEffect.emissionAngleVariance = 360
+		explosionEffect.emissionAngleVariance = 180
 	End
 	
 	Method InitFeeds:Void()
@@ -181,9 +181,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		If UsedActionKey() Then player.Jump()
 		
-		player.UpdatePhysics(dt)
+		player.Update(dt)
 		UpdateEnemySpawning(dt)
-		UpdateEnemyPhysics(dt)
+		UpdateEnemies(dt)
 		CheckForDodged()
 		UpdateCollision()
 		UpdateScore()
@@ -221,9 +221,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		End
 	End
 	
-	Method UpdateEnemyPhysics:Void(dt:Float)
+	Method UpdateEnemies:Void(dt:Float)
 		For Local e:= EachIn enemies
-			e.UpdatePhysics(dt)
+			e.Update(dt)
 		Next
 	End
 

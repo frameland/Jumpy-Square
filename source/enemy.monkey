@@ -12,6 +12,8 @@ Class Enemy Extends VRect
 	Field collidedWithPlayer:Bool
 	Field image:Image
 	
+	Field sparks:SparkEmitter
+	
 	Field lastPositions:List<Vec2> = New List<Vec2>
 	Field maxPositions:Int = 5
 	
@@ -33,7 +35,9 @@ Class Enemy Extends VRect
 		color.Alpha = 0.0
 		renderOutline = True
 		velocity = New Vec2
+		
 		InitImageAndHandle()
+		InitParticles()
 	End
 	
 	Method InitImageAndHandle:Void()
@@ -48,12 +52,30 @@ Class Enemy Extends VRect
 		End
 	End
 	
+	Method InitParticles:Void()
+		sparks = New SparkEmitter
+		sparks.InitWithSize(100)
+		sparks.particleLifeSpan = 0.8
+		sparks.particleLifeSpanVariance = 0.2
+		sparks.slowDownSpeed = 0.9
+		sparks.SetEmissionRate(50)
+		sparks.positionVariance.Set(0, size.y/2)
+		sparks.startColor.Set(Self.color)
+		sparks.endColor.Set(Self.color)
+		sparks.startColor.Alpha = 1.0
+		sparks.endColor.Alpha = 0.0
+	End
+	
 	Method SetLeft:Void()
 		position.x = 1
+		sparks.SetPosition(1, Self.position.y + size.y/2)
+		sparks.emissionAngle = -45
 	End
 	
 	Method SetRight:Void()
 		position.x = Vsat.ScreenWidth - Self.size.x - 1
+		sparks.SetPosition(Vsat.ScreenWidth-1, Self.position.y + size.y/2)
+		sparks.emissionAngle = 45-180
 	End
 	
 	Method Remove:Void()
@@ -62,8 +84,14 @@ Class Enemy Extends VRect
 	
 	
 '--------------------------------------------------------------------------
-' * Update & Render
+' * Update
 '--------------------------------------------------------------------------	
+	Method Update:Void(dt:Float)
+		UpdatePhysics(dt)
+		UpdateLastPosition()
+		UpdateParticles(dt)
+	End
+	
 	Method UpdatePhysics:Void(dt:Float)
 		UpdateLastPosition()
 		
@@ -91,7 +119,18 @@ Class Enemy Extends VRect
 		End
 	End
 	
+	Method UpdateParticles:Void(dt:Float)
+		sparks.SetPosition(sparks.position.x, Self.position.y)
+		sparks.Update(dt)
+	End
+
+
+'--------------------------------------------------------------------------
+' * Render
+'--------------------------------------------------------------------------
 	Method Render:Void()
+		sparks.Render()
+		
 		Super.Render()
 		
 		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
@@ -106,10 +145,8 @@ Class Enemy Extends VRect
 			DrawOutline()
 			PopMatrix()
 			previous = vector
-			
 		Next
 	End
-	
 	
 	Method DrawOutline:Void()
 		DrawImage(image, 0, 0)
