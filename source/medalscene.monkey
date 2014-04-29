@@ -28,6 +28,11 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		description.Description = ""
 		description.position.y = -description.size.y
 		
+		siteActive = ImageCache.GetImage(RealPath("siteActive.png"))
+		siteNotActive = ImageCache.GetImage(RealPath("siteNotActive.png"))
+		MidHandleImage(siteActive)
+		MidHandleImage(siteNotActive)
+		
 		globalAlpha.Alpha = 0.0
 		AddAction(New VFadeToAlphaAction(globalAlpha, 1.0, 0.7, LINEAR_TWEEN))
 		
@@ -177,7 +182,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method RenderSites:Void()
-		Local siteRadius:Float = 8
+		Local siteRadius:Float = siteActive.Width()/2 * 0.8
 		Local x:Float = Vsat.ScreenWidth2 + siteRadius
 		If sites Mod 2 = 0
 			x -= (siteRadius * 3 * sites/2) / 2
@@ -187,9 +192,11 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		
 		For Local i:Int = 1 To sites
 			If i = currentSite
-				DrawCircle(x, Vsat.ScreenHeight - siteRadius * 4, siteRadius)
+				DrawImage(siteActive, x, Vsat.ScreenHeight - siteRadius * 3)
+				' DrawCircle(x, Vsat.ScreenHeight - siteRadius * 4, siteRadius)
 			Else
-				DrawCircleOutline(x, Vsat.ScreenHeight - siteRadius * 4, siteRadius, siteRadius * 2)
+				DrawImage(siteNotActive, x, Vsat.ScreenHeight - siteRadius * 3)
+				' DrawCircleOutline(x, Vsat.ScreenHeight - siteRadius * 4, siteRadius, siteRadius * 2)
 			End
 			x += siteRadius * 3
 		Next
@@ -291,6 +298,8 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	Method ItemWasClicked:Void(item:CustomMedalItem)
 		If description.position.y = 0.0
 			If description.Description = item.Description
+				Local action:= New VVec2ToAction(description.position, 0, -description.size.y, 0.2, EASE_OUT_CIRC)
+				AddAction(action)
 				Return
 			End
 			Local fadeOut:= New VFadeToAlphaAction(description.color, 0.5, 0.1, LINEAR_TWEEN)
@@ -349,6 +358,9 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	Field touchEndX:Float
 	Field touchStartTime:Float
 	Field touchTime:Float
+	
+	Field siteActive:Image
+	Field siteNotActive:Image
 End
 
 

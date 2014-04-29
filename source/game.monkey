@@ -44,7 +44,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		InitEffects()
 		
-		scoreFont = FontCache.GetFont(RealPath("fontGlow"))
+		scoreFont = FontCache.GetFont(RealPath("font"))
 		
 		surpriseSound = LoadSound("audio/surprise.mp3")
 		

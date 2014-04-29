@@ -27,12 +27,12 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		
 		scoreEnemyImage = LoadImage(RealPath("enemy.png"))
 		scoreEnemyImage.SetHandle(scoreEnemyImage.Width()/2, scoreEnemyImage.Height()/2)
+		
 		titleImage = LoadImage(RealPath("title.png"))
 		titleImage.SetHandle(titleImage.Width()/2, 0)
 		titleTopSpacing = Vsat.ScreenHeight * 0.1
 		lineHeight = font.TextHeight("Play") * 1.5
 		highscoreSquareSize = Vsat.ScreenWidth * 0.22
-		
 		
 		menuOptions = New MenuItem[3]
 		menuOptions[0] = New MenuItem("Play", font)

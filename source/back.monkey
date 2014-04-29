@@ -12,6 +12,8 @@ Class BackButton Extends VLabel
 		color.Set(Color.White)
 		alignVertical = True
 		position.Set(Vsat.ScreenWidth * 0.05, Vsat.ScreenWidth * 0.08)
+		image = ImageCache.GetImage(RealPath("back.png"))
+		MidHandleImage(image)
 	End
 	
 	Method Draw:Void()
@@ -21,12 +23,12 @@ Class BackButton Extends VLabel
 		SetAlpha(color.Alpha * globalAlpha.Alpha)
 		
 		Local length:Float = Vsat.ScreenWidth * 0.03
+		DrawImage(image, length, length*0.5)
+		
 		PushMatrix()
-		Translate(length * 1.1, -6)
-		Super.Draw()
+			Translate(image.Width()*1.5, 5)
+			Super.Draw()
 		PopMatrix()
-		DrawLine(0, 0, length * 0.75, -length)
-		DrawLine(0, 0, length * 0.75, length)
 	End
 	
 	Method WasTouched:Bool(cursor:Vec2)
@@ -37,4 +39,7 @@ Class BackButton Extends VLabel
 		Return RectsOverlap(cursor.x-cursorSize/2, cursor.y-cursorSize/2, cursorSize, cursorSize, position.x, position.y - size.y/2 - touchsizeBufferY, size.x+touchsizeBufferX*2, size.y+touchsizeBufferY*2)
 	End
    	    
+	Private
+	Field image:Image
+	
 End
