@@ -8,6 +8,7 @@ Class SupporterMedal Extends VSprite
 	
 	Method InitLocked:Void()
 		Self.SetImage(RealPath("locked.png"))
+		unlockTime = -1.0
 		Init()
 	End
 	
@@ -19,6 +20,10 @@ Class SupporterMedal Extends VSprite
 	
 	Method UnlockTime:Float() Property
 		Return unlockTime
+	End
+	
+	Method UnlockTime:Void(setTime:Float) Property
+		unlockTime = setTime
 	End
 	
 	Method Render:Void()
@@ -34,7 +39,6 @@ Class SupporterMedal Extends VSprite
 			glitter.Update(dt)
 		End
 	End
-	
 	
 	Private
 	Field unlockTime:Float = -1.0
@@ -60,6 +64,3 @@ Class SupporterMedal Extends VSprite
 	End
 	
 End
-
-
-

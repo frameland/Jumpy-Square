@@ -7,6 +7,7 @@ Import menu
 Import medals
 Import feed
 Import back
+Import save
 
 
 Class GameScene Extends VScene Implements VActionEventHandler
@@ -503,6 +504,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		explosionEffect.Start()
 		
 		backButton.color.Alpha = 0.0
+		
+		SaveGame()
 	End
 	
 	Method GotMedal:Void(id:String, andPoints:Int)

@@ -26,6 +26,8 @@ Function IsHD:Bool()
 End
 
 
+
+
 '--------------------------------------------------------------------------
 ' * Transitions
 '--------------------------------------------------------------------------
@@ -69,7 +71,6 @@ Class MoveDownTransition Extends VTransition
 	Field easingType:Int = EASE_OUT_EXPO
 End
 
-
 Class MoveUpTransition Extends MoveDownTransition
 	
 	Method New()
@@ -96,6 +97,9 @@ End
 
 
 
+'--------------------------------------------------------------------------
+' * 9 Path kinda thing
+'--------------------------------------------------------------------------
 Class TheGlowImage
 	Global all:Image
 	Global width:Int
@@ -138,7 +142,6 @@ Class TheGlowImage
 	End
 	
 End
-
 
 Function DrawGlowRect:Void(x:Float, y:Float, w:Float, h:Float)
 	TheGlowImage.Init()

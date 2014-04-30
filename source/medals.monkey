@@ -17,7 +17,7 @@ Class Medals
 	Global NotSurprised:Int
 	Global HalfDead:Int
 	Global Feeder:Int
-
+	Global Supporter:Int
 
 '--------------------------------------------------------------------------
 ' * Config Vars
@@ -40,6 +40,29 @@ Class Medals
 		NotSurprised = keyValue.GetInt("Not Surprised")
 		HalfDead = keyValue.GetInt("Half-Dead")
 		Feeder = keyValue.GetInt("Feeder")
+		
+		Supporter = keyValue.GetInt("Supporter")
+		If Supporter > 0
+			GameScene.IsUnlocked = True
+		End
+	End
+	
+	Function KeyValues:String()
+		Local returnString:String
+		Local newline:String = "~n"
+		
+		returnString += "Normal-Dodge = " + NormalDodge + newline
+		returnString += "Double-Dodge = " + DoubleDodge + newline
+		returnString += "Triple-Dodge = " + TripleDodge + newline
+		returnString += "Multi-Dodge = " + MultiDodge + newline
+		returnString += "Close One = " + CloseOne + newline
+		returnString += "Half-Dead = " + HalfDead + newline
+		returnString += "Not Surprised = " + NotSurprised + newline
+		returnString += "Scoreman = " + Scoreman + newline
+		returnString += "Feeder = " + Feeder + newline
+		returnString += "Supporter = " + Supporter + newline
+		
+		Return returnString
 	End
 	
 
@@ -223,8 +246,10 @@ Class Medals
 				Return Scoreman
 			Case "Feeder"
 				Return Feeder
+			Case "Supporter"
+				Return Supporter
 			Default
-				Throw New Exception("False medal name: " + medalName)
+				Throw New Exception("Unknown medal name: " + medalName)
 		End
 	End
 	
@@ -248,6 +273,8 @@ Class Medals
 				Return 5
 			Case "Feeder"
 				Return 25
+			Case "Supporter"
+				Return 0
 			Default
 				Throw New Exception("Unknown medal name: " + medalName)
 		End
@@ -273,6 +300,8 @@ Class Medals
 				Return "Beat your old highscore."
 			Case "Feeder"
 				Return "Filled the entire scorefeed."
+			Case "Supporter"
+				Return "You are awesome!"
 			Default
 				Throw New Exception("Unknown medal name: " + medalName)
 		End

@@ -3,6 +3,8 @@ Import vsat
 Import game
 Import extra
 Import supportermedal
+Import medals
+Import save
 
 
 Class BuySupporterMedalScene Extends VScene
@@ -15,12 +17,17 @@ Class BuySupporterMedalScene Extends VScene
 		
 		medal = New SupporterMedal
 		medal.InitUnlocked()
-		medal.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.3)
+		medal.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.35)
 		
 		font = FontCache.GetFont(RealPath("font"))
 		
-		descriptionText = "Add the Supporter Medal to your collection."
-		descriptionText += "~nIt will also remove all ads from the game."
+		If GameScene.IsUnlocked
+			descriptionText = "Thank you for purchasing the Supporter Medal."
+			descriptionText += "~nStay tuned for supporter exclusive content~nupdates in the near future."
+		Else
+			descriptionText = "Add the Supporter Medal to your collection."
+			descriptionText += "~nIt will also remove all ads from the game."
+		End
 		renderedText = descriptionText.Split("~n")
 		
 		InitMenuChoices()
@@ -44,7 +51,7 @@ Class BuySupporterMedalScene Extends VScene
 		buy.alignHorizontal = AngelFont.ALIGN_RIGHT
 		buy.SetFont(RealPath("font"))
 		buy.position.x = Vsat.ScreenWidth*0.75
-		buy.position.y = Vsat.ScreenHeight * 0.3 + medal.Height() * 0.75 + font.height * (renderedText.Length+0.5)
+		buy.position.y = medal.position.y + medal.Height() * 0.75 + font.height * (renderedText.Length+0.4)
 		buy.SetScale(0.8)
 		buy.color.Set(Color.Orange)
 		
@@ -53,8 +60,15 @@ Class BuySupporterMedalScene Extends VScene
 		cancel.position.x = Vsat.ScreenWidth*0.25
 		cancel.position.y = buy.position.y
 		cancel.SetScale(0.8)
-		cancel.color.Set(Color.NewBlue)
+		cancel.color.Set(Color.Orange)
 		cancel.color.Alpha = 0.6
+		
+		If GameScene.IsUnlocked
+			cancel.Text = "Go back"
+			cancel.alignHorizontal = AngelFont.ALIGN_CENTER
+			cancel.position.x = Vsat.ScreenWidth2
+			cancel.color.Alpha = 1.0
+		End
 	End
 	
 
@@ -64,7 +78,6 @@ Class BuySupporterMedalScene Extends VScene
 	Method OnUpdate:Void(dt:Float)
 		mainMenuObject.UpdateParticles(dt)
 		UpdateCursor()
-		UpdateMenu()
 		medal.Update(dt)
 	End
 	
@@ -78,10 +91,6 @@ Class BuySupporterMedalScene Extends VScene
 			End
 			lastTouchDown = False
 		End
-	End
-	
-	Method UpdateMenu:Void()
-		
 	End
 	
 
@@ -105,6 +114,7 @@ Class BuySupporterMedalScene Extends VScene
 			End
 			ScaleAt(Vsat.ScreenWidth2, Vsat.ScreenHeight2, scaleAll, scaleAll)
 		End
+		
 		RenderMedal()
 		RenderDescription()
 		RenderChoices()
@@ -127,7 +137,7 @@ Class BuySupporterMedalScene Extends VScene
 		ResetColor()
 		SetAlpha(globalAlpha.Alpha)
 		PushMatrix()
-			Translate(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.3 + medal.Height() * 0.75)
+			Translate(Vsat.ScreenWidth2, medal.position.y + medal.Height() * 0.75)
 			Scale(0.8, 0.8)
 			For Local i:Int = 0 Until renderedText.Length
 				font.DrawText(renderedText[i], 0, i*font.height, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
@@ -136,7 +146,9 @@ Class BuySupporterMedalScene Extends VScene
 	End
 	
 	Method RenderChoices:Void()
-		buy.Render()
+		If GameScene.IsUnlocked = False
+			buy.Render()
+		End
 		cancel.Render()
 	End
 
@@ -146,7 +158,7 @@ Class BuySupporterMedalScene Extends VScene
 '--------------------------------------------------------------------------
 	Method OnMouseUp:Void()
 		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
-		If buy.isDown
+		If buy.isDown And GameScene.IsUnlocked = False
 			buy.isDown = False
 			If buy.WasTouched(cursor)
 				OnBuy()
@@ -161,7 +173,7 @@ Class BuySupporterMedalScene Extends VScene
 	
 	Method OnMouseDown:Void()
 		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
-		If buy.WasTouched(cursor)
+		If buy.WasTouched(cursor) And GameScene.IsUnlocked = False
 			buy.isDown = True
 		ElseIf cancel.WasTouched(cursor)
 			cancel.isDown = True
@@ -172,6 +184,8 @@ Class BuySupporterMedalScene Extends VScene
 		If Vsat.transition Return
 		Local transition:= New FadeOutTransition(0.6)
 		Vsat.ChangeSceneWithTransition(mainMenuObject, transition)
+		
+		medal.UnlockTime = -1.0 'ugly fix for particles (they have no alpha)
 	End
 	
 	Method OnBuy:Void()
@@ -180,9 +194,11 @@ Class BuySupporterMedalScene Extends VScene
 			Return
 		End
 		
+		Medals.Supporter += 1
 		GameScene.IsUnlocked = True
 		mainMenuObject.justGotSupporterMedal = True
 		OnCancel()
+		SaveGame()
 	End
 	
 	
@@ -280,6 +296,8 @@ Class MenuItem Extends VLabel
 			Return PointInRect(cursor.x, cursor.y, position.x, position.y, size.x, size.y)
 		ElseIf alignHorizontal = AngelFont.ALIGN_RIGHT
 			Return PointInRect(cursor.x, cursor.y, position.x-size.x, position.y, size.x, size.y)
+		ElseIf alignHorizontal = AngelFont.ALIGN_CENTER
+			Return PointInRect(cursor.x, cursor.y, position.x-size.x/2, position.y, size.x, size.y)
 		End
 		Return False
 	End
