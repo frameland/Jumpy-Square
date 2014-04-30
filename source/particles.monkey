@@ -408,6 +408,8 @@ Class ParticleEmitter
 			DrawRect(-currentParticle.size.x/2, -currentParticle.size.y/2, currentParticle.size.x, currentParticle.size.y)
 			PopMatrix()
 		Next
+		
+		ResetBlend()
 	End
 	
 	

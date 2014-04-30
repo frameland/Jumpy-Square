@@ -82,6 +82,10 @@ Class Enemy Extends VRect
 		If link Then link.Remove()
 	End
 	
+	Method ShouldRenderParticles:Bool()
+		Return isSurprise And position.x = (Vsat.ScreenWidth2 - size.x/2)
+	End
+	
 	
 '--------------------------------------------------------------------------
 ' * Update
@@ -89,7 +93,7 @@ Class Enemy Extends VRect
 	Method Update:Void(dt:Float)
 		UpdatePhysics(dt)
 		UpdateLastPosition()
-		UpdateParticles(dt)
+		If Self.ShouldRenderParticles() Then UpdateParticles(dt)
 	End
 	
 	Method UpdatePhysics:Void(dt:Float)
@@ -129,7 +133,7 @@ Class Enemy Extends VRect
 ' * Render
 '--------------------------------------------------------------------------
 	Method Render:Void()
-		sparks.Render()
+		If Self.ShouldRenderParticles() Then sparks.Render()
 		
 		Super.Render()
 		

@@ -214,10 +214,6 @@ Class Player Extends VRect
 			Super.Render()
 		End
 		
-		If Not isJumping And lastPositions.IsEmpty() = False
-			lastPositions.RemoveLast()
-		End
-		
 		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
 		Local alphaCounter:Float = 0.3
 		Local previous:Vec2 = position

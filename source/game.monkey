@@ -12,7 +12,8 @@ Import back
 Class GameScene Extends VScene Implements VActionEventHandler
 
 	Global Highscore:Int = 0
-		
+	Global IsUnlocked:Bool = False
+	
 	Field player:Player
 	Field enemies:List<Enemy>
 	Field enemyTimer:Float = 0.1
@@ -146,7 +147,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method HasSurprise:Bool()
-		Return Rnd() < 0.1 And dodged >= 5 And lastSurpriseRound > 1
+		Return Rnd() < 0.1 And dodged >= 5 And lastSurpriseRound > 2
 	End
 	
 	Method UsedActionKey:Bool()

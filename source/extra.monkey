@@ -3,6 +3,10 @@ Import vsat
 
 Global globalAlpha:Color = New Color(Color.White)
 
+
+'--------------------------------------------------------------------------
+' * Functions
+'--------------------------------------------------------------------------
 Function VPlaySound:Void(sound:Sound, channel:Int = 0)
 	#If TARGET = "html5"
 		Return
@@ -22,6 +26,9 @@ Function IsHD:Bool()
 End
 
 
+'--------------------------------------------------------------------------
+' * Transitions
+'--------------------------------------------------------------------------
 Class MoveDownTransition Extends VTransition
 	
 	Field startPoint:Float = 0

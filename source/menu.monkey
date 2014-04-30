@@ -6,11 +6,14 @@ Import extra
 Import particles
 Import particlebg
 Import medalscene
+Import buysupportermedal
+Import supportermedal
+
 
 Class MainMenu Extends VScene Implements VActionEventHandler
 	
-	Const TITLE:String = "Jumpy Square"
 	Field backgroundColor:Color = New Color($132b3b)
+	Field justGotSupporterMedal:Bool
 	
 	
 '--------------------------------------------------------------------------
@@ -18,7 +21,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 '--------------------------------------------------------------------------
 	Method OnInit:Void()
 		If initialized
-			IntroAnimationWhenAlreadyInitialized()
+			OnInitWhileInitialized()
 			Return
 		End
 		initialized = True
@@ -42,9 +45,15 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		
 		backgroundEffect = New ParticleBackground
 		
+		InitMedalAndEffect()
+		
 		Local transition:= New VFadeInLinear(1.2)
 		transition.SetColor(Color.White)
 		Vsat.StartFadeIn(transition)
+	End
+	
+	Method OnInitWhileInitialized:Void()
+		
 	End
 	
 	Method MenuIntroAnimation:Void()
@@ -57,12 +66,38 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			Local delay:= New VDelayAction(0.2)
 			AddAction(New VActionSequence([VAction(delay), VAction(scaleAction)]))
 		Next
-		
 	End
 	
-	Method IntroAnimationWhenAlreadyInitialized:Void()
+	Method InitMedalAndEffect:Void()
+		supporterMedal = New SupporterMedal
+		If GameScene.IsUnlocked
+			supporterMedal.InitUnlocked()
+		Else
+			supporterMedal.InitLocked()
+		End
+		supporterMedal.position.x = Vsat.ScreenWidth2
+		Local lastMenuItem:= menuOptions[2]
+		Local y:Float = (Vsat.ScreenHeight - lastMenuItem.position.y + lastMenuItem.usedFont.TextHeight(lastMenuItem.text)) / 2
+		supporterMedal.position.y = y + lastMenuItem.position.y
 		
+		'Effect
+		medalEffect = New ExplosionEmitter
+		medalEffect.InitWithSize(40)
+		medalEffect.particleLifeSpan = 1.0
+		medalEffect.oneShot = True
+		medalEffect.additiveBlend = True
+		medalEffect.slowDownSpeed = 0.94
+		
+		medalEffect.position.Set(supporterMedal.position)
+		medalEffect.speed = Vsat.ScreenWidth*0.22
+		medalEffect.emissionAngleVariance = 180
+		medalEffect.size.Set(Vsat.ScreenWidth*0.05, Vsat.ScreenWidth*0.05)
+		
+		medalEffect.startColor.Set(Color.Orange)
+		medalEffect.endColor.Set(Color.Yellow)
+		medalEffect.endColor.Alpha = 0.0
 	End
+	
 	
 	Method AddAction:Void(action:VAction)
 		action.AddToList(actions)
@@ -76,9 +111,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Method OnUpdate:Void(dt:Float)
 		VAction.UpdateList(actions, dt)
 		UpdateCursor()
-		'UpdateEnemySpawning(dt)
-		'UpdateEnemies(dt)
 		UpdateParticles(dt)
+		supporterMedal.Update(dt)
 	End
 	
 	Method UpdateCursor:Void()
@@ -93,45 +127,9 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		End
 	End
 	
-	Method UpdateEnemySpawning:Void(dt:Float)
-		If Vsat.IsChangingScenes Return
-		
-		enemyTimer -= dt
-		If enemyTimer <= 0.0
-			enemyTimer = 0.8 + Rnd() * 2
-			Local e:= New Enemy
-			e.color.Set(Color.Gray)
-			e.accountsForPoints = False
-			e.gravity /= 2
-			If lastSpawnedLeft
-				If Rnd() > 0.7
-					e.SetLeft()
-					lastSpawnedLeft = True
-				Else
-					e.SetRight()
-					lastSpawnedLeft = False
-				End
-			Else
-				If Rnd() > 0.7
-					e.SetRight()
-					lastSpawnedLeft = False
-				Else
-					e.SetLeft()
-					lastSpawnedLeft = True
-				End
-			End
-			e.link = enemies.AddLast(e)
-		End
-	End
-	
-	Method UpdateEnemies:Void(dt:Float)
-		For Local e:= EachIn enemies
-			e.UpdatePhysics(dt)
-		Next
-	End
-	
 	Method UpdateParticles:Void(dt:Float)
 		backgroundEffect.Update(dt)
+		medalEffect.Update(dt)
 	End
 	
 
@@ -146,11 +144,15 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			ScaleAt(Vsat.ScreenWidth2, Vsat.ScreenHeight2, scale, scale)
 		End
 		
-		If Vsat.IsActiveScene(Self) Then backgroundEffect.Render()
-		'RenderEnemies()
+		If Vsat.IsActiveScene(Self) Then RenderParticles()
 		RenderHighscore()
 		RenderTitle()
 		RenderMenu()
+		RenderSupporterMedal()
+	End
+	
+	Method RenderParticles:Void()
+		backgroundEffect.Render()
 	End
 	
 	Method RenderTitle:Void()
@@ -181,10 +183,26 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Next
 	End
 	
-	Method RenderEnemies:Void()
-		For Local e:= EachIn enemies
-			e.Render()
-		Next
+	Method RenderSupporterMedal:Void()
+		If GameScene.IsUnlocked
+			Local fadeInTime:Float = 1.0
+			If supporterMedal.UnlockTime > Vsat.Seconds - fadeInTime
+				supporterMedal.color.Alpha = (Vsat.Seconds - supporterMedal.UnlockTime) * 1.0/fadeInTime
+			Else
+				supporterMedal.color.Alpha = 1.0
+			End
+		Else
+			Local alpha:Float = Min(0.7 + Sin(Vsat.Seconds*150)*0.5, 1.0)
+			supporterMedal.color.Alpha = alpha
+		End
+		supporterMedal.Render()
+		
+		If justGotSupporterMedal
+			justGotSupporterMedal = False
+			medalEffect.Start()
+			supporterMedal.InitUnlocked()
+		End
+		medalEffect.Render()
 	End
 	
 	Method ClearScreen:Void()
@@ -202,6 +220,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	Method OnMouseUp:Void()
+		CheckMedalClicked()
 		CheckMenuClicked()
 		For Local i:Int = 0 Until menuOptions.Length
 			menuOptions[i].isDown = False
@@ -239,6 +258,16 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		End
 	End
 	
+	Method CheckMedalClicked:Void()
+		Local tx:Float = TouchX()
+		Local ty:Float = TouchY()
+		Local w:Int = supporterMedal.Width()
+		Local h:Int = supporterMedal.Height()
+		If PointInRect(tx, ty, Vsat.ScreenWidth2 - w/2, supporterMedal.position.y - h/2, w, h)
+			GoToSupporter()
+		End
+	End
+	
 	Method GoToGame:Void()
 		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
 			Return
@@ -261,6 +290,15 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Self.shouldClearScreen = False
 		Local medals:= New MedalScene
 		Vsat.ChangeScene(medals)
+	End
+	
+	Method GoToSupporter:Void()
+		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+			Return
+		End
+		Vsat.SaveToClipboard(Self, "MainMenu")
+		Local scene:= New BuySupporterMedalScene
+		Vsat.ChangeScene(scene)
 	End
 	
 	
@@ -289,6 +327,9 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field actions:List<VAction> = New List<VAction>
 	
 	Field backgroundEffect:ParticleBackground
+	
+	Field medalEffect:ExplosionEmitter
+	Field supporterMedal:SupporterMedal
 	
 End
 
