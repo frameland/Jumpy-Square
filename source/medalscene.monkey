@@ -3,6 +3,7 @@ Import vsat
 Import menu
 Import medalitem
 Import back
+Import game
 
 
 Class MedalScene Extends VScene Implements VActionEventHandler
@@ -61,7 +62,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method InitMedals:Void()
-		medalItems = New CustomMedalItem[8]
+		medalItems = New CustomMedalItem[9]
 		medalItems[0] = New CustomMedalItem("Normal-Dodge", "normal_dodge.png")
 		medalItems[1] = New CustomMedalItem("Double-Dodge", "double_dodge.png")
 		medalItems[2] = New CustomMedalItem("Triple-Dodge", "triple_dodge.png")
@@ -71,9 +72,19 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		medalItems[6] = New CustomMedalItem("Half-Dead", "half_dead.png")
 		medalItems[7] = New CustomMedalItem("Scoreman", "scoreman.png")
 		
+		'Supporter
+		If GameScene.IsUnlocked
+			medalItems[medalItems.Length-1] = New CustomMedalItem("Supporter", "unlocked.png")
+			medalItems[medalItems.Length-1].color.Set($e9f124)
+		Else
+			medalItems[medalItems.Length-1] = New CustomMedalItem("Supporter", "locked.png")
+			medalItems[medalItems.Length-1].color.Set($c0c546)
+		End
+		
+		
 		Local hasWideScreen:Bool = Vsat.ScreenWidth / Vsat.ScreenHeight > 0.74
 		If hasWideScreen 'iPad
-
+			'Do something here
 		Else 'iPhone
 			Local x1:Float = Int(Vsat.ScreenWidth * 0.3)
 			Local x2:Float = Int(Vsat.ScreenWidth * 0.7)
@@ -176,12 +187,21 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		PushMatrix()
 		Translate(-currentPosX, 0)
 		For Local i:Int = 0 Until medalItems.Length
+			If i = medalItems.Length-1
+				If GameScene.IsUnlocked
+					medalItems[i].color.Alpha = Min(0.85 + Sin(Vsat.Seconds*150)*0.3, 1.0)
+				Else
+					medalItems[i].color.Alpha = Min(0.7 + Sin(Vsat.Seconds*150)*0.5, 1.0)
+				End
+			End
 			medalItems[i].Render()
 		Next
 		PopMatrix()
 	End
 	
 	Method RenderSites:Void()
+		Color.White.Use()
+		
 		Local siteRadius:Float = siteActive.Width()/2 * 0.8
 		Local x:Float = Vsat.ScreenWidth2 + siteRadius
 		If sites Mod 2 = 0
@@ -285,7 +305,11 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		For Local i:Int = startIndex Until endIndex
 			Local item:= medalItems[i]
 			If item.WasTouched(cursor)
-				ItemWasClicked(item)
+				If item.Description = "" And GameScene.IsUnlocked = False
+					GoToSupporter()
+				Else
+					ItemWasClicked(item)
+				End
 				Return
 			End
 		Next
@@ -313,6 +337,16 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 			AddAction(action)
 		End
 		description.Description = item.Description
+	End
+	
+	Method GoToSupporter:Void()
+		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+			Return
+		End
+		Vsat.SaveToClipboard(mainMenuObject, "MainMenu")
+		mainMenuObject.shouldClearScreen = True
+		Local scene:= New BuySupporterMedalScene
+		Vsat.ChangeScene(scene)
 	End
 	
 	Method OnActionEvent:Void(id:Int, action:VAction)
@@ -394,7 +428,6 @@ Class MedalDescription Extends VRect
 		descriptionLabel = New VLabel("description")
 		descriptionLabel.position.Set(Vsat.ScreenWidth2, 0)
 		descriptionLabel.alignHorizontal = True
-		
 	End
 	
 	Method SetFont:Void(font:AngelFont)

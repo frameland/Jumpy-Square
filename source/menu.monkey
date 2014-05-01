@@ -26,7 +26,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		End
 		initialized = True
 		
-		LoadGame()
+		'LoadGame()
 		
 		font = FontCache.GetFont(RealPath("font"))
 		
@@ -99,7 +99,6 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		medalEffect.endColor.Set(Color.Yellow)
 		medalEffect.endColor.Alpha = 0.0
 	End
-	
 	
 	Method AddAction:Void(action:VAction)
 		action.AddToList(actions)

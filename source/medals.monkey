@@ -301,7 +301,11 @@ Class Medals
 			Case "Feeder"
 				Return "Filled the entire scorefeed."
 			Case "Supporter"
-				Return "You are awesome!"
+				If GameScene.IsUnlocked
+					Return "You are awesome!"
+				End
+				Return ""
+				
 			Default
 				Throw New Exception("Unknown medal name: " + medalName)
 		End

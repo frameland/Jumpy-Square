@@ -52,5 +52,6 @@ Class MedalItem Extends VRect
 	Field name:String
 	Field description:String
 	Field times:Int
+
 End
 
