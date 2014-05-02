@@ -26,7 +26,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		End
 		initialized = True
 		
-		'LoadGame()
+		LoadGame()
 		
 		font = FontCache.GetFont(RealPath("font"))
 		

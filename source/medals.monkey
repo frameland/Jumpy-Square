@@ -311,6 +311,11 @@ Class Medals
 		End
 	End
 	
+	Function UnlockSupporterMedal:Void()
+		Supporter = 1
+		GameScene.IsUnlocked = True
+	End
+	
 	
 '--------------------------------------------------------------------------
 ' * Private

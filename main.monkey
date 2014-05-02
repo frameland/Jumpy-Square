@@ -1,9 +1,9 @@
-'buildopt: run
+'buildopt: ios
+'buildopt: release
 Strict
 Import vsat
 Import source.menu
 Import source.particles
-
 #GLFW_WINDOW_WIDTH = 640
 #GLFW_WINDOW_HEIGHT = 960
 

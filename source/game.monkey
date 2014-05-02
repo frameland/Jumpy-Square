@@ -60,7 +60,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		ResetGame()
 		FadeInAnimation()
-		randomTip = GetRandomTip()
+		
+		randomTip = RandomTip()
+		tip = "Tip"
 	End
 	
 	Method FadeInAnimation:Void()
@@ -138,7 +140,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		scoreFeed.lineHeightMultiplier = 0.7
 	End
 	
-
+	
 '--------------------------------------------------------------------------
 ' * Helpers
 '--------------------------------------------------------------------------
@@ -155,11 +157,20 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		Return KeyHit(KEY_SPACE) Or MouseHit()
 	End
 	
-	Method GetRandomTip:String()
-		If isFirstTime
-			Return "Tap to jump"
+	Method RandomTip:String[]()
+		If Not isFirstTime Return [""]
+		
+		If Medals.NormalDodge = 0
+			Return ["Tap to jump"]
 		End
-		Return ""
+		
+		Local tipArray:String[] = New String[3]
+		tipArray[0] = "You can tap jump~neven before you hit a wall."
+		tipArray[1] = "Got Headphones?~nYou can hear from which side~nthe blocks will come from."
+		tipArray[2] = "In the Medals screen click on a medal~nto get more info."
+		
+		Local returnTip:String[] = tipArray[Int(Rnd(3))].Split("~n")
+		Return returnTip
 	End
 	
 	
@@ -361,18 +372,33 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method RenderTip:Void()
 		If isFirstTime
 			ResetBlend()
-			Color.White.UseWithoutAlpha()
 			If Vsat.transition
 				SetAlpha(Min(Vsat.transition.Progress * 3.0, 1.0))
 			Else
-				randomTipAlpha -= Vsat.DeltaTime * 2
+				Local normalTipLength:Float = 15
+				randomTipAlpha -= Vsat.DeltaTime * randomTip.Length/normalTipLength * 3
 				If randomTipAlpha <= 0
 					randomTipAlpha = 0.0
 					isFirstTime = False
 				End
 				SetAlpha(randomTipAlpha)
 			End
-			scoreFont.DrawText(randomTip, Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.3, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
+			
+			Color.Yellow.UseWithoutAlpha()
+			PushMatrix()
+				Translate(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.3 - scoreFont.height * 0.9)
+				Scale(0.8, 0.8)
+				scoreFont.DrawText(tip, 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
+			PopMatrix()
+			
+			Color.White.UseWithoutAlpha()
+			For Local i:Int = 0 Until randomTip.Length
+				PushMatrix()
+					Translate(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.3 + i*scoreFont.height*0.8)
+					Scale(0.8, 0.8)
+					scoreFont.DrawText(randomTip[i], 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
+				PopMatrix()
+			Next
 		End
 	End
 	
@@ -558,8 +584,10 @@ Class GameScene Extends VScene Implements VActionEventHandler
 ' * Private
 '--------------------------------------------------------------------------
 	Private
-	Field randomTip:String
+	Field randomTip:String[]
+	Field tip:String
 	Field randomTipAlpha:Float = 1.0
+	
 	Field scoreFont:AngelFont
 	Field actions:List<VAction> = New List<VAction>
 	

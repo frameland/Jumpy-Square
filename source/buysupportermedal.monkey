@@ -6,8 +6,17 @@ Import supportermedal
 Import medals
 Import save
 
+#If TARGET = "ios"
+Import store	
+#End
 
+
+
+#If TARGET = "ios"
+Class BuySupporterMedalScene Extends VScene Implements IStore
+#Else
 Class BuySupporterMedalScene Extends VScene
+#End
 
 '--------------------------------------------------------------------------
 ' * Init
@@ -32,6 +41,7 @@ Class BuySupporterMedalScene Extends VScene
 		
 		InitMenuChoices()
 		InitMenu()
+		InitStore()
 		
 		Local transition:= New FadeInTransition(0.2)
 		Vsat.StartFadeIn(transition)
@@ -46,8 +56,7 @@ Class BuySupporterMedalScene Extends VScene
 	End
 	
 	Method InitMenuChoices:Void()
-		Local price:String = "0.99"
-		buy = New MenuItem("Buy it (" + price + ")")
+		buy = New MenuItem("Buy it")
 		buy.alignHorizontal = AngelFont.ALIGN_RIGHT
 		buy.SetFont(RealPath("font"))
 		buy.position.x = Vsat.ScreenWidth*0.75
@@ -69,6 +78,24 @@ Class BuySupporterMedalScene Extends VScene
 			cancel.position.x = Vsat.ScreenWidth2
 			cancel.color.Alpha = 1.0
 		End
+		
+		restore = New MenuItem("Restore Purchases")
+		restore.SetFont(RealPath("font"))
+		restore.position.x = Vsat.ScreenWidth * 0.05
+		restore.position.y = Vsat.ScreenHeight * 0.95 - font.height * 0.5
+		restore.SetScale(0.8)
+		restore.color.Set(Color.White)
+		restore.color.Alpha = 0.3
+	End
+	
+	Method InitStore:Void()
+		#If TARGET = "ios"
+			If GameScene.IsUnlocked Return
+			
+			Local consumables:String[] = [""]
+			Local nonConsumables:String[] = ["SupporterMedal"]
+			store = New VStore(Self, consumables, nonConsumables)
+		#End
 	End
 	
 
@@ -79,9 +106,16 @@ Class BuySupporterMedalScene Extends VScene
 		mainMenuObject.UpdateParticles(dt)
 		UpdateCursor()
 		medal.Update(dt)
+		UpdateBuyText()
 	End
 	
 	Method UpdateCursor:Void()
+		#If TARGET = "ios"
+			If store And store.IsBusy() And updatedPrice = True
+				Return
+			End
+		#End
+		
 		If TouchDown()
 			OnMouseDown()
 			lastTouchDown = True
@@ -91,6 +125,25 @@ Class BuySupporterMedalScene Extends VScene
 			End
 			lastTouchDown = False
 		End
+	End
+	
+	Method UpdateBuyText:Void()
+		#If TARGET = "ios"
+			If store And store.IsOpen()
+				If updatedPrice = False
+					updatedPrice = True
+					Local newText:String = buy.Text + " - " + store.LocalizedPrice("SupporterMedal")
+					Local formatted:String
+					For Local i:Int = 0 Until newText.Length
+						Local char:Int = newText[i]
+						If IsNumber(char) Or char = "."[0] Or char = ","[0]
+							formatted += String.FromChar(char)
+						End
+					Next
+					buy.Text = buy.Text + " - " + formatted
+				End
+			End
+		#End
 	End
 	
 
@@ -118,6 +171,7 @@ Class BuySupporterMedalScene Extends VScene
 		RenderMedal()
 		RenderDescription()
 		RenderChoices()
+		RenderStore()
 	End
 	
 	Method RenderBackground:Void()
@@ -148,10 +202,39 @@ Class BuySupporterMedalScene Extends VScene
 	Method RenderChoices:Void()
 		If GameScene.IsUnlocked = False
 			buy.Render()
+			restore.Render()
 		End
 		cancel.Render()
 	End
+	
+	Method RenderStore:Void()
+		#If TARGET = "ios"
+			If Not store Return
 
+			If store.IsBusy() And updatedPrice = True
+				Local dots:Int = Int(Vsat.Seconds * 1000) Mod 1600
+				
+				SetAlpha(0.5)
+				Color.Black.UseWithoutAlpha()
+				DrawRect(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight)
+				
+				Local connectText:String = "Connecting"
+				Local xPos:Int = Vsat.ScreenWidth2 - font.TextWidth(connectText)/2
+				If dots > 1200
+					connectText += "..."
+				ElseIf dots > 800
+					connectText += ".."
+				ElseIf dots > 400
+					connectText += "."
+				End
+				
+				Color.White.UseWithoutAlpha()
+				SetAlpha(0.5)
+				font.DrawText(connectText, xPos, Vsat.ScreenHeight * 0.05, AngelFont.ALIGN_LEFT, AngelFont.ALIGN_TOP)
+			End
+		#End
+	End
+	
 
 '--------------------------------------------------------------------------
 ' * Events
@@ -168,6 +251,15 @@ Class BuySupporterMedalScene Extends VScene
 			If cancel.WasTouched(cursor)
 				OnCancel()
 			End
+		ElseIf restore.isDown
+			restore.isDown = False
+			If restore.WasTouched(cursor)
+				#If TARGET = "ios"
+					If store
+						store.Restore()
+					End
+				#End
+			End
 		End
 	End
 	
@@ -177,6 +269,8 @@ Class BuySupporterMedalScene Extends VScene
 			buy.isDown = True
 		ElseIf cancel.WasTouched(cursor)
 			cancel.isDown = True
+		ElseIf restore.WasTouched(cursor)
+			restore.isDown = True
 		End
 	End
 	
@@ -194,13 +288,39 @@ Class BuySupporterMedalScene Extends VScene
 			Return
 		End
 		
-		Medals.Supporter += 1
-		GameScene.IsUnlocked = True
+		#If TARGET = "ios"
+			If store
+				store.Buy("SupporterMedal")
+			End
+		#End
+	End
+	
+	Method YouCheater:Void()
+		Print "You dont have a supporter medal"
+	End
+	
+
+'--------------------------------------------------------------------------
+' * Store Interfaces
+'--------------------------------------------------------------------------
+	#If TARGET = "ios"
+	
+	Method PurchaseComplete:Void(product:Product)
+		Medals.UnlockSupporterMedal()
 		mainMenuObject.justGotSupporterMedal = True
 		OnCancel()
 		SaveGame()
 	End
 	
+	Method RestoreProducts:Void(products:Product[])
+		If products.Length = 1
+			PurchaseComplete(products[0])
+		ElseIf products.Length = 0
+			YouCheater()
+		End
+	End
+	
+	#End
 	
 	Private
 	Field mainMenuObject:MainMenu
@@ -212,8 +332,15 @@ Class BuySupporterMedalScene Extends VScene
 	
 	Field buy:MenuItem
 	Field cancel:MenuItem
+	Field restore:MenuItem
 	
 	Field lastTouchDown:Bool
+	
+	#If TARGET = "ios"
+	Field store:VStore
+	Field updatedPrice:Bool
+	#End
+	
 	
 End
 
