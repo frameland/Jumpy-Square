@@ -38,12 +38,6 @@ Class ParticleBackground
 		
 		emitter.Start()
 		emitter.FastForward(20, 0.01666)
-		
-		gradient = New VSprite
-		gradient.SetImage((RealPath("gradient.png")), 0)
-		gradient.scale.x = Vsat.ScreenWidth / gradient.Width
-		gradient.scale.y = Vsat.ScreenHeight / gradient.Height
-		gradient.color.Alpha = 0.5
 	End
 	
 	Method Update:Void(dt:Float)
@@ -55,7 +49,6 @@ Class ParticleBackground
 	End
 	
 	Method Render:Void()
-		'gradient.Render()
 		emitter.Render()
 	End
 	

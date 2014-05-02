@@ -150,7 +150,7 @@ Class VStore Implements IOnOpenStoreComplete,IOnBuyProductComplete,IOnGetOwnedPr
 	End
 	
 	Method OnGetOwnedProductsComplete:Void(result:Int, products:Product[])
-		Print "OnGetOwnedProductsComplete, result="+result
+		'Print "OnGetOwnedProductsComplete, result="+result
 		If result <> 0 Return
 		If Not products Return
 		callback.RestoreProducts(products)

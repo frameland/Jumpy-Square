@@ -30,7 +30,11 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		
 		font = FontCache.GetFont(RealPath("font"))
 		
-		scoreEnemyImage = LoadImage(RealPath("enemy.png"))
+		If Vsat.ScreenWidth = 768 'ipad
+			scoreEnemyImage = LoadImage(RealPath("enemy_ipad.png"))
+		Else
+			scoreEnemyImage = LoadImage(RealPath("enemy.png"))
+		End
 		scoreEnemyImage.SetHandle(scoreEnemyImage.Width()/2, scoreEnemyImage.Height()/2)
 		
 		titleImage = LoadImage(RealPath("title.png"))

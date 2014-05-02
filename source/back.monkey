@@ -10,8 +10,8 @@ Class BackButton Extends VLabel
 	Method New()
 		Super.New("Back")
 		color.Set(Color.White)
-		alignVertical = True
-		position.Set(Vsat.ScreenWidth * 0.05, Vsat.ScreenWidth * 0.08)
+		alignVertical = AngelFont.ALIGN_CENTER
+		position.Set(Vsat.ScreenWidth * 0.05, Vsat.ScreenWidth * 0.06)
 		image = ImageCache.GetImage(RealPath("back.png"))
 		MidHandleImage(image)
 	End
@@ -26,7 +26,11 @@ Class BackButton Extends VLabel
 		DrawImage(image, length, length*0.5)
 		
 		PushMatrix()
-			Translate(image.Width()*1.5, 5)
+			If IsHD()
+				Translate(image.Width()*2, 5)
+			Else
+				Translate(image.Width()*1.5, 5)
+			End
 			Super.Draw()
 		PopMatrix()
 	End

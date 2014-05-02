@@ -51,9 +51,11 @@ Class Player Extends VRect
 				image = ImageCache.GetImage(RealPath("player5.png"))
 				image.SetHandle(6, 6)
 			Case 1024
-			
+				image = ImageCache.GetImage(RealPath("player_ipad.png"))
+				image.SetHandle(5, 5)
 			Case 2048
-				
+				image = ImageCache.GetImage(RealPath("player.png"))
+				image.SetHandle(10, 10)
 		End
 	End
 	
@@ -213,6 +215,11 @@ Class Player Extends VRect
 		Else
 			Super.Render()
 		End
+		
+		If Not isJumping And lastPositions.IsEmpty() = False
+			lastPositions.RemoveLast()
+		End
+		
 		
 		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
 		Local alphaCounter:Float = 0.3

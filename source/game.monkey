@@ -343,9 +343,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		Local scoreRatio:Float = 1.5 - Float(score)/targetScore * 0.5
 		PushMatrix()
 			If score > 0 And targetScore > 0
-				ScaleAt(Vsat.ScreenWidth2, 16 + scoreFont.height/2, scoreRatio, scoreRatio)
+				ScaleAt(Vsat.ScreenWidth2, backButton.position.y+8, scoreRatio, scoreRatio)
 			End
-			scoreFont.DrawText(score, Vsat.ScreenWidth2, 16, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+			scoreFont.DrawText(score, Vsat.ScreenWidth2, backButton.position.y+8, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
 		PopMatrix()
 	End
 	

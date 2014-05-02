@@ -46,9 +46,11 @@ Class Enemy Extends VRect
 				image = ImageCache.GetImage(RealPath("enemy.png"))
 				image.SetHandle(6, 6)
 			Case 1024
-				
+				image = ImageCache.GetImage(RealPath("enemy_ipad.png"))
+				image.SetHandle(5, 5)
 			Case 2048
-				
+				image = ImageCache.GetImage(RealPath("enemy.png"))
+				image.SetHandle(11, 11)
 		End
 	End
 	
