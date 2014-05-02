@@ -5,6 +5,8 @@ Import extra
 
 Class Enemy Extends VRect
 	
+	Const COLLISION_FORGIVENESS:Float = 0.1 '0..1, 0 = normal, 1 = no collision
+	
 	Field velocity:Vec2
 	Field gravity:Float = Vsat.ScreenHeight / 38
 	Field link:ListNode<Enemy>
@@ -86,6 +88,15 @@ Class Enemy Extends VRect
 	
 	Method ShouldRenderParticles:Bool()
 		Return isSurprise And position.x = (Vsat.ScreenWidth2 - size.x/2)
+	End
+	
+	Method CollidesWith:Bool(rect:VRect)
+		Local forgiveness:Int = size.x * COLLISION_FORGIVENESS
+		Local x:Float = position.x + forgiveness/2
+		Local y:Float = position.y + forgiveness/2
+		Local sizeX:Float = size.x - forgiveness
+		Local sizeY:Float = size.y - forgiveness
+		Return RectsOverlap(rect.position.x, rect.position.y, rect.size.x, rect.size.y, x, y, sizeX, sizeY)
 	End
 	
 	

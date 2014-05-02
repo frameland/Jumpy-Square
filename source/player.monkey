@@ -15,6 +15,8 @@ Class Player Extends VRect
 	Field jumpSound:Sound
 	Field image:Image
 	
+	Field numberOfJumps:Int
+	
 	'effects
 	Field sparks:SparkEmitter
 	Field wallhit:ExplosionEmitter
@@ -91,6 +93,7 @@ Class Player Extends VRect
 		End
 		lastPositions.Clear()
 		willJump = False
+		numberOfJumps = 0
 		sparks.StopNow()
 		wallhit.StopNow()
 	End
@@ -187,6 +190,7 @@ Class Player Extends VRect
 		If Not isJumping
 			isJumping = True
 			willJump = False
+			numberOfJumps += 1
 			If position.x <= 1
 				position.x = 3
 				velocity.Set(jumpForce)

@@ -9,6 +9,10 @@ Import feed
 Import back
 Import save
 
+#If TARGET = "ios"
+Import brl.admob
+#ADMOB_PUBLISHER_ID="a15364047eb2dce "
+#End
 
 Class GameScene Extends VScene Implements VActionEventHandler
 
@@ -63,6 +67,13 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		randomTip = RandomTip()
 		tip = "Tip"
+		
+		#If TARGET = "ios"
+			If IsUnlocked = False
+				admob = Admob.GetAdmob()	
+			End
+		#End
+		
 	End
 	
 	Method FadeInAnimation:Void()
@@ -171,6 +182,22 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		Local returnTip:String[] = tipArray[Int(Rnd(3))].Split("~n")
 		Return returnTip
+	End
+	
+	Method HideAds:Void()
+		#If TARGET = "ios"
+			If IsUnlocked = False
+				admob.HideAdView()
+			End
+		#End
+	End
+	
+	Method ShowAds:Void()
+		#If TARGET = "ios"
+			If IsUnlocked = False
+				admob.ShowAdView(adStyle, adLayout)
+			End
+		#End
 	End
 	
 	
@@ -298,6 +325,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			AddAction(fadeColor)
 			Local fadeBack:= New VFadeToAlphaAction(backButton.color, 0.0, 0.2, LINEAR_TWEEN)
 			AddAction(fadeBack)
+			HideAds()
 		End
 	End
 	
@@ -506,6 +534,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method OnGameOver:Void()
+		ShowAds()
+		
 		gameOver = True
 		scoreMannedThisRound = False
 		
@@ -574,6 +604,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 
 			Local fadeColor:= New VFadeToColorAction(backgroundColor, mainMenuObject.backgroundColor, 0.5, LINEAR_TWEEN)
 			AddAction(fadeColor)
+			
+			HideAds()
 		End
 	End
 	
@@ -602,6 +634,13 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field backButton:BackButton
 	
 	Field lastTouchDown:Bool
+	
+	'admob
+	#If TARGET = "ios"
+		Field admob:Admob
+		Field adLayout:Int = 5
+		Field adStyle:Int = 2
+	#End
 	
 End
 
