@@ -29,7 +29,11 @@ Class MedalItem Extends VRect
 		Local h:Float = image.Height()
 		PushMatrix()
 		Scale(0.8, 0.8)
-		font.DrawText(name, 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+		If times = 0
+			font.DrawText("?", 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+		Else
+			font.DrawText(name, 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+		End
 		PopMatrix()
 		PushMatrix()
 			ScaleAt(0, h * 1.55, 0.8, 0.8)
@@ -45,6 +49,11 @@ Class MedalItem Extends VRect
 	Method Description:String() Property
 		Return description
 	End
+	
+	Method Times:Int() Property
+		Return times
+	End
+	
 	
 	
 	Private

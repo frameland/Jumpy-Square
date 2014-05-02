@@ -18,7 +18,7 @@ Class ParticleBackground
 		emitter.particleLifeSpanVariance = 5.0
 		emitter.emissionRate = 10
 		
-		emitter.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.75)
+		emitter.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.2)
 		emitter.positionVariance.Set(baseUnit, Vsat.ScreenHeight2)
 		emitter.size.Set(1, 1)
 		emitter.endSize.Set(24, 24)
@@ -28,9 +28,9 @@ Class ParticleBackground
 
 		emitter.startColor.Alpha = 0.1
 		emitter.endColor.Alpha = 0.0
-		emitter.emissionAngle = -90
-		emitter.speed = 45
-		emitter.speedVariance = 25
+		emitter.emissionAngle = 90
+		emitter.speed = 85
+		emitter.speedVariance = 35
 		If IsHD()
 			emitter.speed *= 2
 			emitter.speedVariance *= 2

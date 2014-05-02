@@ -461,7 +461,6 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			Local e:= New Enemy
 			e.isSurprise = True
 			e.position.x = Vsat.ScreenWidth2 - e.size.x/2
-			e.gravity = 30
 			e.link = enemies.AddLast(e)
 		End
 	End

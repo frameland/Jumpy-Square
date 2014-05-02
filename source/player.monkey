@@ -100,21 +100,29 @@ Class Player Extends VRect
 ' * Update
 '--------------------------------------------------------------------------	
 	Method Update:Void(dt:Float)
-		UpdatePhysics(dt)
 		UpdateLastPosition()
+		UpdatePhysics(dt)
 		UpdateParticles(dt)
 	End
 	
 	Method UpdateLastPosition:Void()
 		If Not isJumping
-			maxPositions = 6
+			maxPositions = 3
 		Else
 			maxPositions = 12
 		End
 		
 		lastPositions.AddFirst(New Vec2(position))
-		If lastPositions.Count() > maxPositions
+		
+		Local numberOfPositions:Int = lastPositions.Count()
+		If numberOfPositions > 0 And isJumping = False
 			lastPositions.RemoveLast()
+			numberOfPositions -= 1
+		End
+		
+		While numberOfPositions > maxPositions
+			lastPositions.RemoveLast()
+			numberOfPositions -= 1
 		End
 	End
 	
@@ -215,11 +223,6 @@ Class Player Extends VRect
 		Else
 			Super.Render()
 		End
-		
-		If Not isJumping And lastPositions.IsEmpty() = False
-			lastPositions.RemoveLast()
-		End
-		
 		
 		Local incrementAlpha:Float = (1.0 / maxPositions) * 0.2
 		Local alphaCounter:Float = 0.3

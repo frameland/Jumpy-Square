@@ -409,7 +409,11 @@ Class CustomMedalItem Extends MedalItem
 	End
 	
 	Method Draw:Void()
-		SetAlpha(color.Alpha * globalAlpha.Alpha)
+		If Times = 0
+			SetAlpha(color.Alpha * globalAlpha.Alpha * 0.3)
+		Else
+			SetAlpha(color.Alpha * globalAlpha.Alpha)
+		End
 		Super.Draw()
 	End
 	
