@@ -6,7 +6,7 @@ Import game
 Class Medals
 
 '--------------------------------------------------------------------------
-' * Medals
+' * Medal Counters
 '--------------------------------------------------------------------------	
 	Global NormalDodge:Int
 	Global DoubleDodge:Int
@@ -81,7 +81,6 @@ Class Medals
 			MedalState.CouldGoHalfDead = True
 		ElseIf MedalState.CouldGoHalfDead
 			MedalState.CouldGoHalfDead = False
-			HalfDead += 1
 			FireEvent("Half-Dead")
 		End
 		
@@ -115,12 +114,10 @@ Class Medals
 
 	Function OnScoreChange:Void(gameScene:GameScene)
 		'Normal Dodge
-		NormalDodge += 1
 		FireEvent("Normal-Dodge")
 		
 		'Close One
 		If MedalState.CouldBeClose
-			CloseOne += 1
 			FireEvent("Close One")
 			MedalState.CouldBeClose = False
 		End
@@ -135,15 +132,12 @@ Class Medals
 			Local d:Float = MedalState.LastScoreTime.Pop()
 			Local dodged:Bool = False
 			If a - d < MultiDodgeTime
-				MultiDodge += 1
 				FireEvent("Multi-Dodge")
 			End
 			If a - c < TripleDodgeTime
-				TripleDodge += 1
 				FireEvent("Triple-Dodge")
 			End
 			If a - b < DoubleDodgeTime
-				DoubleDodge += 1
 				FireEvent("Double-Dodge")
 			End
 			
@@ -162,11 +156,9 @@ Class Medals
 			Local c:Float = MedalState.LastScoreTime.Pop()
 			Local dodged:Bool = False
 			If a - c < TripleDodgeTime
-				TripleDodge += 1
 				FireEvent("Triple-Dodge")
 			End
 			If a - b < DoubleDodgeTime
-				DoubleDodge += 1
 				FireEvent("Double-Dodge")
 			End
 			
@@ -183,7 +175,6 @@ Class Medals
 			Local b:Float = MedalState.LastScoreTime.Pop()
 			Local dodged:Bool = False
 			If a - b < DoubleDodgeTime
-				DoubleDodge += 1
 				FireEvent("Double-Dodge")
 			End
 			
@@ -199,14 +190,12 @@ Class Medals
 		For Local e:= EachIn gameScene.enemies
 			If e.isSurprise And e.hasBeenScored
 				e.isSurprise = False
-				NotSurprised += 1
 				FireEvent("Not Surprised")
 			End
 		Next
 		
 		'Scoreman
 		If MedalState.PreviousHighscore < gameScene.score And gameScene.scoreMannedThisRound = False
-			Scoreman += 1
 			FireEvent("Scoreman")
 		End
 		
@@ -215,13 +204,20 @@ Class Medals
 	Function UpdatePostGame:Void(gameScene:GameScene)
 		If Not gameScene.gameOver Return
 		
-		'Set vars
+		If gameScene.dodged = 0
+			'Tissue
+		End
+		
+	End
+
+	Function ResetThisRound:Void()
 		MedalState.LastScoreTime.Clear()
 		MedalState.LastScore = 0
 		MedalState.CouldGoHalfDead = False
 		MedalState.CouldBeClose = False
+		ThisRound.Reset()
 	End
-
+	
 
 '--------------------------------------------------------------------------
 ' * Helpers
@@ -280,6 +276,37 @@ Class Medals
 		End
 	End
 	
+	Function FileNameFor:String(medalName:String)
+		Select medalName
+			Case "Normal-Dodge"
+				Return "normal_dodge.png"
+			Case "Double-Dodge"
+				Return "double_dodge.png"
+			Case "Triple-Dodge"
+				Return "triple_dodge.png"
+			Case "Multi-Dodge"
+				Return "multi_dodge.png"
+			Case "Close One"
+				Return "close_one.png"
+			Case "Half-Dead"
+				Return "half_dead.png"
+			Case "Not Surprised"
+				Return "not_surprised.png"
+			Case "Scoreman"
+				Return "scoreman.png"
+			Case "Feeder"
+				Return "feeder.png"
+			Case "Supporter"
+				If GameScene.IsUnlocked
+					Return "unlocked.png"
+				End
+				Return "locked.png"
+				
+			Default
+				Throw New Exception("Unknown medal name: " + medalName)
+		End
+	End
+	
 	Function DescriptionFor:String(medalName:String)
 		Select medalName
 			Case "Normal-Dodge"
@@ -316,6 +343,57 @@ Class Medals
 		GameScene.IsUnlocked = True
 	End
 	
+	'returns array with format:
+	'MedalId, numberEarned, MedalId, numberEarned, ... (you have to cast numberEarned to Int)
+	Function MedalsEarnedThisRound:String[]()
+		'Return Cheat()
+		
+		Local stack:StringStack = New StringStack
+		
+		If ThisRound.NormalDodge
+			stack.Push("Normal-Dodge")
+			stack.Push(ThisRound.NormalDodge)
+		End
+		If ThisRound.DoubleDodge
+			stack.Push("Double-Dodge")
+			stack.Push(ThisRound.DoubleDodge)
+		End
+		If ThisRound.TripleDodge
+			stack.Push("Triple-Dodge")
+			stack.Push(ThisRound.TripleDodge)
+		End
+		If ThisRound.MultiDodge
+			stack.Push("Multi-Dodge")
+			stack.Push(ThisRound.MultiDodge)
+		End
+		If ThisRound.CloseOne
+			stack.Push("Close One")
+			stack.Push(ThisRound.CloseOne)
+		End
+		If ThisRound.HalfDead
+			stack.Push("Half-Dead")
+			stack.Push(ThisRound.HalfDead)
+		End
+		If ThisRound.Scoreman
+			stack.Push("Scoreman")
+			stack.Push(ThisRound.Scoreman)
+		End
+		If ThisRound.NotSurprised
+			stack.Push("Not Surprised")
+			stack.Push(ThisRound.NotSurprised)
+		End
+		If ThisRound.Feeder
+			stack.Push("Feeder")
+			stack.Push(ThisRound.Feeder)
+		End
+		
+		Return stack.ToArray()
+	End
+	
+	Function Cheat:String[]()
+		Return ["Normal-Dodge", "23", "Double-Dodge", "1", "Close One", "3", "Half-Dead", "1"]
+	End
+	
 	
 '--------------------------------------------------------------------------
 ' * Private
@@ -324,10 +402,48 @@ Class Medals
 	Global MedalEvent:VEvent = New VEvent
 	
 	Function FireEvent:Void(id:String)
+		EarnedMedal(id)
 		MedalEvent.id = "medal_" + id
 		MedalEvent.x = HowMuchPointsFor(id)
 		Vsat.FireEvent(MedalEvent)
 	End
+	
+	Function EarnedMedal:Void(id:String)
+		Select id
+			Case "Normal-Dodge"
+				NormalDodge += 1
+				ThisRound.NormalDodge += 1
+			Case "Double-Dodge"
+				DoubleDodge += 1
+				ThisRound.DoubleDodge += 1
+			Case "Triple-Dodge"
+				TripleDodge += 1
+				ThisRound.TripleDodge += 1
+			Case "Multi-Dodge"
+				MultiDodge += 1
+				ThisRound.MultiDodge += 1
+			Case "Close One"
+				CloseOne += 1
+				ThisRound.CloseOne += 1
+			Case "Half-Dead"
+				HalfDead += 1
+				ThisRound.HalfDead += 1
+			Case "Not Surprised"
+				NotSurprised += 1
+				ThisRound.NotSurprised += 1
+			Case "Scoreman"
+				Scoreman += 1
+				ThisRound.Scoreman += 1
+			Case "Feeder"
+				Feeder += 1
+				ThisRound.Feeder += 1
+			Case "Supporter"
+				
+			Default
+				Throw New Exception("Unknown medal name: " + id)
+		End
+	End
+	
 	
 	
 End
@@ -345,10 +461,30 @@ Class MedalState
 	Global playerCopy:VRect = New VRect(0, 0, 1, 1)
 End
 
-
-
-
-
+Class ThisRound
+	Global NormalDodge:Int
+	Global DoubleDodge:Int
+	Global TripleDodge:Int
+	Global MultiDodge:Int
+	Global CloseOne:Int
+	Global Scoreman:Int
+	Global NotSurprised:Int
+	Global HalfDead:Int
+	Global Feeder:Int
+	
+	Function Reset:Void()
+		NormalDodge = 0
+		DoubleDodge = 0
+		TripleDodge = 0
+	    MultiDodge = 0
+		CloseOne = 0
+        Scoreman = 0
+        NotSurprised = 0
+        HalfDead = 0
+        Feeder = 0
+	End
+	
+End
 
 
 

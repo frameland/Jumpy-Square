@@ -27,9 +27,9 @@ Class BackButton Extends VLabel
 		
 		PushMatrix()
 			If IsHD()
-				Translate(image.Width()*2, 5)
+				Translate(image.Width()*1.9, 5)
 			Else
-				Translate(image.Width()*1.5, 5)
+				Translate(image.Width()*1.6, 5)
 			End
 			Super.Draw()
 		PopMatrix()

@@ -22,10 +22,13 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field player:Player
 	Field enemies:List<Enemy>
 	Field enemyTimer:Float = 0.1
-	Field gameOver:Bool
+
 	Field score:Int
 	Field targetScore:Int
 	Field dodged:Int
+	
+	Field gameOver:Bool
+	Field gameOverState:GameOverState
 	
 	Field surpriseColor:Color = New Color
 	Field waitForSpurprise:Bool
@@ -38,7 +41,12 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field scoreMannedThisRound:Bool
 	
 	Field normalBgColor:Color = New Color(Color.Navy)
-	Field gameOverColor:Color = New Color($000b15)
+	Field gameOverColor:Color = New Color($001729) '$000b15
+	Field backgroundColor:Color = New Color
+	
+	
+	Field backButton:BackButton
+	Field lastTouchDown:Bool
 	
 	
 '--------------------------------------------------------------------------
@@ -54,6 +62,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		surpriseSound = LoadSound("audio/surprise.mp3")
 		
+		gameOverState = New GameOverState(Self)
+		
 		backButton = New BackButton
 		backButton.SetFont(RealPath("font2"))
 		backButton.color.Alpha = 0.0
@@ -68,12 +78,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		randomTip = RandomTip()
 		tip = "Tip"
 		
-		#If TARGET = "ios"
-			If IsUnlocked = False
-				admob = Admob.GetAdmob()	
-			End
-		#End
-		
+		InitAds()
 	End
 	
 	Method FadeInAnimation:Void()
@@ -151,6 +156,15 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		scoreFeed.lineHeightMultiplier = 0.7
 	End
 	
+	Method InitAds:Void()
+		#If TARGET = "ios"
+			If IsUnlocked = False And admob = Null
+				admob = Admob.GetAdmob()	
+			End
+		#End
+		ShowAds()
+	End
+	
 	
 '--------------------------------------------------------------------------
 ' * Helpers
@@ -186,7 +200,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method HideAds:Void()
 		#If TARGET = "ios"
-			If IsUnlocked = False
+			If IsUnlocked = False And admob
 				admob.HideAdView()
 			End
 		#End
@@ -194,7 +208,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method ShowAds:Void()
 		#If TARGET = "ios"
-			If IsUnlocked = False
+			If IsUnlocked = False And admob
 				admob.ShowAdView(adStyle, adLayout)
 			End
 		#End
@@ -314,18 +328,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method UpdateWhileGameOver:Void(dt:Float)
+		gameOverState.Update(dt)
 		If backButton.color.Alpha < 1.0
 			backButton.color.Alpha += dt * 4
-		End
-		
-		If UsedActionKey() And backgroundColor.Equals(gameOverColor) And backButton.isDown = False
-			FadeInPlayerAnimation(0.25)
-			ResetGame()
-			Local fadeColor:= New VFadeToColorAction(backgroundColor, normalBgColor, 0.3, LINEAR_TWEEN)
-			AddAction(fadeColor)
-			Local fadeBack:= New VFadeToAlphaAction(backButton.color, 0.0, 0.2, LINEAR_TWEEN)
-			AddAction(fadeBack)
-			HideAds()
 		End
 	End
 	
@@ -385,9 +390,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Method RenderGameOver:Void()
 		If gameOver
-			Color.White.Use()
-			SetAlpha(globalAlpha.Alpha)
-			scoreFont.DrawText("Tap to play again", Vsat.ScreenWidth2, Vsat.ScreenHeight2, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
+			gameOverState.Render()
 		End
 	End
 	
@@ -449,6 +452,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 				OnGameOver()
 			Case "RemoveEnemy"
 				' score += 1
+			Case "ReturnToGame"
+				ReturnFromGameOver()
 		End
 	End
 	
@@ -464,7 +469,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 					If action.Duration < 1.5
 						transitionInDone = True
 					End
-					
+				Case "GameOverDelay"
+					gameOverState.Activate()
 			End
 		End
 	End
@@ -519,6 +525,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		waitForSpurprise = False
 		
 		isFirstTime = False
+		
+		Medals.ResetThisRound()
 	End
 	
 	Method FlashScreenBeforeSurprise:Void()
@@ -534,7 +542,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method OnGameOver:Void()
-		ShowAds()
+		Local delay:= New VDelayAction(0.3)
+		delay.Name = "GameOverDelay"
+		AddAction(delay)
 		
 		gameOver = True
 		scoreMannedThisRound = False
@@ -545,7 +555,6 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			NewHighscore()
 		End
 		
-		Medals.UpdatePostGame(Self)
 		medalFeed.Clear()
 		scoreFeed.Clear()
 		
@@ -560,6 +569,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		backButton.color.Alpha = 0.0
 		
+		Medals.UpdatePostGame(Self)
 		SaveGame()
 	End
 	
@@ -582,6 +592,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 				OnBackClicked()
 			End
 			Return
+		ElseIf gameOver
+			gameOverState.OnMouseUp()
 		End
 	End
 	
@@ -589,6 +601,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
 		If backButton.WasTouched(cursor)
 			backButton.isDown = True
+		ElseIf gameOver
+			gameOverState.OnMouseDown()
 		End
 	End
 	
@@ -609,6 +623,14 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		End
 	End
 	
+	Method ReturnFromGameOver:Void()
+		FadeInPlayerAnimation(0.25)
+		ResetGame()
+		Local fadeColor:= New VFadeToColorAction(backgroundColor, normalBgColor, 0.3, LINEAR_TWEEN)
+		AddAction(fadeColor)
+		Local fadeBack:= New VFadeToAlphaAction(backButton.color, 0.0, 0.2, LINEAR_TWEEN)
+		AddAction(fadeBack)
+	End
 	
 
 '--------------------------------------------------------------------------
@@ -628,12 +650,6 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Field medalFeed:LabelFeed
 	Field scoreFeed:LabelFeed
-	
-	Field backgroundColor:Color = New Color
-	
-	Field backButton:BackButton
-	
-	Field lastTouchDown:Bool
 	
 	'admob
 	#If TARGET = "ios"

@@ -4,6 +4,7 @@ Import menu
 Import medalitem
 Import back
 Import game
+Import gameoverstate
 
 
 Class MedalScene Extends VScene Implements VActionEventHandler
@@ -63,21 +64,20 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	
 	Method InitMedals:Void()
 		medalItems = New CustomMedalItem[9]
-		medalItems[0] = New CustomMedalItem("Normal-Dodge", "normal_dodge.png")
-		medalItems[1] = New CustomMedalItem("Double-Dodge", "double_dodge.png")
-		medalItems[2] = New CustomMedalItem("Triple-Dodge", "triple_dodge.png")
-		medalItems[3] = New CustomMedalItem("Multi-Dodge", "multi_dodge.png")
-		medalItems[4] = New CustomMedalItem("Close One", "close_one.png")
-		medalItems[5] = New CustomMedalItem("Not Surprised", "not_surprised.png")
-		medalItems[6] = New CustomMedalItem("Half-Dead", "half_dead.png")
-		medalItems[7] = New CustomMedalItem("Scoreman", "scoreman.png")
+		medalItems[0] = New CustomMedalItem("Normal-Dodge")
+		medalItems[1] = New CustomMedalItem("Double-Dodge")
+		medalItems[2] = New CustomMedalItem("Triple-Dodge")
+		medalItems[3] = New CustomMedalItem("Multi-Dodge")
+		medalItems[4] = New CustomMedalItem("Close One")
+		medalItems[5] = New CustomMedalItem("Not Surprised")
+		medalItems[6] = New CustomMedalItem("Half-Dead")
+		medalItems[7] = New CustomMedalItem("Scoreman")
 		
 		'Supporter
+		medalItems[medalItems.Length-1] = New CustomMedalItem("Supporter")
 		If GameScene.IsUnlocked
-			medalItems[medalItems.Length-1] = New CustomMedalItem("Supporter", "unlocked.png")
 			medalItems[medalItems.Length-1].color.Set($e9f124)
 		Else
-			medalItems[medalItems.Length-1] = New CustomMedalItem("Supporter", "locked.png")
 			medalItems[medalItems.Length-1].color.Set($c0c546)
 		End
 		
@@ -403,8 +403,8 @@ End
 
 Private
 Class CustomMedalItem Extends MedalItem
-	Method New(name:String, fileName:String)
-		Super.New(name, fileName)
+	Method New(name:String)
+		Super.New(name)
 		color.Set(Color.White)
 	End
 	

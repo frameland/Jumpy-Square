@@ -282,6 +282,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Vsat.SaveToClipboard(Self.backgroundEffect, "BgEffect")
 		Self.shouldClearScreen = False
 		Local game:GameScene = New GameScene
+		game.InitAds()
+		game.HideAds()
 		Vsat.ChangeScene(game)
 	End
 	

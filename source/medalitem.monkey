@@ -7,11 +7,13 @@ Class MedalItem Extends VRect
 	
 	Global font:AngelFont
 	
-	Method New(name:String, fileName:String)
+	Method New(name:String)
 		Super.New(0, 0, 0, 0)
 		Self.name = name
 		Self.description = Medals.DescriptionFor(name)
+		Local fileName:String = Medals.FileNameFor(name)
 		image = ImageCache.GetImage(RealPath("medals/" + fileName), Image.MidHandle)
+		MidHandleImage(image)
 		times = Medals.HowManyOf(name)
 		color.Set(Color.NewBlue)
 		AssertWithException(font, "MedalItem has no font set.")
@@ -54,7 +56,9 @@ Class MedalItem Extends VRect
 		Return times
 	End
 	
-	
+	Method Times:Void(times:Int) Property
+		Self.times = times
+	End
 	
 	Private
 	Field image:Image
