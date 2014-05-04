@@ -8,6 +8,7 @@ Import medals
 Import feed
 Import back
 Import save
+Import flgamecenter
 
 #If TARGET = "ios"
 Import brl.admob
@@ -486,7 +487,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method NewHighscore:Void()
-		
+		SyncGameCenter(Highscore)
 	End
 	
 	Method Surprise:Void()

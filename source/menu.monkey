@@ -8,6 +8,7 @@ Import particlebg
 Import medalscene
 Import buysupportermedal
 Import supportermedal
+Import flgamecenter
 
 
 Class MainMenu Extends VScene Implements VActionEventHandler
@@ -46,7 +47,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		menuOptions = New MenuItem[3]
 		menuOptions[0] = New MenuItem("Play", font)
 		menuOptions[1] = New MenuItem("Medals", font)
-		menuOptions[2] = New MenuItem("GameCenter", font)
+		menuOptions[2] = New MenuItem("Leaderboard", font)
 		MenuIntroAnimation()
 		
 		backgroundEffect = New ParticleBackground
@@ -258,8 +259,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 				GoToGame()
 			Case "Medals"
 				GoToMedals()
-			Case "GameCenter"
-				
+			Case "Leaderboard"
+				OpenLeaderboard()
 		End
 	End
 	
@@ -306,6 +307,10 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Vsat.SaveToClipboard(Self, "MainMenu")
 		Local scene:= New BuySupporterMedalScene
 		Vsat.ChangeScene(scene)
+	End
+	
+	Method OpenLeaderboard:Void()
+		ShowGameCenter()
 	End
 	
 	
