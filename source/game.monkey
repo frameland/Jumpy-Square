@@ -15,13 +15,15 @@ Import brl.admob
 #End
 
 Class GameScene Extends VScene Implements VActionEventHandler
-
+	
+	Const SPAWN_TIME_RANGE:Float = 1.8
+	
 	Global Highscore:Int = 0
 	Global IsUnlocked:Bool = False
 	
 	Field player:Player
 	Field enemies:List<Enemy>
-	Field enemyTimer:Float = 0.1
+	Field enemyTimer:Float 'gets set in ResetGame()
 
 	Field score:Int
 	Field targetScore:Int
@@ -43,7 +45,6 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field normalBgColor:Color = New Color(Color.Navy)
 	Field gameOverColor:Color = New Color($001729) '$000b15
 	Field backgroundColor:Color = New Color
-	
 	
 	Field backButton:BackButton
 	Field lastTouchDown:Bool
@@ -185,8 +186,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method RandomTip:String[]()
 		If Not isFirstTime Return [""]
 		
-		If Medals.NormalDodge = 0
-			Return ["Tap to jump"]
+		If Medals.NormalDodge < 3
+			Return ["Tap to jump.", "Dodge the blocks."]
 		End
 		
 		Local tipArray:String[] = New String[3]
@@ -194,7 +195,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		tipArray[1] = "Got Headphones?~nYou can hear from which side~nthe blocks will come from."
 		tipArray[2] = "In the Medals screen click on a medal~nto get more info."
 		
-		Local returnTip:String[] = tipArray[Int(Rnd(3))].Split("~n")
+		Local index:Int = Int(Rnd(tipArray.Length))
+		Local returnTip:String[] = tipArray[index].Split("~n")
 		Return returnTip
 	End
 	
@@ -241,10 +243,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		CheckForDodged()
 		UpdateCollision()
 		UpdateScore()
-		
-		Medals.Update(Self)
-		medalFeed.Update(dt)
-		scoreFeed.Update(dt)
+		UpdateMedals(dt)
 	End
 	
 	Method UpdateActions:Void(dt:Float)
@@ -287,7 +286,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		enemyTimer -= dt
 		If enemyTimer <= 0.0
 			lastSurpriseRound += 1
-			enemyTimer = 0.7 + Rnd() * 2.0
+			enemyTimer = 0.7 + Rnd() * SPAWN_TIME_RANGE
 			If HasSurprise()
 				FlashScreenBeforeSurprise()
 				If enemyTimer < 1.2 Then enemyTimer = 1.2
@@ -301,6 +300,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		For Local enemy:= EachIn enemies
 			If enemy.hasBeenScored = False And enemy.CollidesWith(player)
 				enemy.collidedWithPlayer = True
+				Medals.EmitEvent("Direct Hit")
 				OnGameOver()
 			End
 		Next
@@ -325,6 +325,16 @@ Class GameScene Extends VScene Implements VActionEventHandler
 				score += 1
 			End
 		End
+	End
+	
+	Method UpdateMedals:Void(dt:Float)
+		If medalFeed.IsFull
+			Medals.EmitEvent("Feeder")
+		End
+		
+		Medals.Update(Self)
+		medalFeed.Update(dt)
+		scoreFeed.Update(dt)
 	End
 	
 	Method UpdateWhileGameOver:Void(dt:Float)
@@ -494,7 +504,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		Else
 			Local e:= New Enemy
 			e.isSurprise = True
-			e.position.x = Vsat.ScreenWidth2 - e.size.x/2
+			e.SetCenter()
 			e.link = enemies.AddLast(e)
 		End
 	End
@@ -518,7 +528,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		player.Reset()
 		
 		enemies.Clear()
-		enemyTimer = 2.5
+		enemyTimer = 1.4
 		
 		surpriseColor.Set(Color.White)
 		surpriseColor.Alpha = 0.0
@@ -577,6 +587,10 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		If (id = "Scoreman")
 			If scoreMannedThisRound Return
 			scoreMannedThisRound = True
+		End
+		
+		If andPoints = 0
+			Return
 		End
 		
 		medalFeed.Push(id)

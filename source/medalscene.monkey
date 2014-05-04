@@ -63,7 +63,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method InitMedals:Void()
-		medalItems = New CustomMedalItem[9]
+		medalItems = New CustomMedalItem[15]
 		medalItems[0] = New CustomMedalItem("Normal-Dodge")
 		medalItems[1] = New CustomMedalItem("Double-Dodge")
 		medalItems[2] = New CustomMedalItem("Triple-Dodge")
@@ -71,7 +71,13 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		medalItems[4] = New CustomMedalItem("Close One")
 		medalItems[5] = New CustomMedalItem("Not Surprised")
 		medalItems[6] = New CustomMedalItem("Half-Dead")
-		medalItems[7] = New CustomMedalItem("Scoreman")
+		medalItems[7] = New CustomMedalItem("Feeder")
+		medalItems[8] = New CustomMedalItem("Tissue")
+		medalItems[9] = New CustomMedalItem("Minimalist")
+		medalItems[10] = New CustomMedalItem("Go-Getter")
+		medalItems[11] = New CustomMedalItem("Direct Hit")
+		medalItems[12] = New CustomMedalItem("Squashed")
+		medalItems[13] = New CustomMedalItem("Scoreman")
 		
 		'Supporter
 		medalItems[medalItems.Length-1] = New CustomMedalItem("Supporter")

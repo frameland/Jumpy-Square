@@ -82,6 +82,12 @@ Class Enemy Extends VRect
 		sparks.emissionAngle = 45-180
 	End
 	
+	Method SetCenter:Void()
+		position.x = Vsat.ScreenWidth2 - size.x/2
+		sparks.SetPosition(Vsat.ScreenWidth2, Self.position.y + size.y/4)
+		sparks.emissionAngle = -90
+	End
+	
 	Method Remove:Void()
 		If link Then link.Remove()
 	End

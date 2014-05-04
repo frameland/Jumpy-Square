@@ -17,15 +17,21 @@ Class Medals
 	Global NotSurprised:Int
 	Global HalfDead:Int
 	Global Feeder:Int
+	Global Tissue:Int
+	Global Minimalist:Int
+	Global GoGetter:Int
+	Global DirectHit:Int
+	Global Squashed:Int
 	Global Supporter:Int
-
+		
 '--------------------------------------------------------------------------
 ' * Config Vars
 '--------------------------------------------------------------------------
 	Global DoubleDodgeTime:Float = 1.0
 	Global TripleDodgeTime:Float = 2.0
 	Global MultiDodgeTime:Float = 2.8
-
+	Global FeederTime:Float = 2.0
+	
 
 '--------------------------------------------------------------------------
 ' * Init
@@ -38,8 +44,14 @@ Class Medals
 		CloseOne = keyValue.GetInt("Close-One")
 		Scoreman = keyValue.GetInt("Scoreman")
 		NotSurprised = keyValue.GetInt("Not Surprised")
+		CloseOne = keyValue.GetInt("Close One")
 		HalfDead = keyValue.GetInt("Half-Dead")
 		Feeder = keyValue.GetInt("Feeder")
+		Tissue = keyValue.GetInt("Tissue")
+		Minimalist = keyValue.GetInt("Minimalist")
+		GoGetter = keyValue.GetInt("Go-Getter")
+		DirectHit = keyValue.GetInt("DirectHit")
+		Squashed = keyValue.GetInt("Squashed")
 		
 		Supporter = keyValue.GetInt("Supporter")
 		If Supporter > 0
@@ -60,12 +72,21 @@ Class Medals
 		returnString += "Not Surprised = " + NotSurprised + newline
 		returnString += "Scoreman = " + Scoreman + newline
 		returnString += "Feeder = " + Feeder + newline
+		returnString += "Tissue = " + Tissue + newline
+		returnString += "Minimalist = " + Minimalist + newline
+		returnString += "Go-Getter = " + GoGetter + newline
+		returnString += "DirectHit = " + DirectHit + newline
+		returnString += "Squashed = " + Squashed + newline
 		returnString += "Supporter = " + Supporter + newline
 		
 		Return returnString
 	End
 	
-
+	Function EmitEvent:Void(id:String)
+		FireEvent(id)
+	End
+	
+	
 '--------------------------------------------------------------------------
 ' * Update
 '--------------------------------------------------------------------------
@@ -205,9 +226,17 @@ Class Medals
 		If Not gameScene.gameOver Return
 		
 		If gameScene.dodged = 0
-			'Tissue
+			FireEvent("Tissue")
 		End
 		
+		If gameScene.dodged > 1
+			Local jumpDodgeRatio:Float = gameScene.player.numberOfJumps / Float(gameScene.dodged)
+			If jumpDodgeRatio < 2.2
+				FireEvent("Minimalist")
+			ElseIf jumpDodgeRatio > 3.5
+				FireEvent("Go-Getter")
+			End
+		End
 	End
 
 	Function ResetThisRound:Void()
@@ -217,7 +246,7 @@ Class Medals
 		MedalState.CouldBeClose = False
 		ThisRound.Reset()
 	End
-	
+
 
 '--------------------------------------------------------------------------
 ' * Helpers
@@ -242,6 +271,16 @@ Class Medals
 				Return Scoreman
 			Case "Feeder"
 				Return Feeder
+			Case "Tissue"
+				Return Tissue
+			Case "Minimalist"
+				Return Minimalist
+			Case "Go-Getter"
+				Return GoGetter
+			Case "Direct Hit"
+				Return DirectHit
+			Case "Squashed"
+				Return Squashed
 			Case "Supporter"
 				Return Supporter
 			Default
@@ -269,7 +308,9 @@ Class Medals
 				Return 5
 			Case "Feeder"
 				Return 25
-			Case "Supporter"
+			Case "Squashed"
+				Return 5
+			Case "Supporter", "Tissue", "Minimalist", "Go-Getter", "Direct Hit"
 				Return 0
 			Default
 				Throw New Exception("Unknown medal name: " + medalName)
@@ -296,6 +337,16 @@ Class Medals
 				Return "scoreman.png"
 			Case "Feeder"
 				Return "feeder.png"
+			Case "Tissue"
+				Return "tissue.png"
+			Case "Minimalist"
+				Return "minimalist.png"
+			Case "Go-Getter"
+				Return "go_getter.png"
+			Case "Direct Hit"
+				Return "direct_hit.png"
+			Case "Squashed"
+				Return "squashed.png"
 			Case "Supporter"
 				If GameScene.IsUnlocked
 					Return "unlocked.png"
@@ -327,6 +378,16 @@ Class Medals
 				Return "Beat your old highscore."
 			Case "Feeder"
 				Return "Filled the entire scorefeed."
+			Case "Tissue"
+				Return "Ground Zero."
+			Case "Minimalist"
+				Return "You don't like jumping."
+			Case "Go-Getter"
+				Return "You like jumping."
+			Case "Direct Hit"
+				Return "Jumped into a block head on."
+			Case "Squashed"
+				Return "Squashed a block."
 			Case "Supporter"
 				If GameScene.IsUnlocked
 					Return "You are awesome!"
@@ -386,6 +447,26 @@ Class Medals
 			stack.Push("Feeder")
 			stack.Push(ThisRound.Feeder)
 		End
+		If ThisRound.Tissue
+			stack.Push("Tissue")
+			stack.Push(ThisRound.Tissue)
+		End
+		If ThisRound.Minimalist
+			stack.Push("Minimalist")
+			stack.Push(ThisRound.Minimalist)
+		End
+		If ThisRound.GoGetter
+			stack.Push("Go-Getter")
+			stack.Push(ThisRound.GoGetter)
+		End
+		If ThisRound.DirectHit
+			stack.Push("Direct Hit")
+			stack.Push(ThisRound.DirectHit)
+		End
+		If ThisRound.Squashed
+			stack.Push("Squashed")
+			stack.Push(ThisRound.Squashed)
+		End
 		
 		Return stack.ToArray()
 	End
@@ -402,26 +483,46 @@ Class Medals
 	Global MedalEvent:VEvent = New VEvent
 	
 	Function FireEvent:Void(id:String)
-		EarnedMedal(id)
-		MedalEvent.id = "medal_" + id
-		MedalEvent.x = HowMuchPointsFor(id)
-		Vsat.FireEvent(MedalEvent)
+		Local shouldCount:Bool = EarnedMedal(id)
+		If shouldCount
+			MedalEvent.id = "medal_" + id
+			MedalEvent.x = HowMuchPointsFor(id)
+			Vsat.FireEvent(MedalEvent)
+		End
 	End
 	
-	Function EarnedMedal:Void(id:String)
+	Function EarnedMedal:Bool(id:String)
 		Select id
 			Case "Normal-Dodge"
 				NormalDodge += 1
 				ThisRound.NormalDodge += 1
 			Case "Double-Dodge"
-				DoubleDodge += 1
-				ThisRound.DoubleDodge += 1
+				If Vsat.Seconds > MedalState.LastDoubleDodge + DoubleDodgeTime
+					DoubleDodge += 1
+					ThisRound.DoubleDodge += 1
+					MedalState.LastDoubleDodge = Vsat.Seconds
+				Else
+					Return False
+				End
+				
 			Case "Triple-Dodge"
-				TripleDodge += 1
-				ThisRound.TripleDodge += 1
+				If Vsat.Seconds > MedalState.LastTripleDodge + TripleDodgeTime
+					TripleDodge += 1
+					ThisRound.TripleDodge += 1
+					MedalState.LastTripleDodge = Vsat.Seconds
+				Else
+					Return False
+				End
+				
 			Case "Multi-Dodge"
-				MultiDodge += 1
-				ThisRound.MultiDodge += 1
+				If Vsat.Seconds > MedalState.LastMultiDodge + MultiDodgeTime
+					MultiDodge += 1
+					ThisRound.MultiDodge += 1
+					MedalState.LastMultiDodge = Vsat.Seconds
+				Else
+					Return False
+				End
+				
 			Case "Close One"
 				CloseOne += 1
 				ThisRound.CloseOne += 1
@@ -435,13 +536,40 @@ Class Medals
 				Scoreman += 1
 				ThisRound.Scoreman += 1
 			Case "Feeder"
-				Feeder += 1
-				ThisRound.Feeder += 1
-			Case "Supporter"
+				If Vsat.Seconds > MedalState.LastFeeder + FeederTime
+					Feeder += 1
+					ThisRound.Feeder += 1
+					MedalState.LastFeeder = Vsat.Seconds
+				Else
+					Return False
+				End
 				
+			Case "Tissue"
+				Tissue += 1
+				ThisRound.Tissue += 1
+				Return False
+			Case "Minimalist"
+				Minimalist += 1
+				ThisRound.Minimalist += 1
+				Return False
+			Case "Go-Getter"
+				GoGetter += 1
+				ThisRound.GoGetter += 1
+				Return False
+			Case "Direct Hit"
+				DirectHit += 1
+				ThisRound.DirectHit += 1
+				Return False
+			Case "Squashed"
+				Squashed += 1
+				ThisRound.Squashed += 1
+			Case "Supporter"
+				Return False
 			Default
 				Throw New Exception("Unknown medal name: " + id)
 		End
+		
+		Return True
 	End
 	
 	
@@ -459,6 +587,10 @@ Class MedalState
 	Global LastScoreTime:FloatStack = New FloatStack
 	Global LastScore:Int
 	Global playerCopy:VRect = New VRect(0, 0, 1, 1)
+	Global LastDoubleDodge:Float
+	Global LastTripleDodge:Float
+	Global LastMultiDodge:Float
+	Global LastFeeder:Float
 End
 
 Class ThisRound
@@ -471,6 +603,11 @@ Class ThisRound
 	Global NotSurprised:Int
 	Global HalfDead:Int
 	Global Feeder:Int
+	Global Tissue:Int
+	Global Minimalist:Int
+	Global GoGetter:Int
+	Global DirectHit:Int
+	Global Squashed:Int
 	
 	Function Reset:Void()
 		NormalDodge = 0
@@ -482,6 +619,11 @@ Class ThisRound
         NotSurprised = 0
         HalfDead = 0
         Feeder = 0
+		Tissue = 0
+		Minimalist = 0
+		GoGetter = 0
+		DirectHit = 0
+		Squashed = 0
 	End
 	
 End

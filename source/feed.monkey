@@ -30,6 +30,7 @@ End
 Class LabelFeed Extends VRect
 	
 	Field lineHeightMultiplier:Float = 1.0
+	Field feedTime:Float = 1.8
 	Field sampleText:String = "Normal-Dodge" 'half of this texts width will be translated to the left
 
 '--------------------------------------------------------------------------
@@ -108,7 +109,7 @@ Class LabelFeed Extends VRect
 		
 		For Local i:Int = 0 Until maxItems
 			timeAlive[i] += dt
-			If timeAlive[i] > 2.0
+			If timeAlive[i] > feedTime
 				items[i].color.Alpha -= dt * 1/PUSH_MINIMUM_TIME
 				items[i].scale.y -= dt * 1/PUSH_MINIMUM_TIME
 			End
@@ -146,6 +147,7 @@ Class LabelFeed Extends VRect
 	Method IsVisible:Bool(item:LabelFeedItem)
 		Return item.color.Alpha > 0.0 And item.scale.y > 0.0 And item.Text.Length > 0
 	End
+
 	
 '--------------------------------------------------------------------------
 ' * Properties
@@ -170,6 +172,15 @@ Class LabelFeed Extends VRect
 			h = Max(h, items[i].size.y)
 		Next
 		Return h
+	End
+	
+	Method IsFull:Bool() Property
+		For Local i:Int = 0 Until maxItems
+			If IsVisible(items[i]) = False
+				Return False
+			End
+		Next
+		Return True
 	End
 	
 	
