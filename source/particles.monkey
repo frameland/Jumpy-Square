@@ -305,7 +305,11 @@ Class ParticleEmitter
 		active = savedActive
 	End
 	
-
+	Method ActiveParticles:Int() Property
+		Return particleCount
+	End
+	
+	
 '--------------------------------------------------------------------------
 ' * Updating
 ' * Override UpdateParticles(dt) for custom emitter behaviour

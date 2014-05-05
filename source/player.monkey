@@ -2,6 +2,8 @@ Strict
 Import vsat
 Import extra
 Import particles
+Import audio
+
 
 Class Player Extends VRect
 	
@@ -9,12 +11,8 @@ Class Player Extends VRect
 	Field isJumping:Bool
 	Field jumpForce:Vec2 = New Vec2(Vsat.ScreenWidth * 2.1, -Vsat.ScreenHeight*1)
 	Field gravity:Float = Vsat.ScreenHeight / 27
-	Field willJump:Bool
 	Field lastPositions:List<Vec2>
 	Field maxPositions:Int = 12
-	Field jumpSound:Sound
-	Field image:Image
-	
 	Field numberOfJumps:Int
 	
 	'effects
@@ -38,10 +36,14 @@ Class Player Extends VRect
 		renderOutline = True
 		velocity = New Vec2
 		lastPositions = New List<Vec2>
-		jumpSound = LoadSound("audio/jump.mp3")
+		jumpSound = Audio.GetSound("audio/jump.mp3")
+		wallhitSound = Audio.GetSound("audio/wallhit.mp3")
+		wallGrindSound = Audio.GetSound("audio/grind.mp3")
 		
 		InitImageAndHandle()
 		InitParticles()
+		
+		Reset()
 	End
 	
 	Method InitImageAndHandle:Void()
@@ -96,6 +98,7 @@ Class Player Extends VRect
 		numberOfJumps = 0
 		sparks.StopNow()
 		wallhit.StopNow()
+		grindProgress = 0.0
 	End
 	
 
@@ -106,6 +109,7 @@ Class Player Extends VRect
 		UpdateLastPosition()
 		UpdatePhysics(dt)
 		UpdateParticles(dt)
+		UpdateSound(dt)
 	End
 	
 	Method UpdateLastPosition:Void()
@@ -186,8 +190,17 @@ Class Player Extends VRect
 		wallhit.Update(dt)
 	End
 	
+	Method UpdateSound:Void(dt:Float)
+		If Not isJumping
+			grindProgress += dt
+			grindProgress = Min(grindProgress, 0.5)
+			SetChannelVolume(CHANNEL_WALLGRIND, grindProgress)
+		End
+	End
+	
 	Method Jump:Void()
 		If Not isJumping
+			StopChannel(CHANNEL_WALLGRIND)
 			isJumping = True
 			willJump = False
 			numberOfJumps += 1
@@ -281,13 +294,13 @@ Class Player Extends VRect
 		position.x = Vsat.ScreenWidth - Self.size.x - 1
 	End
 	
-	
 	Method OnWallImpact:Void()
 		'First jump after game over
 		If lastPositions.IsEmpty()
 			Return
 		End
 		
+		'Particles
 		If position.x < 5
 			wallhit.position.Set(1, Self.position.y + size.y/2)
 			wallhit.emissionAngle = 0
@@ -297,7 +310,36 @@ Class Player Extends VRect
 		End
 		wallhit.StopNow()
 		wallhit.Start()
+		
+		'Sound
+		Audio.PlaySound(wallhitSound, CHANNEL_WALLHIT)
+		Audio.PlaySound(wallGrindSound, CHANNEL_WALLGRIND, 0.0)
+		grindProgress = 0.0
+		
+		#rem
+		If TouchesLeftWall()
+			SetChannelPan(CHANNEL_WALLGRIND, -1.0)
+		ElseIf TouchesRightWall()
+			SetChannelPan(CHANNEL_WALLGRIND, 1.0)
+		End
+		#end
 	End
+	
+	
+'--------------------------------------------------------------------------
+' * Private
+'--------------------------------------------------------------------------
+	Private
+	Field willJump:Bool
+	Field image:Image
+	
+	Field jumpSound:Sound
+	Field wallhitSound:Sound
+	Field wallGrindSound:Sound
+	Field grindProgress:Float
+	
+	Const CHANNEL_WALLHIT:Int = 3
+	Const CHANNEL_WALLGRIND:Int = 4
 	
 End
 

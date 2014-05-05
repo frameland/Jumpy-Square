@@ -9,6 +9,7 @@ Import medalscene
 Import buysupportermedal
 Import supportermedal
 Import flgamecenter
+Import audio
 
 
 Class MainMenu Extends VScene Implements VActionEventHandler
@@ -27,6 +28,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		End
 		initialized = True
 		
+		InitAudio()
 		LoadGame()
 		
 		font = FontCache.GetFont(RealPath("font"))
@@ -53,6 +55,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		backgroundEffect = New ParticleBackground
 		
 		InitMedalAndEffect()
+		
+		InitGameCenter()
 		
 		Local transition:= New VFadeInLinear(1.2)
 		transition.SetColor(Color.White)
@@ -104,6 +108,21 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		medalEffect.endColor.Set(Color.Yellow)
 		medalEffect.endColor.Alpha = 0.0
 	End
+	
+	Method InitAudio:Void()
+		mojo.audio.PlayMusic("audio/music.wav")
+		mojo.audio.SetMusicVolume(0.1)
+		
+		'Preload Sounds
+		Audio.GetSound("audio/fadein.mp3")
+		Audio.GetSound("audio/fadeout.mp3")
+		Audio.GetSound("audio/explosion.mp3")
+		Audio.GetSound("audio/grind.mp3")
+		Audio.GetSound("audio/jump.mp3")
+		Audio.GetSound("audio/wallhit.mp3")
+		Audio.GetSound("audio/surprise.mp3")
+	End
+	
 	
 	Method AddAction:Void(action:VAction)
 		action.AddToList(actions)
@@ -285,7 +304,10 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Local game:GameScene = New GameScene
 		game.InitAds()
 		game.HideAds()
+		backgroundEffect.SetPlay()
 		Vsat.ChangeScene(game)
+		
+		Audio.PlaySound(Audio.GetSound("audio/fadein.mp3"), 1)
 	End
 	
 	Method GoToMedals:Void()
@@ -298,18 +320,26 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Self.shouldClearScreen = False
 		Local medals:= New MedalScene
 		Vsat.ChangeScene(medals)
+		
+		Audio.PlaySound(Audio.GetSound("audio/fadein.mp3"), 1)
 	End
 	
 	Method GoToSupporter:Void()
 		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
 			Return
 		End
+		
 		Vsat.SaveToClipboard(Self, "MainMenu")
 		Local scene:= New BuySupporterMedalScene
 		Vsat.ChangeScene(scene)
+		
+		Audio.PlaySound(Audio.GetSound("audio/fadein.mp3"), 1)
 	End
 	
 	Method OpenLeaderboard:Void()
+		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+			Return
+		End
 		ShowGameCenter()
 	End
 	

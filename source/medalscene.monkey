@@ -290,6 +290,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	
 	Method OnBackClicked:Void()
 		If Vsat.transition Return
+			
 		AddAction(New VFadeToAlphaAction(globalAlpha, 0.0, 0.5, EASE_OUT_EXPO))
 		mainMenuObject.shouldClearScreen = True
 		Local transition:= New MoveDownTransition(0.7)
@@ -299,6 +300,9 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		
 		Local fadeColor:= New VFadeToColorAction(backgroundColor, mainMenuObject.backgroundColor, 0.5, LINEAR_TWEEN)
 		AddAction(fadeColor)
+		
+		Local sound:= Audio.GetSound("audio/fadeout.mp3")
+		Audio.PlaySound(sound, 2)
 	End
 	
 	Method OnItemClicked:Void()

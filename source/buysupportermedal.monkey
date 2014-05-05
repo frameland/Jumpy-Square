@@ -278,8 +278,10 @@ Class BuySupporterMedalScene Extends VScene
 		If Vsat.transition Return
 		Local transition:= New FadeOutTransition(0.6)
 		Vsat.ChangeSceneWithTransition(mainMenuObject, transition)
+		Audio.PlaySound(Audio.GetSound("audio/fadeout.mp3"), 2)
 		
 		medal.UnlockTime = -1.0 'ugly fix for particles (they have no alpha)
+		
 	End
 	
 	Method OnBuy:Void()

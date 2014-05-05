@@ -233,7 +233,7 @@ Class Medals
 			Local jumpDodgeRatio:Float = gameScene.player.numberOfJumps / Float(gameScene.dodged)
 			If jumpDodgeRatio < 2.2
 				FireEvent("Minimalist")
-			ElseIf jumpDodgeRatio > 3.5
+			ElseIf jumpDodgeRatio > 2.9
 				FireEvent("Go-Getter")
 			End
 		End

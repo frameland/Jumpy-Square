@@ -577,6 +577,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		explosionEffect.position.Set(player.position)
 		explosionEffect.Start()
+		Audio.StopAllSounds()
+		Audio.PlaySound(Audio.GetSound("audio/explosion.mp3"), 5)
 		
 		backButton.color.Alpha = 0.0
 		
@@ -635,6 +637,9 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			AddAction(fadeColor)
 			
 			HideAds()
+			backgroundEffect.SetNormal()
+			Local sound:= Audio.GetSound("audio/fadeout.mp3")
+			Audio.PlaySound(sound, 2)
 		End
 	End
 	

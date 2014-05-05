@@ -138,6 +138,9 @@ Class GameOverState
 ' * Events
 '--------------------------------------------------------------------------
 	Method ReturnToGame:Void()
+		If Vsat.IsChangingScenes() Return
+			
+		Audio.PlaySound(Audio.GetSound("audio/fadeout.mp3"), 1)
 		active = False
 		Local event:= New VEvent
 		event.id = "ReturnToGame"
