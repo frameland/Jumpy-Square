@@ -21,7 +21,7 @@ Class Medals
 	Global Minimalist:Int
 	Global GoGetter:Int
 	Global DirectHit:Int
-	Global Squashed:Int
+	Global Highflyer:Int
 	Global Supporter:Int
 		
 '--------------------------------------------------------------------------
@@ -51,7 +51,7 @@ Class Medals
 		Minimalist = keyValue.GetInt("Minimalist")
 		GoGetter = keyValue.GetInt("Go-Getter")
 		DirectHit = keyValue.GetInt("DirectHit")
-		Squashed = keyValue.GetInt("Squashed")
+		Highflyer = keyValue.GetInt("Highflyer")
 		
 		Supporter = keyValue.GetInt("Supporter")
 		If Supporter > 0
@@ -76,7 +76,7 @@ Class Medals
 		returnString += "Minimalist = " + Minimalist + newline
 		returnString += "Go-Getter = " + GoGetter + newline
 		returnString += "DirectHit = " + DirectHit + newline
-		returnString += "Squashed = " + Squashed + newline
+		returnString += "Highflyer = " + Highflyer + newline
 		returnString += "Supporter = " + Supporter + newline
 		
 		Return returnString
@@ -279,8 +279,8 @@ Class Medals
 				Return GoGetter
 			Case "Direct Hit"
 				Return DirectHit
-			Case "Squashed"
-				Return Squashed
+			Case "Highflyer"
+				Return Highflyer
 			Case "Supporter"
 				Return Supporter
 			Default
@@ -308,8 +308,8 @@ Class Medals
 				Return 5
 			Case "Feeder"
 				Return 25
-			Case "Squashed"
-				Return 10
+			Case "Highflyer"
+				Return 15
 			Case "Supporter", "Tissue", "Minimalist", "Go-Getter", "Direct Hit"
 				Return 0
 			Default
@@ -345,8 +345,8 @@ Class Medals
 				Return "go_getter.png"
 			Case "Direct Hit"
 				Return "direct_hit.png"
-			Case "Squashed"
-				Return "squashed.png"
+			Case "Highflyer"
+				Return "highflyer.png"
 			Case "Supporter"
 				If GameScene.IsUnlocked
 					Return "unlocked.png"
@@ -386,8 +386,8 @@ Class Medals
 				Return "You like jumping."
 			Case "Direct Hit"
 				Return "Jumped into a block head on."
-			Case "Squashed"
-				Return "Squashed a block."
+			Case "Highflyer"
+				Return "Double points."
 			Case "Supporter"
 				If GameScene.IsUnlocked
 					Return "You are awesome!"
@@ -463,9 +463,9 @@ Class Medals
 			stack.Push("Direct Hit")
 			stack.Push(ThisRound.DirectHit)
 		End
-		If ThisRound.Squashed
-			stack.Push("Squashed")
-			stack.Push(ThisRound.Squashed)
+		If ThisRound.Highflyer
+			stack.Push("Highflyer")
+			stack.Push(ThisRound.Highflyer)
 		End
 		
 		Return stack.ToArray()
@@ -560,9 +560,9 @@ Class Medals
 				DirectHit += 1
 				ThisRound.DirectHit += 1
 				Return False
-			Case "Squashed"
-				Squashed += 1
-				ThisRound.Squashed += 1
+			Case "Highflyer"
+				Highflyer += 1
+				ThisRound.Highflyer += 1
 			Case "Supporter"
 				Return False
 			Default
@@ -607,7 +607,7 @@ Class ThisRound
 	Global Minimalist:Int
 	Global GoGetter:Int
 	Global DirectHit:Int
-	Global Squashed:Int
+	Global Highflyer:Int
 	
 	Function Reset:Void()
 		NormalDodge = 0
@@ -623,7 +623,7 @@ Class ThisRound
 		Minimalist = 0
 		GoGetter = 0
 		DirectHit = 0
-		Squashed = 0
+		Highflyer = 0
 	End
 	
 End

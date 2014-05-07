@@ -338,14 +338,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 			End
 		Next
 		If doubleBall.HasCollided() = False And doubleBall.CollidesWith(player)
-			ActivateHyperMode()
-			Local action:= New VVec2ToAction(doubleBall.scale, 0.0, 0.0, 0.8, EASE_OUT_QUAD)
-			Local delay:= New VDelayAction(0.05)
-			delay.Name = "Double"
-			AddAction(delay)
-			AddAction(action)
-			Audio.PlaySound(Audio.GetSound("audio/double.mp3"), 21)
-			Vsat.paused = True
+			OnDoubleBallCollision()
 		End
 	End
 	
@@ -629,6 +622,18 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		enemy.collidedWithPlayer = True
 		Medals.EmitEvent("Direct Hit")
 		OnGameOver()
+	End
+	
+	Method OnDoubleBallCollision:Void()
+		ActivateHyperMode()
+		Local action:= New VVec2ToAction(doubleBall.scale, 0.0, 0.0, 0.8, EASE_OUT_QUAD)
+		Local delay:= New VDelayAction(0.05)
+		delay.Name = "Double"
+		AddAction(delay)
+		AddAction(action)
+		Audio.PlaySound(Audio.GetSound("audio/double.mp3"), 21)
+		Vsat.paused = True
+		Medals.EmitEvent("Highflyer")
 	End
 	
 	Method ResetGame:Void()

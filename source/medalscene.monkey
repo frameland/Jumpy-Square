@@ -76,7 +76,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		medalItems[9] = New CustomMedalItem("Minimalist")
 		medalItems[10] = New CustomMedalItem("Go-Getter")
 		medalItems[11] = New CustomMedalItem("Direct Hit")
-		medalItems[12] = New CustomMedalItem("Squashed")
+		medalItems[12] = New CustomMedalItem("Highflyer")
 		medalItems[13] = New CustomMedalItem("Scoreman")
 		
 		'Supporter

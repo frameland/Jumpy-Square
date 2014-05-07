@@ -1,5 +1,4 @@
-'buildopt: ios
-'buildopt: release
+'buildopt: run
 Strict
 Import vsat
 Import source.menu
