@@ -26,6 +26,10 @@ End
 #end
 
 
+Interface ILabelFeedCallback
+	Method OnLabelPush:Void(item:LabelFeedItem)
+End
+
 
 Class LabelFeed Extends VRect
 	
@@ -52,7 +56,11 @@ Class LabelFeed Extends VRect
 		Next
 	End
 
-
+	Method SetCallback:Void(callback:ILabelFeedCallback)
+		Self.callback = callback
+	End
+	
+	
 '--------------------------------------------------------------------------
 ' * Settings
 '--------------------------------------------------------------------------	
@@ -183,6 +191,16 @@ Class LabelFeed Extends VRect
 		Return True
 	End
 	
+	Method ActiveItems:Int() Property
+		Local count:Int
+		For Local i:Int = 0 Until maxItems
+			If IsVisible(items[i])
+				count += 1
+			End
+		Next
+		Return count
+	End
+	
 	
 '--------------------------------------------------------------------------
 ' * Private
@@ -201,6 +219,10 @@ Class LabelFeed Extends VRect
 		items[0].scale.y = 0.0
 		items[0].color.Alpha = 0.0
 		timeAlive[0] = 0.0
+		
+		If callback
+			callback.OnLabelPush(items[0])
+		End
 	End
 	
 	Private
@@ -214,6 +236,8 @@ Class LabelFeed Extends VRect
 	
 	Field usedFont:AngelFont
 	Field lineHeight:Float
+	
+	Field callback:ILabelFeedCallback
 	
 End
 

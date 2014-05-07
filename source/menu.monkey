@@ -121,6 +121,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Audio.GetSound("audio/jump.mp3")
 		Audio.GetSound("audio/wallhit.mp3")
 		Audio.GetSound("audio/surprise.mp3")
+		Audio.GetSound("audio/feed.mp3")
+		Audio.GetSound("audio/double.mp3")
 	End
 	
 	
@@ -340,6 +342,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
 			Return
 		End
+		SyncGameCenter(GameScene.Highscore)
 		ShowGameCenter()
 	End
 	

@@ -6,6 +6,9 @@ Import mojo
 Class Audio
 	
 	Function PlaySound:Int(sound:Sound, channel:Int = 0, volume:Float = 1.0)
+		#If TARGET = "html5"
+			Return 0
+		#End
 		If Not sound Return 0
 		Local i:Int
 		If channel = 0

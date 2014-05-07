@@ -312,7 +312,7 @@ Class Player Extends VRect
 		wallhit.Start()
 		
 		'Sound
-		Audio.PlaySound(wallhitSound, CHANNEL_WALLHIT)
+		Audio.PlaySound(wallhitSound, CHANNEL_WALLHIT, 0.6)
 		Audio.PlaySound(wallGrindSound, CHANNEL_WALLGRIND, 0.0)
 		grindProgress = 0.0
 		

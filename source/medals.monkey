@@ -309,7 +309,7 @@ Class Medals
 			Case "Feeder"
 				Return 25
 			Case "Squashed"
-				Return 5
+				Return 10
 			Case "Supporter", "Tissue", "Minimalist", "Go-Getter", "Direct Hit"
 				Return 0
 			Default

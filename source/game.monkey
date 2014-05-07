@@ -9,13 +9,15 @@ Import feed
 Import back
 Import save
 Import flgamecenter
+Import doubleball
+
 
 #If TARGET = "ios"
 Import brl.admob
 #ADMOB_PUBLISHER_ID="a15364047eb2dce "
 #End
 
-Class GameScene Extends VScene Implements VActionEventHandler
+Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallback
 	
 	Const SPAWN_TIME_RANGE:Float = 1.8
 	
@@ -25,7 +27,11 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Field player:Player
 	Field enemies:List<Enemy>
 	Field enemyTimer:Float 'gets set in ResetGame()
-
+	
+	Field doubleBall:DoubleBall
+	Field hyperModeTimer:Float
+	Const HYPER_TIME:Float = 15.0
+	
 	Field score:Int
 	Field targetScore:Int
 	Field dodged:Int
@@ -57,12 +63,13 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method OnInit:Void()
 		player = New Player
 		enemies = New List<Enemy>
+		doubleBall = New DoubleBall
 		
 		InitEffects()
 		
 		scoreFont = FontCache.GetFont(RealPath("font"))
 		
-		surpriseSound = LoadSound("audio/surprise.mp3")
+		surpriseSound = Audio.GetSound("audio/surprise.mp3")
 		
 		gameOverState = New GameOverState(Self)
 		
@@ -149,6 +156,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		medalFeed.InitWithSizeAndFont(5, RealPath("font"))
 		medalFeed.SetIcon(RealPath("medal.png"))
 		medalFeed.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.65)
+		medalFeed.SetCallback(Self)
 		
 		scoreFeed = New LabelFeed
 		scoreFeed.InitWithSizeAndFont(5, RealPath("font"))
@@ -177,7 +185,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	End
 	
 	Method HasSurprise:Bool()
-		Return Rnd() < 0.1 And dodged >= 5 And lastSurpriseRound > 2
+		Return Rnd() < 0.3'Rnd() < 0.1 And dodged >= 5 And lastSurpriseRound > 2
 	End
 	
 	Method UsedActionKey:Bool()
@@ -216,6 +224,25 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			End
 		#End
 	End
+
+
+'--------------------------------------------------------------------------
+' * HyperMode
+'--------------------------------------------------------------------------
+	Method ActivateHyperMode:Void()
+		hyperModeIsActive = True
+		Enemy.COLLISION_FORGIVENESS = 0.2
+		hyperModeTimer = HYPER_TIME
+	End
+	
+	Method DeactivateHyperMode:Void()
+		hyperModeIsActive = False
+		Enemy.COLLISION_FORGIVENESS = 0.1
+	End
+	
+	Method HyperModeActive:Bool() Property
+		Return hyperModeIsActive
+	End
 	
 	
 '--------------------------------------------------------------------------
@@ -243,6 +270,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		UpdateEnemies(dt)
 		CheckForDodged()
 		UpdateCollision()
+		UpdateHyperMode(dt)
 		UpdateScore()
 		UpdateMedals(dt)
 	End
@@ -279,6 +307,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		For Local e:= EachIn enemies
 			e.Update(dt)
 		Next
+		doubleBall.Update(dt)
 	End
 
 	Method UpdateEnemySpawning:Void(dt:Float)
@@ -287,7 +316,12 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		enemyTimer -= dt
 		If enemyTimer <= 0.0
 			lastSurpriseRound += 1
-			enemyTimer = 0.7 + Rnd() * SPAWN_TIME_RANGE
+			If hyperModeIsActive
+				enemyTimer = 0.7 + Rnd() * SPAWN_TIME_RANGE/1.8
+			Else
+				enemyTimer = 0.7 + Rnd() * SPAWN_TIME_RANGE
+			End
+			
 			If HasSurprise()
 				FlashScreenBeforeSurprise()
 				If enemyTimer < 1.2 Then enemyTimer = 1.2
@@ -300,11 +334,19 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method UpdateCollision:Void()
 		For Local enemy:= EachIn enemies
 			If enemy.hasBeenScored = False And enemy.CollidesWith(player)
-				enemy.collidedWithPlayer = True
-				Medals.EmitEvent("Direct Hit")
-				OnGameOver()
+				OnCollisionWithEnemy(enemy)
 			End
 		Next
+		If doubleBall.HasCollided() = False And doubleBall.CollidesWith(player)
+			ActivateHyperMode()
+			Local action:= New VVec2ToAction(doubleBall.scale, 0.0, 0.0, 0.8, EASE_OUT_QUAD)
+			Local delay:= New VDelayAction(0.05)
+			delay.Name = "Double"
+			AddAction(delay)
+			AddAction(action)
+			Audio.PlaySound(Audio.GetSound("audio/double.mp3"), 21)
+			Vsat.paused = True
+		End
 	End
 	
 	Method CheckForDodged:Void()
@@ -338,11 +380,25 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		scoreFeed.Update(dt)
 	End
 	
+	Method UpdateHyperMode:Void(dt:Float)
+		If hyperModeIsActive
+			hyperModeTimer -= dt
+			If hyperModeTimer <= 0
+				hyperModeTimer = 0.0
+				DeactivateHyperMode()
+			End
+		End
+	End
+	
 	Method UpdateWhileGameOver:Void(dt:Float)
 		gameOverState.Update(dt)
 		If backButton.color.Alpha < 1.0
 			backButton.color.Alpha += dt * 4
 		End
+	End
+	
+	Method OnUpdateWhilePaused:Void()
+		UpdateActions(0.016666)
 	End
 	
 	
@@ -368,6 +424,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		RenderScore()
 		medalFeed.Render()
 		scoreFeed.Render()
+		RenderHyperMode()
 		
 		RenderScreenFlash()
 		
@@ -397,6 +454,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		For Local e:= EachIn enemies
 			e.Render()
 		Next
+		doubleBall.Render()
 	End
 	
 	Method RenderGameOver:Void()
@@ -444,6 +502,29 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		End
 	End
 	
+	Method RenderHyperMode:Void()
+		If hyperModeIsActive
+			ResetBlend()
+			Color.Yellow.Use()
+			SetAlpha(0.6)
+			Local x:Float = Vsat.ScreenWidth2 + scoreFont.TextWidth(Highscore) * 1.5 + Vsat.ScreenWidth*0.05
+			scoreFont.DrawText("x 2", x, backButton.position.y+8, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
+			
+			Local x2:Float = x + TextWidth("x 2") * 1.5
+			Local w:Float = Vsat.ScreenWidth2 * 0.3
+			Local h:Float = 8
+			Local y:Float = backButton.position.y + scoreFont.TextHeight("0")/3 - h/2
+			If IsHD()
+				h *= 2
+			End
+			SetAlpha(0.15)
+			DrawRect(x2, y, w, h)
+			SetAlpha(0.6)
+			w = w - (w * (1 - hyperModeTimer/HYPER_TIME))
+			DrawRect(x2, y, w, h)
+		End
+	End
+	
 	Method ClearScreen:Void()
 		ClearScreenWithColor(backgroundColor)
 	End
@@ -471,6 +552,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	Method OnActionEvent:Void(id:Int, action:VAction)
 		If id = VAction.FINISHED
 			Select action.Name
+				Case "Double"
+					Vsat.paused = False
 				Case "SurpriseFlash"
 					Surprise()
 				Case "TransitionInDone"
@@ -486,6 +569,15 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		End
 	End
 	
+	Method OnLabelPush:Void(item:LabelFeedItem)
+		If Not feedSound
+			feedSound = Audio.GetSound("audio/feed.mp3")
+			Assert(feedSound)
+		End
+		Local channel:Int = 10 + medalFeed.ActiveItems
+		Audio.PlaySound(feedSound, channel)
+	End
+	
 	Method NewHighscore:Void()
 		SyncGameCenter(Highscore)
 	End
@@ -494,7 +586,16 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		waitForSpurprise = False
 		lastSurpriseRound = 0
 		Local rand:Float = Rnd()
-		If rand < 0.5
+		
+		Local probability1:Float = 0.4
+		Local probability2:Float = 0.8
+		If hyperModeIsActive
+			probability1 = 0.5
+			probability2 = 1.0
+		End
+		rand = 0.9
+		
+		If rand < probability1
 			Local e:= New Enemy
 			e.SetLeft()
 			e.link = enemies.AddLast(e)
@@ -502,11 +603,15 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			Local e2:= New Enemy
 			e2.SetRight()
 			e2.link = enemies.AddLast(e2)
-		Else
+		ElseIf rand <= probability2
 			Local e:= New Enemy
 			e.isSurprise = True
 			e.SetCenter()
 			e.link = enemies.AddLast(e)
+		Else
+			If hyperModeIsActive = False
+				doubleBall.Start()
+			End
 		End
 	End
 	
@@ -518,6 +623,12 @@ Class GameScene Extends VScene Implements VActionEventHandler
 			e.SetRight()
 		End
 		e.link = enemies.AddLast(e)
+	End
+	
+	Method OnCollisionWithEnemy:Void(enemy:Enemy)
+		enemy.collidedWithPlayer = True
+		Medals.EmitEvent("Direct Hit")
+		OnGameOver()
 	End
 	
 	Method ResetGame:Void()
@@ -549,7 +660,7 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		sequence.AddAction(fadeOut)
 		AddAction(sequence)
 		
-		VPlaySound(surpriseSound, 30)
+		Audio.PlaySound(surpriseSound, 30)
 	End
 	
 	Method OnGameOver:Void()
@@ -559,6 +670,10 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		
 		gameOver = True
 		scoreMannedThisRound = False
+		
+		DeactivateHyperMode()
+		hyperModeTimer = 0.0
+		doubleBall.Reset()
 		
 		score = targetScore
 		If score > Highscore
@@ -595,7 +710,8 @@ Class GameScene Extends VScene Implements VActionEventHandler
 		If andPoints = 0
 			Return
 		End
-		
+		If hyperModeIsActive Then andPoints *= 2
+			
 		medalFeed.Push(id)
 		scoreFeed.Push("+" + andPoints)
 		targetScore += andPoints
@@ -670,6 +786,10 @@ Class GameScene Extends VScene Implements VActionEventHandler
 	
 	Field medalFeed:LabelFeed
 	Field scoreFeed:LabelFeed
+	
+	Field feedSound:Sound
+	
+	Field hyperModeIsActive:Bool
 	
 	'admob
 	#If TARGET = "ios"

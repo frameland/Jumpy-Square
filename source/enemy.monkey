@@ -5,7 +5,7 @@ Import extra
 
 Class Enemy Extends VRect
 	
-	Const COLLISION_FORGIVENESS:Float = 0.1 '0..1, 0 = normal, 1 = no collision
+	Global COLLISION_FORGIVENESS:Float = 0.1 '0..1, 0 = normal, 1 = no collision
 	
 	Field velocity:Vec2
 	Field gravity:Float = Vsat.ScreenHeight / 38
