@@ -298,7 +298,7 @@ Class BuySupporterMedalScene Extends VScene
 	End
 	
 	Method YouCheater:Void()
-		Print "You dont have a supporter medal"
+		'Print "You dont have a supporter medal"
 	End
 	
 

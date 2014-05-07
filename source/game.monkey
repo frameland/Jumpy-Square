@@ -185,7 +185,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	End
 	
 	Method HasSurprise:Bool()
-		Return Rnd() < 0.3'Rnd() < 0.1 And dodged >= 5 And lastSurpriseRound > 2
+		Return Rnd() < 0.1 And dodged >= 5 And lastSurpriseRound > 2
 	End
 	
 	Method UsedActionKey:Bool()

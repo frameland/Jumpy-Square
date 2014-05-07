@@ -1,6 +1,7 @@
 Strict
 Import vsat
 
+Const VERSION:String = "version 1.0"
 Global globalAlpha:Color = New Color(Color.White)
 
 

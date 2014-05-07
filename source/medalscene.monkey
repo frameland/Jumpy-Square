@@ -88,30 +88,24 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		End
 		
 		
-		Local hasWideScreen:Bool = Vsat.ScreenWidth / Vsat.ScreenHeight > 0.74
-		If hasWideScreen 'iPad
-			'Do something here
-		Else 'iPhone
-			Local x1:Float = Int(Vsat.ScreenWidth * 0.3)
-			Local x2:Float = Int(Vsat.ScreenWidth * 0.7)
-			Local y:Float
+		Local x1:Float = Int(Vsat.ScreenWidth * 0.3)
+		Local x2:Float = Int(Vsat.ScreenWidth * 0.7)
+		Local y:Float
 
-			For Local i:Int = 0 Until medalItems.Length
-				If i Mod 6 = 0
-					y = (Vsat.ScreenHeight - medalItems[0].Height * 3.25)/2
-				End
-				Local item:= medalItems[i]
-				item.position.y = Int(y)
-				If i Mod 2 = 0
-					item.position.x = x1 + (i/6 * Vsat.ScreenWidth)
-				Else
-					item.position.x = x2 + (i/6 * Vsat.ScreenWidth)
-					y += item.Height * 1.2
-				End
-			Next
-			
-			sites = medalItems.Length / 6 + 1
-		End
+		For Local i:Int = 0 Until medalItems.Length
+			If i Mod 6 = 0
+				y = (Vsat.ScreenHeight - medalItems[0].Height * 3.25)/2
+			End
+			Local item:= medalItems[i]
+			item.position.y = Int(y)
+			If i Mod 2 = 0
+				item.position.x = x1 + (i/6 * Vsat.ScreenWidth)
+			Else
+				item.position.x = x2 + (i/6 * Vsat.ScreenWidth)
+				y += item.Height * 1.2
+			End
+		Next
+		sites = medalItems.Length / 6 + 1
 		
 	End
 	

@@ -10,6 +10,7 @@ Import buysupportermedal
 Import supportermedal
 Import flgamecenter
 Import audio
+Import settings
 
 
 Class MainMenu Extends VScene Implements VActionEventHandler
@@ -32,6 +33,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		LoadGame()
 		
 		font = FontCache.GetFont(RealPath("font"))
+		font2 = FontCache.GetFont(RealPath("font2"))
 		
 		If Vsat.ScreenWidth = 768 'ipad
 			scoreEnemyImage = LoadImage(RealPath("enemy_ipad.png"))
@@ -46,10 +48,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		lineHeight = font.TextHeight("Play") * 1.5
 		highscoreSquareSize = Vsat.ScreenWidth * 0.22
 		
-		menuOptions = New MenuItem[3]
-		menuOptions[0] = New MenuItem("Play", font)
-		menuOptions[1] = New MenuItem("Medals", font)
-		menuOptions[2] = New MenuItem("Leaderboard", font)
+		InitMenuItems()
 		MenuIntroAnimation()
 		
 		backgroundEffect = New ParticleBackground
@@ -65,6 +64,19 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	
 	Method OnInitWhileInitialized:Void()
 		
+	End
+	
+	Method InitMenuItems:Void()
+		menuOptions = New MenuItem[3]
+		menuOptions[0] = New MenuItem("Play", font)
+		menuOptions[1] = New MenuItem("Medals", font)
+		menuOptions[2] = New MenuItem("Leaderboard", font)
+		
+		settings = New MenuItem("Settings", font2)
+		settings.SetIcon(RealPath("settings.png"))
+		settings.position.x = Vsat.ScreenWidth * 0.95 - font2.TextWidth("Settings")
+		settings.position.y = Vsat.ScreenHeight - font2.height * 2
+		settings.color.Alpha = 0.5
 	End
 	
 	Method MenuIntroAnimation:Void()
@@ -110,8 +122,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	Method InitAudio:Void()
-		mojo.audio.PlayMusic("audio/music.wav")
-		mojo.audio.SetMusicVolume(0.1)
+		Audio.PlayMusic("audio/music.wav")
+		Audio.SetMusicVolume(0.1)
 		
 		'Preload Sounds
 		Audio.GetSound("audio/fadein.mp3")
@@ -176,6 +188,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		RenderTitle()
 		RenderMenu()
 		RenderSupporterMedal()
+		RenderVersion()
 	End
 	
 	Method RenderParticles:Void()
@@ -208,6 +221,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		For Local i:Int = 0 Until menuOptions.Length
 			menuOptions[i].Render()
 		Next
+		settings.Render()
 	End
 	
 	Method RenderSupporterMedal:Void()
@@ -232,6 +246,17 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		medalEffect.Render()
 	End
 	
+	Method RenderVersion:Void()
+		SetAlpha(0.3)
+		Color.White.UseWithoutAlpha()
+		PushMatrix()
+			Translate(Vsat.ScreenWidth * 0.05, Vsat.ScreenHeight - (font2.height * 2)*0.8)
+			Scale(0.8, 0.8)
+			font2.DrawText(VERSION, 0, 0)
+		PopMatrix()
+	End
+	
+	
 	Method ClearScreen:Void()
 		ClearScreenWithColor(backgroundColor)
 	End
@@ -253,6 +278,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			menuOptions[i].isDown = False
 		Next
 		lockedMenuItem = Null
+		settings.isDown = False
 	End
 	
 	Method OnMouseDown:Void()
@@ -261,6 +287,17 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	
 	Method CheckMenuClicked:Void(up:Bool = True)
 		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
+		
+		If settings.WasTouched(cursor)
+			If up
+				OnMenuClicked(settings)
+			ElseIf lockedMenuItem = Null
+				settings.isDown = True
+				lockedMenuItem = settings
+			End
+			Return
+		End
+		
 		For Local i:Int = 0 Until menuOptions.Length
 			Local item:= menuOptions[i]
 			If item.WasTouched(cursor)
@@ -282,6 +319,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 				GoToMedals()
 			Case "Leaderboard"
 				OpenLeaderboard()
+			Case "Settings"
+				GoToSettings()
 		End
 	End
 	
@@ -338,6 +377,18 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Audio.PlaySound(Audio.GetSound("audio/fadein.mp3"), 1)
 	End
 	
+	Method GoToSettings:Void()
+		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+			Return
+		End
+		
+		Vsat.SaveToClipboard(Self, "MainMenu")
+		Local scene:= New SettingsScene
+		Vsat.ChangeScene(scene)
+		
+		Audio.PlaySound(Audio.GetSound("audio/fadein.mp3"), 1)
+	End
+	
 	Method OpenLeaderboard:Void()
 		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
 			Return
@@ -354,10 +405,12 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field initialized:Bool
 	
 	Field font:AngelFont
+	Field font2:AngelFont
 	Field titleImage:Image
 	Field scoreEnemyImage:Image
 	
 	Field menuOptions:MenuItem[]
+	Field settings:MenuItem
 	Field lockedMenuItem:MenuItem
 	
 	Field enemies:List<Enemy> = New List<Enemy>
@@ -387,6 +440,7 @@ Class MenuItem Extends VRect
 	Field text:String
 	Field usedFont:AngelFont
 	Field isDown:Bool
+	Field icon:Image
 	
 	Method New(withText:String, withFont:AngelFont)
 		Super.New(0, 0, 100, 20)
@@ -397,11 +451,19 @@ Class MenuItem Extends VRect
 		size.y = usedFont.TextHeight(text)
 	End
 	
+	Method SetIcon:Void(path:String)
+		icon = LoadImage(path)
+		MidHandleImage(icon)
+	End
+	
 	Method Draw:Void()
 		If isDown
 			Color.Orange.Use()
 		End
 		usedFont.DrawText(text, 0.5, 0, AngelFont.ALIGN_LEFT, AngelFont.ALIGN_TOP)
+		If icon
+			DrawImage(icon, -icon.Width()*0.6, icon.Height()/2)
+		End
 	End
 	
 	Method Render:Void()
