@@ -30,7 +30,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	
 	Field doubleBall:DoubleBall
 	Field hyperModeTimer:Float
-	Const HYPER_TIME:Float = 15.0
+	Const HYPER_TIME:Float = 12.0
 	
 	Field score:Int
 	Field targetScore:Int
@@ -592,7 +592,6 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 			probability1 = 0.5
 			probability2 = 1.0
 		End
-		rand = 0.9
 		
 		If rand < probability1
 			Local e:= New Enemy

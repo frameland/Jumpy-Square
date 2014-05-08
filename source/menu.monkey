@@ -55,8 +55,6 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		
 		InitMedalAndEffect()
 		
-		InitGameCenter()
-		
 		Local transition:= New VFadeInLinear(1.2)
 		transition.SetColor(Color.White)
 		Vsat.StartFadeIn(transition)
@@ -149,8 +147,18 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 '--------------------------------------------------------------------------
 	Method OnUpdate:Void(dt:Float)
 		VAction.UpdateList(actions, dt)
-		UpdateCursor()
 		UpdateParticles(dt)
+		
+		If startedConnecting
+			If GameCenterIsConnecting()
+				Return
+			Else
+				ShowGameCenter()
+				startedConnecting = False
+			End
+		End
+		
+		UpdateCursor()
 		supporterMedal.Update(dt)
 	End
 	
@@ -189,6 +197,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		RenderMenu()
 		RenderSupporterMedal()
 		RenderVersion()
+		
+		RenderConnectingToGameCenter()
 	End
 	
 	Method RenderParticles:Void()
@@ -256,6 +266,29 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		PopMatrix()
 	End
 	
+	Method RenderConnectingToGameCenter:Void()
+		If GameCenterIsConnecting()
+			Local dots:Int = Int(Vsat.Seconds * 1000) Mod 1600
+			
+			SetAlpha(0.9)
+			Color.Black.UseWithoutAlpha()
+			DrawRect(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight)
+			
+			Local connectText:String = "Connecting"
+			Local xPos:Int = Vsat.ScreenWidth2 - font.TextWidth(connectText)/2
+			If dots > 1200
+				connectText += "..."
+			ElseIf dots > 800
+				connectText += ".."
+			ElseIf dots > 400
+				connectText += "."
+			End
+			
+			Color.White.UseWithoutAlpha()
+			SetAlpha(0.5)
+			font.DrawText(connectText, xPos, Vsat.ScreenHeight2, AngelFont.ALIGN_LEFT, AngelFont.ALIGN_CENTER)
+		End
+	End
 	
 	Method ClearScreen:Void()
 		ClearScreenWithColor(backgroundColor)
@@ -393,8 +426,9 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
 			Return
 		End
+		InitGameCenter()
 		SyncGameCenter(GameScene.Highscore)
-		ShowGameCenter()
+		startedConnecting = True
 	End
 	
 	
@@ -429,6 +463,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field medalEffect:ExplosionEmitter
 	Field supporterMedal:SupporterMedal
 	
+	Field startedConnecting:Bool
 End
 
 

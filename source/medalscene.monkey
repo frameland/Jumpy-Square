@@ -173,6 +173,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		RenderBackButton()
 		RenderMedals()
 		RenderSites()
+		RenderPercentageComplete()
 	End
 	
 	Method RenderBackButton:Void()
@@ -213,13 +214,21 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		For Local i:Int = 1 To sites
 			If i = currentSite
 				DrawImage(siteActive, x, Vsat.ScreenHeight - siteRadius * 3)
-				' DrawCircle(x, Vsat.ScreenHeight - siteRadius * 4, siteRadius)
 			Else
 				DrawImage(siteNotActive, x, Vsat.ScreenHeight - siteRadius * 3)
-				' DrawCircleOutline(x, Vsat.ScreenHeight - siteRadius * 4, siteRadius, siteRadius * 2)
 			End
 			x += siteRadius * 3
 		Next
+	End
+	
+	Method RenderPercentageComplete:Void()
+		Color.Yellow.Use()
+		SetAlpha(0.8 * globalAlpha.Alpha)
+		PushMatrix()
+			Translate(Vsat.ScreenWidth * 0.7 + medalItems[0].Width/2, back.position.y + descriptionFont.height * 0.2)
+			Scale(0.8, 0.8)
+			descriptionFont.DrawText("Collected: " + Medals.PercentageComplete() + "%", 0, 0, AngelFont.ALIGN_RIGHT, AngelFont.ALIGN_CENTER)
+		PopMatrix()
 	End
 	
 	Method ClearScreen:Void()

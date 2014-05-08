@@ -404,6 +404,29 @@ Class Medals
 		GameScene.IsUnlocked = True
 	End
 	
+	Function PercentageComplete:Int()
+		Local total:Int = 15
+		Local current:Int = 0
+		If NormalDodge > 0 Then current += 1
+		If DoubleDodge > 0 Then current += 1
+		If TripleDodge > 0 Then current += 1
+		If MultiDodge > 0 Then current += 1
+		If CloseOne > 0 Then current += 1
+		If Scoreman > 0 Then current += 1
+		If NotSurprised > 0 Then current += 1
+		If HalfDead > 0 Then current += 1
+		If Feeder > 0 Then current += 1
+		If Tissue > 0 Then current += 1
+		If Minimalist > 0 Then current += 1
+		If GoGetter > 0 Then current += 1
+		If DirectHit > 0 Then current += 1
+		If Highflyer > 0 Then current += 1
+		If Supporter > 0 Then current += 1
+			
+		Local percent:Float = Float(current) / total
+		Return Int(percent * 100)
+	End
+	
 	'returns array with format:
 	'MedalId, numberEarned, MedalId, numberEarned, ... (you have to cast numberEarned to Int)
 	Function MedalsEarnedThisRound:String[]()
