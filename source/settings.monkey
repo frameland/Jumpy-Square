@@ -51,7 +51,7 @@ Class SettingsScene Extends VScene
 			musicOnOff = New MenuItem("Mute")
 		End
 		musicOnOff.SetFont(font)
-		musicOnOff.color.Set(Color.Orange)
+		musicOnOff.color.Set(New Color(Color.Orange))
 		musicOnOff.downColor.Set(New Color(Color.Orange))
 		musicOnOff.downColor.Alpha = 0.5
 		musicOnOff.position.x = Vsat.ScreenWidth2 * 1.02
@@ -195,6 +195,7 @@ Class SettingsScene Extends VScene
 		End
 		
 		If musicOnOff.isDown
+			musicOnOff.isDown = False
 			If musicOnOff.WasTouched(cursor)
 				OnMusicOnOff()
 			End
@@ -318,7 +319,7 @@ Class MenuItem Extends VLabel
 	
 	Method Draw:Void()
 		If isDown
-			downColor.Use()
+			downColor.UseWithoutAlpha()
 			SetAlpha(downColor.Alpha * globalAlpha.Alpha)
 		Else
 			SetAlpha(color.Alpha * globalAlpha.Alpha)

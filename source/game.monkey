@@ -199,10 +199,16 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 			Return ["Tap to jump.", "Dodge the blocks."]
 		End
 		
-		Local tipArray:String[] = New String[3]
+		Local tipArray:String[] = New String[9]
 		tipArray[0] = "You can tap jump~neven before you hit a wall."
-		tipArray[1] = "Got Headphones?~nYou can hear from which side~nthe blocks will come from."
+		tipArray[1] = "Don't like the music?~nTurn it off in the settings."
 		tipArray[2] = "In the Medals screen click on a medal~nto get more info."
+		tipArray[3] = "When the screen flashes~nbe ready for a surprise!"
+		tipArray[4] = "There is a way to get 2x points ..."
+		tipArray[5] = "You can remove all ads by getting the~ngolden Supporter Medal from the main menu."
+		tipArray[6] = "With medals you can earn even more points."
+		tipArray[7] = "Beat your old highscore~nto earn the Scoreman medal."
+		tipArray[8] = "Check the leaderboard and see~nhow your friends are doing."
 		
 		Local index:Int = Int(Rnd(tipArray.Length))
 		Local returnTip:String[] = tipArray[index].Split("~n")
