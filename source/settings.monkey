@@ -38,11 +38,11 @@ Class SettingsScene Extends VScene
 		If Audio.IsMuted()
 			music = New VLabel("Music is off:")
 		Else
-			music = New VLabel("Music is on:")
+			music = New VLabel(" Music is on:")
 		End
 		music.SetFont(font)
-		music.position.x = Vsat.ScreenWidth2 * 0.98
-		music.position.y = Vsat.ScreenHeight * 0.2
+		music.position.x = Vsat.ScreenWidth2 * 1.04
+		music.position.y = Vsat.ScreenHeight * 0.15
 		music.alignHorizontal = AngelFont.ALIGN_RIGHT
 		
 		If Audio.IsMuted()
@@ -54,7 +54,7 @@ Class SettingsScene Extends VScene
 		musicOnOff.color.Set(New Color(Color.Orange))
 		musicOnOff.downColor.Set(New Color(Color.Orange))
 		musicOnOff.downColor.Alpha = 0.5
-		musicOnOff.position.x = Vsat.ScreenWidth2 * 1.02
+		musicOnOff.position.x = Vsat.ScreenWidth2 * 1.08
 		musicOnOff.position.y = music.position.y
 		musicOnOff.alignHorizontal = AngelFont.ALIGN_LEFT
 	End
@@ -63,26 +63,29 @@ Class SettingsScene Extends VScene
 		creditsMusicTitle = New VLabel("Music")
 		creditsMusicTitle.SetFont(font)
 		creditsMusicTitle.color.Set(Color.Yellow)
-		creditsMusicTitle.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.5)
+		creditsMusicTitle.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.55)
 		creditsMusicTitle.alignHorizontal = True
+		creditsMusicTitle.SetScale(0.8)
 		
-		creditsMusic = New VLabel("Dominique Lufua the first")
+		creditsMusic = New VLabel("Dominique Lufua")
 		creditsMusic.SetFont(font)
 		creditsMusic.color.Set(Color.White)
 		creditsMusic.position.Set(Vsat.ScreenWidth2, creditsMusicTitle.position.y + font.height)
 		creditsMusic.alignHorizontal = True
+		creditsMusic.SetScale(0.8)
 		
 		creditsSpecialTitle = New VLabel("Special Thanks")
 		creditsSpecialTitle.SetFont(font)
 		creditsSpecialTitle.color.Set(Color.Yellow)
-		creditsSpecialTitle.position.Set(Vsat.ScreenWidth2, creditsMusic.position.y + font.height * 2.5)
+		creditsSpecialTitle.position.Set(Vsat.ScreenWidth2, creditsMusic.position.y + font.height * 2)
 		creditsSpecialTitle.alignHorizontal = True
+		creditsSpecialTitle.SetScale(0.8)
 		
 		creditsSpecial = New VLabel[3]
 		For Local i:Int = 0 Until creditsSpecial.Length
 			Select i
 				Case 0
-					creditsSpecial[0] = New VLabel("Max Gittl")
+					creditsSpecial[0] = New VLabel("Max Gittel")
 				Case 1
 					creditsSpecial[1] = New VLabel("David Neubauer")
 				Case 2
@@ -92,6 +95,7 @@ Class SettingsScene Extends VScene
 			creditsSpecial[i].color.Set(Color.White)
 			creditsSpecial[i].position.Set(Vsat.ScreenWidth2, creditsSpecialTitle.position.y + font.height + (i * font.height*0.9))
 			creditsSpecial[i].alignHorizontal = True
+			creditsSpecial[i].SetScale(0.8)
 		Next
 		
 		
@@ -102,6 +106,7 @@ Class SettingsScene Extends VScene
 ' * Update
 '--------------------------------------------------------------------------
 	Method OnUpdate:Void(dt:Float)
+		mainMenuObject.UpdateParticles(dt)
 		UpdateCursor()
 		UpdateAlpha()
 	End
@@ -110,11 +115,11 @@ Class SettingsScene Extends VScene
 		If Vsat.IsChangingScenes()
 			music.color.Alpha = globalAlpha.Alpha
 			musicOnOff.color.Alpha = globalAlpha.Alpha
-			creditsMusicTitle.color.Alpha = globalAlpha.Alpha
-			creditsMusic.color.Alpha = globalAlpha.Alpha
-			creditsSpecialTitle.color.Alpha = globalAlpha.Alpha
+			creditsMusicTitle.color.Alpha = globalAlpha.Alpha * 0.9
+			creditsMusic.color.Alpha = globalAlpha.Alpha * 0.9
+			creditsSpecialTitle.color.Alpha = globalAlpha.Alpha * 0.9
 			For Local i:Int = 0 Until creditsSpecial.Length
-				creditsSpecial[i].color.Alpha = globalAlpha.Alpha
+				creditsSpecial[i].color.Alpha = globalAlpha.Alpha * 0.9
 			Next
 		End
 	End
@@ -161,8 +166,11 @@ Class SettingsScene Extends VScene
 	Method RenderBackground:Void()
 		If Not Vsat.IsChangingScenes()
 			Color.NewBlack.UseWithoutAlpha()
-			SetAlpha(0.95)
+			SetAlpha(0.98)
 			DrawRect(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight)
+			SetAlpha(0.05)
+			Color.White.UseWithoutAlpha()
+			DrawRect(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight * 0.25)
 		End
 	End
 	
@@ -225,7 +233,7 @@ Class SettingsScene Extends VScene
 	Method OnMusicOnOff:Void()
 		If Audio.IsMuted()
 			Audio.Unmute()
-			music.Text = "Music is on:"
+			music.Text = " Music is on:"
 			musicOnOff.Text = "Mute"
 		Else
 			Audio.Mute()

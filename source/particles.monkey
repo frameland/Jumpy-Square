@@ -134,6 +134,16 @@ Class ExplosionEmitter Extends ParticleEmitter
 	
 End
 
+Class CircleParticleEmitter Extends ParticleEmitter
+	
+	Method Draw:Void(p:Particle)
+		DrawCircle(0, 0, p.size.x/2)
+	End
+	
+End
+
+
+
 
 
 Class ParticleEmitter
@@ -400,20 +410,22 @@ Class ParticleEmitter
 		Local currentParticle:Particle
 		For i = 0 Until particleCount
 			PushMatrix()
-			currentParticle = Particles[i]
-			TranslateV(currentParticle.position)
-			If currentParticle.rotation
-				Rotate(currentParticle.rotation)
-			End
-			'ScaleV(currentParticle.size)
-			
-			currentParticle.color.UseWithoutAlpha()
-			SetAlpha(currentParticle.color.Alpha)
-			DrawRect(-currentParticle.size.x/2, -currentParticle.size.y/2, currentParticle.size.x, currentParticle.size.y)
+				currentParticle = Particles[i]
+				TranslateV(currentParticle.position)
+				If currentParticle.rotation
+					Rotate(currentParticle.rotation)
+				End
+				currentParticle.color.UseWithoutAlpha()
+				SetAlpha(currentParticle.color.Alpha)
+				Self.Draw(currentParticle)
 			PopMatrix()
 		Next
 		
 		ResetBlend()
+	End
+	
+	Method Draw:Void(p:Particle)
+		DrawRect(-p.size.x/2, -p.size.y/2, p.size.x, p.size.y)
 	End
 	
 	

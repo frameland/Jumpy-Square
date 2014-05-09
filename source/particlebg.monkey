@@ -6,13 +6,13 @@ Import extra
 
 Class ParticleBackground
 	
-	Field emitter:ParticleEmitter
+	Field emitter:CircleParticleEmitter
 	Field lastFrame:Int
 	Field baseUnit:Float
 	
 	Method New()
 		baseUnit = Vsat.ScreenWidth2
-		emitter = New ParticleEmitter
+		emitter = New CircleParticleEmitter
 		emitter.InitWithSize(120)
 		emitter.particleLifeSpan = 12
 		emitter.particleLifeSpanVariance = 5.0
@@ -34,6 +34,15 @@ Class ParticleBackground
 		emitter.positionVariance.Set(baseUnit, Vsat.ScreenHeight2)
 		
 		SetNormal()
+		
+		InitGradient()
+	End
+	
+	Method InitGradient:Void()
+		topGradient = New VSprite("gfx/top_gradient.png")
+		topGradient.SetHandle(0, 0)
+		topGradient.SetScale(Vsat.ScreenWidth/topGradient.Width)
+		Print topGradient.scale.y
 	End
 	
 	Method SetNormal:Void()
@@ -56,12 +65,17 @@ Class ParticleBackground
 		End
 		lastFrame = Vsat.Frame
 		emitter.Update(dt)
+		
+		topGradient.Alpha = 0.9 + Sin((Vsat.Seconds * 100) Mod 360) * 0.1
 	End
 	
 	Method Render:Void()
+		topGradient.Render()
 		emitter.Render()
 	End
 	
+	Private
+	Field topGradient:VSprite
 	
 End
 

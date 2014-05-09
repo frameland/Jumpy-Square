@@ -17,7 +17,7 @@ Class DoubleBall Extends VSprite
 	
 	Method Reset:Void()
 		position.x = Vsat.ScreenWidth2
-		position.y = -Height()/2
+		position.y = -9999
 		Self.Alpha = 0.0
 		active = False
 		scale.Set(1.0, 1.0)
@@ -25,6 +25,7 @@ Class DoubleBall Extends VSprite
 	
 	Method Start:Void()
 		Reset()
+		position.y = -Height/2
 		active = True
 		Alpha = 1.0
 		hasCollided = False

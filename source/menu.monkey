@@ -55,9 +55,9 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		
 		InitMedalAndEffect()
 		
-		Local transition:= New VFadeInLinear(1.2)
-		transition.SetColor(Color.White)
-		Vsat.StartFadeIn(transition)
+		'Local transition:= New VFadeInLinear(1.2)
+		'transition.SetColor(Color.White)
+		'Vsat.StartFadeIn(transition)
 	End
 	
 	Method OnInitWhileInitialized:Void()
@@ -120,8 +120,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	Method InitAudio:Void()
-		Audio.PlayMusic("audio/music.wav")
-		Audio.SetMusicVolume(0.1)
+		' Audio.PlayMusic("audio/music.mp3")
+		' Audio.SetMusicVolume(0.1)
 		
 		'Preload Sounds
 		Audio.GetSound("audio/fadein.mp3")
@@ -184,12 +184,14 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 ' * Render
 '--------------------------------------------------------------------------
 	Method OnRender:Void()
+		#rem
 		If Vsat.transition And VFadeInLinear(Vsat.transition)
 			Local scale:Float = Vsat.transition.Progress
 			If scale < 0.01 scale = 0.0
 			scale = 1.5 - Tweening(EASE_OUT_EXPO, scale, 0.0, 1.0, 0.8) * 0.5
 			ScaleAt(Vsat.ScreenWidth2, Vsat.ScreenHeight2, scale, scale)
 		End
+		#end
 		
 		If Vsat.IsActiveScene(Self) Then RenderParticles()
 		RenderHighscore()
