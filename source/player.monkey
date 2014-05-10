@@ -101,7 +101,11 @@ Class Player Extends VRect
 		grindProgress = 0.0
 	End
 	
-
+	Method DoneWithIntro:Void()
+		isIntroAnimating = False
+		OnWallImpact(True)
+	End
+	
 '--------------------------------------------------------------------------
 ' * Update
 '--------------------------------------------------------------------------	
@@ -294,9 +298,9 @@ Class Player Extends VRect
 		position.x = Vsat.ScreenWidth - Self.size.x - 1
 	End
 	
-	Method OnWallImpact:Void()
+	Method OnWallImpact:Void(force:Bool = False)
 		'First jump after game over
-		If lastPositions.IsEmpty()
+		If lastPositions.IsEmpty() And force = False
 			Return
 		End
 		
@@ -312,7 +316,9 @@ Class Player Extends VRect
 		wallhit.Start()
 		
 		'Sound
-		Audio.PlaySound(wallhitSound, CHANNEL_WALLHIT, 0.6)
+		If lastPositions.IsEmpty() = False
+			Audio.PlaySound(wallhitSound, CHANNEL_WALLHIT, 0.6)
+		End
 		Audio.PlaySound(wallGrindSound, CHANNEL_WALLGRIND, 0.0)
 		grindProgress = 0.0
 		

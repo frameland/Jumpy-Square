@@ -1,8 +1,7 @@
 Strict
 Import game
 
-Class GameOverState
-
+Class GameOverState Implements VActionEventHandler
 
 '--------------------------------------------------------------------------
 ' * Init & Helpers
@@ -20,6 +19,30 @@ Class GameOverState
 		
 		glowImage = ImageCache.GetImage(RealPath("glow.png"))
 		glowImage.SetHandle(0, glowImage.Height()/2)
+		
+		newHighscore = New VLabel("New Highscore")
+		newHighscore.SetFont(font)
+		newHighscore.color.Set(Color.Yellow)
+		newHighscore.color.Alpha = 0.0
+		newHighscore.alignHorizontal = AngelFont.ALIGN_RIGHT
+		newHighscore.alignVertical = AngelFont.ALIGN_CENTER
+		newHighscore.position.Set(Vsat.ScreenWidth * 0.9, game.backButton.position.y + Vsat.ScreenHeight * 0.01)
+		
+		Local baseUnit:Float = Vsat.ScreenWidth * 0.5
+		Local size:Int = Int(baseUnit * 0.01)
+		newHighscoreEffect = New ParticleEmitter
+		newHighscoreEffect.InitWithSize(30)
+		newHighscoreEffect.particleLifeSpan = 1.0
+		newHighscoreEffect.position.Set(newHighscore.position.x - newHighscore.size.x/2, 0)
+		newHighscoreEffect.positionVariance.Set(newHighscore.size.x/2, 0)
+		newHighscoreEffect.size.Set(size, size)
+		newHighscoreEffect.endSize.Set(size, size)
+		newHighscoreEffect.speed = baseUnit * 0.4
+		newHighscoreEffect.speedVariance = baseUnit * 0.2
+		newHighscoreEffect.endColor.Alpha = 0.0
+		newHighscoreEffect.emissionAngle = 90
+		newHighscoreEffect.oneShot = True
+		newHighscoreEffect.additiveBlend = True
 	End
 	
 	Method Activate:Void()
@@ -50,7 +73,12 @@ Class GameOverState
 		
 	End
 	
-
+	Method AddAction:Void(action:VAction)
+		action.AddToList(actions)
+		action.SetListener(Self)
+	End
+	
+	
 '--------------------------------------------------------------------------
 ' * Update
 '--------------------------------------------------------------------------	
@@ -66,7 +94,9 @@ Class GameOverState
 			End
 		End
 		
+		VAction.UpdateList(actions, dt)
 		UpdateSwiping(dt)
+		newHighscoreEffect.Update(dt)
 	End
 	
 	Method UpdateSwiping:Void(dt:Float)
@@ -82,7 +112,6 @@ Class GameOverState
 	End
 	
 
-
 '--------------------------------------------------------------------------
 ' * Render
 '--------------------------------------------------------------------------
@@ -97,6 +126,8 @@ Class GameOverState
 			RenderMedalsBackground()
 			RenderMedals()
 			RenderPlayAgain()
+			newHighscore.Render()
+			newHighscoreEffect.Render()
 		PopMatrix()
 	End
 	
@@ -139,6 +170,9 @@ Class GameOverState
 '--------------------------------------------------------------------------
 	Method ReturnToGame:Void()
 		If Vsat.IsChangingScenes() Return
+			
+		newHighscore.SetScale(0.2)
+		newHighscore.color.Alpha = 0.0
 			
 		Audio.PlaySound(Audio.GetSound("audio/fadeout.mp3"), 1)
 		active = False
@@ -194,6 +228,41 @@ Class GameOverState
 		
 	End
 	
+	Method NewHighscore:Void()
+		Local delay:= New VDelayAction(0.6)
+		delay.Name = "NewHighscore"
+		AddAction(delay)
+	End
+	
+	Method DelayedNewHighscore:Void()
+		newHighscore.SetScale(0.0)
+		newHighscore.color.Alpha = 0.0
+		
+		Local fadeIn:= New VFadeToAlphaAction(newHighscore.color, 1.0, 0.5, LINEAR_TWEEN)
+		Local fadeOut:= New VFadeToAlphaAction(newHighscore.color, 0.0, 0.8, LINEAR_TWEEN)
+		Local scale:= New VVec2ToAction(newHighscore.scale, 1.0, 1.0, 0.5, EASE_OUT_EXPO)
+		
+		Local sequence:= New VActionSequence
+		sequence.AddAction(New VActionGroup([VAction(fadeIn), VAction(scale)]))
+		sequence.AddAction(New VDelayAction(0.8))
+		sequence.AddAction(fadeOut)
+		AddAction(sequence)
+		
+		newHighscoreEffect.StopNow()
+		newHighscoreEffect.Start()
+		
+		Local sound:= Audio.GetSound("audio/new_highscore.mp3")
+		Audio.PlaySound(sound, 27)
+	End
+	
+	Method OnActionEvent:Void(id:Int, action:VAction)
+		If id = VAction.FINISHED
+			If action.Name = "NewHighscore"
+				DelayedNewHighscore()
+			End
+		End
+	End
+	
 	
 	Private
 	Field game:GameScene
@@ -218,6 +287,11 @@ Class GameOverState
 	Field targetPosX:Float
 	
 	Field glowImage:Image
+	Field newHighscore:VLabel
+	
+	Field newHighscoreEffect:ParticleEmitter
+	
+	Field actions:List<VAction> = New List<VAction>
 End
 
 

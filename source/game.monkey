@@ -65,6 +65,10 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		enemies = New List<Enemy>
 		doubleBall = New DoubleBall
 		
+		backButton = New BackButton
+		backButton.SetFont(RealPath("font2"))
+		backButton.color.Alpha = 0.0
+		
 		InitEffects()
 		
 		scoreFont = FontCache.GetFont(RealPath("font"))
@@ -72,10 +76,6 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		surpriseSound = Audio.GetSound("audio/surprise.mp3")
 		
 		gameOverState = New GameOverState(Self)
-		
-		backButton = New BackButton
-		backButton.SetFont(RealPath("font2"))
-		backButton.color.Alpha = 0.0
 		
 		globalAlpha.Alpha = 1.0
 		
@@ -199,7 +199,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 			Return ["Tap to jump.", "Dodge the blocks."]
 		End
 		
-		Local tipArray:String[] = New String[9]
+		Local tipArray:String[] = New String[10]
 		tipArray[0] = "You can tap jump~neven before you hit a wall."
 		tipArray[1] = "Don't like the music?~nTurn it off in the settings."
 		tipArray[2] = "In the Medals screen click on a medal~nto get more info."
@@ -209,6 +209,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		tipArray[6] = "With medals you can earn even more points."
 		tipArray[7] = "Beat your old highscore~nto earn the Scoreman medal."
 		tipArray[8] = "Check the leaderboard and see~nhow your friends are doing."
+		tipArray[9] = "After a game you can scroll~nthrough your earned medals."
 		
 		Local index:Int = Int(Rnd(tipArray.Length))
 		Local returnTip:String[] = tipArray[index].Split("~n")
@@ -558,7 +559,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 				Case "TransitionInDone"
 					transitionInDone = True
 				Case "HeroIntroAnimation"
-					player.isIntroAnimating = False
+					player.DoneWithIntro()
 					If action.Duration < 1.5
 						transitionInDone = True
 					End
@@ -578,6 +579,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	End
 	
 	Method NewHighscore:Void()
+		gameOverState.NewHighscore()
 		SyncGameCenter(Highscore)
 	End
 	

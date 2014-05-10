@@ -133,6 +133,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Audio.GetSound("audio/surprise.mp3")
 		Audio.GetSound("audio/feed.mp3")
 		Audio.GetSound("audio/double.mp3")
+		Audio.GetSound("audio/new_highscore.mp3")
 	End
 	
 	
@@ -516,6 +517,9 @@ Class MenuItem Extends VRect
 	Method WasTouched:Bool(cursor:Vec2)
 		Local touchsizeBufferX:Float = size.x * 0.2
 		Local touchsizeBufferY:Float = size.y * 0.2
+		If icon
+			Return PointInRect(cursor.x, cursor.y, position.x-touchsizeBufferX-icon.Width(), position.y-touchsizeBufferY, size.x+touchsizeBufferX*2+icon.Width(), size.y+touchsizeBufferY*2)
+		End
 		Return PointInRect(cursor.x, cursor.y, position.x-touchsizeBufferX, position.y-touchsizeBufferY, size.x+touchsizeBufferX*2, size.y+touchsizeBufferY*2)
 	End
 	

@@ -42,7 +42,6 @@ Class ParticleBackground
 		topGradient = New VSprite("gfx/top_gradient.png")
 		topGradient.SetHandle(0, 0)
 		topGradient.SetScale(Vsat.ScreenWidth/topGradient.Width)
-		Print topGradient.scale.y
 	End
 	
 	Method SetNormal:Void()
