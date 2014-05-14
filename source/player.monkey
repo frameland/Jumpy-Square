@@ -211,11 +211,11 @@ Class Player Extends VRect
 			If position.x <= 1
 				position.x = 3
 				velocity.Set(jumpForce)
-				VPlaySound(jumpSound, 28)
+				Audio.PlaySound(jumpSound, 28)
 			ElseIf position.x + Self.size.x + 1 >= Vsat.ScreenWidth
 				position.x = Vsat.ScreenWidth - 3 - Self.size.x
 				velocity.Set(-jumpForce.x, jumpForce.y)
-				VPlaySound(jumpSound, 29)
+				Audio.PlaySound(jumpSound, 29)
 			End
 		Else
 			#rem

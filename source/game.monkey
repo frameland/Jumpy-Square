@@ -14,12 +14,12 @@ Import doubleball
 
 #If TARGET = "ios"
 Import brl.admob
-#ADMOB_PUBLISHER_ID="a15364047eb2dce "
+#ADMOB_PUBLISHER_ID="a15364047eb2dce"
 #End
 
 Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallback
 	
-	Const SPAWN_TIME_RANGE:Float = 1.8
+	Const SPAWN_TIME_RANGE:Float = 1.7 'in seconds
 	
 	Global Highscore:Int = 0
 	Global IsUnlocked:Bool = False
@@ -30,7 +30,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	
 	Field doubleBall:DoubleBall
 	Field hyperModeTimer:Float
-	Const HYPER_TIME:Float = 12.0
+	Const HYPER_TIME:Float = 13.0
 	
 	Field score:Int
 	Field targetScore:Int
@@ -199,9 +199,9 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 			Return ["Tap to jump.", "Dodge the blocks."]
 		End
 		
-		Local tipArray:String[] = New String[10]
+		Local tipArray:String[] = New String[11]
 		tipArray[0] = "You can tap jump~neven before you hit a wall."
-		tipArray[1] = "Don't like the music?~nTurn it off in the settings."
+		tipArray[1] = "You can adjust your audio preferences~nin the Settings."
 		tipArray[2] = "In the Medals screen click on a medal~nto get more info."
 		tipArray[3] = "When the screen flashes~nbe ready for a surprise!"
 		tipArray[4] = "There is a way to get 2x points ..."
@@ -210,6 +210,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		tipArray[7] = "Beat your old highscore~nto earn the Scoreman medal."
 		tipArray[8] = "Check the leaderboard and see~nhow your friends are doing."
 		tipArray[9] = "After a game you can scroll~nthrough your earned medals."
+		tipArray[10] = "Got headphones?~nPut them on and it~nwill be twice as fun."
 		
 		Local index:Int = Int(Rnd(tipArray.Length))
 		Local returnTip:String[] = tipArray[index].Split("~n")
@@ -324,7 +325,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		If enemyTimer <= 0.0
 			lastSurpriseRound += 1
 			If hyperModeIsActive
-				enemyTimer = 0.7 + Rnd() * SPAWN_TIME_RANGE/1.8
+				enemyTimer = 0.7 + Rnd() * SPAWN_TIME_RANGE * 0.75
 			Else
 				enemyTimer = 0.7 + Rnd() * SPAWN_TIME_RANGE
 			End

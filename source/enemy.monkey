@@ -79,7 +79,7 @@ Class Enemy Extends VRect
 	Method SetRight:Void()
 		position.x = Vsat.ScreenWidth - Self.size.x - 1
 		sparks.SetPosition(Vsat.ScreenWidth-1, Self.position.y + size.y/2)
-		sparks.emissionAngle = 45-180
+		sparks.emissionAngle = -135
 	End
 	
 	Method SetCenter:Void()
@@ -90,10 +90,6 @@ Class Enemy Extends VRect
 	
 	Method Remove:Void()
 		If link Then link.Remove()
-	End
-	
-	Method ShouldRenderParticles:Bool()
-		Return isSurprise And position.x = (Vsat.ScreenWidth2 - size.x/2)
 	End
 	
 	Method CollidesWith:Bool(rect:VRect)
@@ -112,7 +108,7 @@ Class Enemy Extends VRect
 	Method Update:Void(dt:Float)
 		UpdatePhysics(dt)
 		UpdateLastPosition()
-		If Self.ShouldRenderParticles() Then UpdateParticles(dt)
+		UpdateParticles(dt)
 	End
 	
 	Method UpdatePhysics:Void(dt:Float)
@@ -152,7 +148,7 @@ Class Enemy Extends VRect
 ' * Render
 '--------------------------------------------------------------------------
 	Method Render:Void()
-		If Self.ShouldRenderParticles() Then sparks.Render()
+		sparks.Render()
 		
 		Super.Render()
 		

@@ -16,6 +16,7 @@ Class SettingsScene Extends VScene
 		font = FontCache.GetFont(RealPath("font"))
 		
 		InitMainMenu()
+		InitLogo()
 		InitMusicOnOff(font)
 		InitCredits(font)
 		
@@ -60,6 +61,13 @@ Class SettingsScene Extends VScene
 	End
 	
 	Method InitCredits:Void(font:AngelFont)
+		creditsGameTitle = New VLabel("A Game By")
+		creditsGameTitle.SetFont(font)
+		creditsGameTitle.color.Set(Color.Yellow)
+		creditsGameTitle.position.Set(Vsat.ScreenWidth2, logo.position.y - font.height)
+		creditsGameTitle.alignHorizontal = True
+		creditsGameTitle.SetScale(0.8)
+		
 		creditsMusicTitle = New VLabel("Music")
 		creditsMusicTitle.SetFont(font)
 		creditsMusicTitle.color.Set(Color.Yellow)
@@ -101,6 +109,17 @@ Class SettingsScene Extends VScene
 		
 	End
 	
+	Method InitLogo:Void()
+		If IsHD()
+			logo = New VSprite("fl_size3.png")
+		Else
+			logo = New VSprite("fl_size2.png")
+		End
+		logo.SetHandle(logo.Width/2, 0)
+		logo.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.55 - logo.Height * 1.5)
+		logo.color.Alpha = 0.0
+	End
+	
 
 '--------------------------------------------------------------------------
 ' * Update
@@ -115,11 +134,24 @@ Class SettingsScene Extends VScene
 		If Vsat.IsChangingScenes()
 			music.color.Alpha = globalAlpha.Alpha
 			musicOnOff.color.Alpha = globalAlpha.Alpha
+			creditsGameTitle.color.Alpha = globalAlpha.Alpha * 0.9
+			logo.color.Alpha = globalAlpha.Alpha * 0.9
 			creditsMusicTitle.color.Alpha = globalAlpha.Alpha * 0.9
 			creditsMusic.color.Alpha = globalAlpha.Alpha * 0.9
 			creditsSpecialTitle.color.Alpha = globalAlpha.Alpha * 0.9
 			For Local i:Int = 0 Until creditsSpecial.Length
 				creditsSpecial[i].color.Alpha = globalAlpha.Alpha * 0.9
+			Next
+		Else
+			music.color.Alpha = 0.9
+			musicOnOff.color.Alpha = 0.9
+			creditsGameTitle.color.Alpha = 0.9
+			logo.color.Alpha = 0.9
+			creditsMusicTitle.color.Alpha = 0.9
+			creditsMusic.color.Alpha = 0.9
+			creditsSpecialTitle.color.Alpha = 0.9
+			For Local i:Int = 0 Until creditsSpecial.Length
+				creditsSpecial[i].color.Alpha = 0.9
 			Next
 		End
 	End
@@ -160,6 +192,7 @@ Class SettingsScene Extends VScene
 		
 		RenderMusicOnOff()
 		RenderCredits()
+		logo.Render()
 		back.Render()
 	End
 	
@@ -180,6 +213,7 @@ Class SettingsScene Extends VScene
 	End
 	
 	Method RenderCredits:Void()
+		creditsGameTitle.Render()
 		creditsMusicTitle.Render()
 		creditsMusic.Render()
 		creditsSpecialTitle.Render()
@@ -252,12 +286,15 @@ Class SettingsScene Extends VScene
 	Field music:VLabel
 	Field musicOnOff:MenuItem
 	
+	Field creditsGameTitle:VLabel
 	Field creditsMusicTitle:VLabel
 	Field creditsMusic:VLabel
 	Field creditsSpecialTitle:VLabel
 	Field creditsSpecial:VLabel[]
-	
+
 	Field back:BackButton
+	
+	Field logo:VSprite
 
 End
 

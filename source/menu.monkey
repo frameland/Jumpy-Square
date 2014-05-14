@@ -55,9 +55,15 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		
 		InitMedalAndEffect()
 		
-		'Local transition:= New VFadeInLinear(1.2)
-		'transition.SetColor(Color.White)
-		'Vsat.StartFadeIn(transition)
+		If IsHD()
+			logo = LoadImage("fl_size2.png")
+		Else
+			logo = LoadImage("fl_size1.png")
+		End
+		
+		Local transition:= New VFadeInLinear(1.0)
+		transition.SetColor(Color.White)
+		Vsat.StartFadeIn(transition)
 	End
 	
 	Method OnInitWhileInitialized:Void()
@@ -120,8 +126,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	Method InitAudio:Void()
-		' Audio.PlayMusic("audio/music.mp3")
-		' Audio.SetMusicVolume(0.1)
+		Audio.PlayMusic("audio/music.mp3")
+		Audio.SetMusicVolume(0.2)
 		
 		'Preload Sounds
 		Audio.GetSound("audio/fadein.mp3")
@@ -199,7 +205,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		RenderTitle()
 		RenderMenu()
 		RenderSupporterMedal()
-		RenderVersion()
+		RenderLogo()
 		
 		RenderConnectingToGameCenter()
 	End
@@ -259,13 +265,13 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		medalEffect.Render()
 	End
 	
-	Method RenderVersion:Void()
+	Method RenderLogo:Void()
 		SetAlpha(0.3)
 		Color.White.UseWithoutAlpha()
 		PushMatrix()
-			Translate(Vsat.ScreenWidth * 0.05, Vsat.ScreenHeight - (font2.height * 2)*0.8)
-			Scale(0.8, 0.8)
-			font2.DrawText(VERSION, 0, 0)
+			Translate(Vsat.ScreenWidth * 0.05, settings.position.y + 2)
+			'Scale(0.8, 0.8)
+			DrawImage(logo, 0, 0)
 		PopMatrix()
 	End
 	
@@ -467,6 +473,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field supporterMedal:SupporterMedal
 	
 	Field startedConnecting:Bool
+	
+	Field logo:Image
 End
 
 
