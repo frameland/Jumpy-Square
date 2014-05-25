@@ -192,7 +192,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 				If GameScene.IsUnlocked
 					medalItems[i].color.Alpha = Min(0.85 + Sin(Vsat.Seconds*150)*0.3, 1.0)
 				Else
-					medalItems[i].color.Alpha = Min(0.7 + Sin(Vsat.Seconds*150)*0.5, 1.0)
+					medalItems[i].color.Alpha = Min(0.8 + Sin(Vsat.Seconds*150)*0.2, 1.0)
 				End
 			End
 			medalItems[i].Render()
@@ -227,7 +227,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		PushMatrix()
 			Translate(Vsat.ScreenWidth * 0.7 + medalItems[0].Width/2, back.position.y + descriptionFont.height * 0.2)
 			Scale(0.8, 0.8)
-			descriptionFont.DrawText("Collected: " + Medals.PercentageComplete() + "%", 0, 0, AngelFont.ALIGN_RIGHT, AngelFont.ALIGN_CENTER)
+			descriptionFont.DrawText(collectedText + Medals.PercentageComplete() + "%", 0, 0, AngelFont.ALIGN_RIGHT, AngelFont.ALIGN_CENTER)
 		PopMatrix()
 	End
 	
@@ -408,6 +408,8 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	
 	Field siteActive:Image
 	Field siteNotActive:Image
+	
+	Field collectedText:String = Localize.GetValue("collected")
 End
 
 

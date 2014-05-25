@@ -9,7 +9,9 @@ Const GAMECENTER_LEADERBOARD:String = "highscore"
 
 Function InitGameCenter:Void()
 	#If TARGET = "ios"
-		gameCenter = GameCenter.GetGameCenter()
+		If Not gameCenter
+			gameCenter = GameCenter.GetGameCenter()
+		End
 		If gameCenter.GameCenterState() = 0
 			gameCenter.StartGameCenter()
 		End

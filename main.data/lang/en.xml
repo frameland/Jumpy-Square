@@ -1,0 +1,283 @@
+<words>
+	<word>
+		<key>back</key>
+		<value>Back</value>
+	</word>
+	<word>
+		<key>connecting</key>
+		<value>Connecting</value>
+	</word>
+	<word>
+		<key>collected</key>
+		<value>Collected: </value>
+	</word>
+	
+	<word>
+		<key>menu_play</key>
+		<value>Play</value>
+	</word>
+	<word>
+		<key>menu_medals</key>
+		<value>Medals</value>
+	</word>
+	<word>
+		<key>menu_leaderboard</key>
+		<value>Leaderboard</value>
+	</word>
+	<word>
+		<key>menu_settings</key>
+		<value>Settings</value>
+	</word>
+	<word>
+		<key>menu_remove_ads</key>
+		<value>Remove Ads</value>
+	</word>
+	
+	
+	<word>
+		<key>settings_game_by</key>
+		<value>A Game By</value>
+	</word>
+	<word>
+		<key>settings_music</key>
+		<value>Music</value>
+	</word>
+	<word>
+		<key>settings_thanks</key>
+		<value>Special Thanks</value>
+	</word>
+	<word>
+		<key>settings_music_is_on</key>
+		<value> Music is on:</value>
+	</word>
+	<word>
+		<key>settings_music_is_off</key>
+		<value>Music is off:</value>
+	</word>
+	 <word>
+		<key>settings_play</key>
+		<value>Play</value>
+	</word>
+	<word>
+		<key>settings_mute</key>
+		<value>Mute</value>
+	</word>
+	<word>
+		<key>settings_language</key>
+		<value>Language:</value>
+	</word>
+	
+	
+	<word>
+		<key>buy_buy</key>
+		<value>Buy it</value>
+	</word>
+	<word>
+		<key>buy_no</key>
+		<value>No thanks</value>
+	</word>
+	<word>
+		<key>buy_restore</key>
+		<value>Restore Purchases</value>
+	</word>
+	<word>
+		<key>buy_description</key>
+		<value>Add the Supporter Medal to your collection.*It will also remove all ads from the game.</value>
+	</word>
+	<word>
+		<key>buy_already_bought</key>
+		<value>Thank you for purchasing the Supporter Medal.*Stay tuned for content updates in the near future.</value>
+	</word>
+	
+	
+	<word>
+		<key>gameover_play_again</key>
+		<value>Play Again</value>
+	</word>
+	<word>
+		<key>gameover_earned_medals</key>
+		<value>Earned Medals</value>
+	</word>
+	<word>
+		<key>gameover_new_highscore</key>
+		<value>New Highscore</value>
+	</word>
+	
+	
+	<!-- Medals -->
+	<word>
+		<key>Normal-Dodge</key>
+		<value>Normal-Dodge</value>
+	</word>
+	<word>
+		<key>Double-Dodge</key>
+		<value>Double-Dodge</value>
+	</word>
+	<word>
+		<key>Triple-Dodge</key>
+		<value>Triple-Dodge</value>
+	</word>
+	<word>
+		<key>Multi-Dodge</key>
+		<value>Multi-Dodge</value>
+	</word>
+	<word>
+		<key>Close One</key>
+		<value>Close One</value>
+	</word>
+	<word>
+		<key>Half-Dead</key>
+		<value>Half-Dead</value>
+	</word>
+	<word>
+		<key>Not Surprised</key>
+		<value>Not Surprised</value>
+	</word>
+	<word>
+		<key>Scoreman</key>
+		<value>Scoreman</value>
+	</word>
+	<word>
+		<key>Feeder</key>
+		<value>Feeder</value>
+	</word>
+	<word>
+		<key>Tissue</key>
+		<value>Tissue</value>
+	</word>
+	<word>
+		<key>Minimalist</key>
+		<value>Minimalist</value>
+	</word>
+	<word>
+		<key>Go-Getter</key>
+		<value>Go-Getter</value>
+	</word>
+	<word>
+		<key>Direct Hit</key>
+		<value>Direct Hit</value>
+	</word>
+	<word>
+		<key>Highflyer</key>
+		<value>Highflyer</value>
+	</word>
+	<word>
+		<key>Supporter</key>
+		<value>Supporter</value>
+	</word>
+	
+	
+	
+	<!-- Medal description -->
+	<word>
+		<key>medal_description_Normal-Dodge</key>
+		<value>Dodged an incoming block.</value>
+	</word>
+	<word>
+		<key>medal_description_Double-Dodge</key>
+		<value>Dodged 2 incoming blocks in quick succession.</value>
+	</word>
+	<word>
+		<key>medal_description_Triple-Dodge</key>
+		<value>Dodged 3 incoming blocks in quick succession.</value>
+	</word>
+	<word>
+		<key>medal_description_Multi-Dodge</key>
+		<value>Dodged more than 3 incoming blocks in quick succession.</value>
+	</word>
+	<word>
+		<key>medal_description_Close One</key>
+		<value>Dodged at the last possible moment.</value>
+	</word>
+	<word>
+		<key>medal_description_Half-Dead</key>
+		<value>Jumped while nearly out of the bottom of the screen.</value>
+	</word>
+	<word>
+		<key>medal_description_Not Surprised</key>
+		<value>Dodged a surprise.</value>
+	</word>
+	<word>
+		<key>medal_description_Scoreman</key>
+		<value>Beat your old highscore.</value>
+	</word>
+	<word>
+		<key>medal_description_Feeder</key>
+		<value>Filled the entire scorefeed.</value>
+	</word>
+	<word>
+		<key>medal_description_Tissue</key>
+		<value>Ground Zero.</value>
+	</word>
+	<word>
+		<key>medal_description_Minimalist</key>
+		<value>You don't like jumping.</value>
+	</word>
+	<word>
+		<key>medal_description_Go-Getter</key>
+		<value>You like jumping.</value>
+	</word>
+	<word>
+		<key>medal_description_Direct Hit</key>
+		<value>Jumped into a block head on.</value>
+	</word>
+	<word>
+		<key>medal_description_Highflyer</key>
+		<value>Double points.</value>
+	</word>
+	<word>
+		<key>medal_description_Supporter</key>
+		<value>You are awesome!</value>
+	</word>
+	
+	
+	<!-- tips -->
+	<word>
+		<key>tip0</key>
+		<value>Tap to jump.*Dodge the blocks.</value>
+	</word>
+	<word>
+		<key>tip1</key>
+		<value>You can tap jump*even before you hit a wall.</value>
+	</word>
+	<word>
+		<key>tip2</key>
+		<value>You can adjust your audio preferences*in the Settings.</value>
+	</word>
+	<word>
+		<key>tip3</key>
+		<value>In the Medals screen click on a medal*to get more info.</value>
+	</word>
+	<word>
+		<key>tip4</key>
+		<value>When the screen flashes*be ready for a surprise!</value>
+	</word>
+	<word>
+		<key>tip5</key>
+		<value>There is a way to get 2x points ...</value>
+	</word>
+	<word>
+		<key>tip6</key>
+		<value>You can remove all ads by getting the*golden Supporter Medal from the main menu.</value>
+	</word>
+	<word>
+		<key>tip7</key>
+		<value>With medals you can earn even more points.</value>
+	</word>
+	<word>
+		<key>tip8</key>
+		<value>Beat your old highscore*to earn the Scoreman medal.</value>
+	</word>
+	<word>
+		<key>tip9</key>
+		<value>Check the Leaderboard and see*how your friends are doing.</value>
+	</word>
+	<word>
+		<key>tip10</key>
+		<value>After a game you can scroll*through your earned medals.</value>
+	</word>
+	<word>
+		<key>tip11</key>
+		<value>Got headphones?*Put them on and enjoy the soundtrack.</value>
+	</word>
+</words>

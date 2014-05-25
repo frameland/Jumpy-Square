@@ -1,0 +1,285 @@
+<words>
+	<word>
+		<key>back</key>
+		<value>Zurück</value>
+	</word>
+	<word>
+		<key>connecting</key>
+		<value>Verbinden</value>
+	</word>
+	<word>
+		<key>collected</key>
+		<value>Gesammelt: </value>
+	</word>
+	
+	<word>
+		<key>menu_play</key>
+		<value>Spielen</value>
+	</word>
+	<word>
+		<key>menu_medals</key>
+		<value>Medaillen</value>
+	</word>
+	<word>
+		<key>menu_leaderboard</key>
+		<value>Bestenliste</value>
+	</word>
+	<word>
+		<key>menu_settings</key>
+		<value>Einstellungen</value>
+	</word>
+	<word>
+		<key>menu_remove_ads</key>
+		<value>Werbung Entfernen</value>
+	</word>
+	
+	
+	<word>
+		<key>settings_game_by</key>
+		<value>Ein Spiel von</value>
+	</word>
+	<word>
+		<key>settings_music</key>
+		<value>Musik</value>
+	</word>
+	<word>
+		<key>settings_thanks</key>
+		<value>Special Thanks</value>
+	</word>
+	<word>
+		<key>settings_music_is_on</key>
+		<value> Musik ist an:</value>
+	</word>
+	<word>
+		<key>settings_music_is_off</key>
+		<value>Musik ist aus:</value>
+	</word>
+	 <word>
+		<key>settings_play</key>
+		<value>Abspielen</value>
+	</word>
+	<word>
+		<key>settings_mute</key>
+		<value>Stumm schalten</value>
+	</word>
+	<word>
+		<key>settings_language</key>
+		<value>Sprache:</value>
+	</word>
+	
+	
+	<word>
+		<key>buy_buy</key>
+		<value>Kaufen</value>
+	</word>
+	<word>
+		<key>buy_no</key>
+		<value>Nein danke</value>
+	</word>
+	<word>
+		<key>buy_restore</key>
+		<value>Einkäufe Wiederherstellen</value>
+	</word>
+	<word>
+		<key>buy_description</key>
+		<value>Füge die Supporter Medaille deiner Sammlung hinzu.*Zusätzlich wird jegliche Werbung entfernt.</value>
+	</word>
+	<word>
+		<key>buy_already_bought</key>
+		<value>Danke, dass du die Supporter Medaille gekauft hast.*Bleib gespannt auf neue Inhalte in der Zukunft.</value>
+	</word>
+	
+	
+	<word>
+		<key>gameover_play_again</key>
+		<value>Nochmal Spielen</value>
+	</word>
+	<word>
+		<key>gameover_earned_medals</key>
+		<value>Verdiente Medaillen</value>
+	</word>
+	<word>
+		<key>gameover_new_highscore</key>
+		<value>Neuer Rekord</value>
+	</word>
+	
+	
+	<!-- Medals -->
+	<word>
+		<key>Normal-Dodge</key>
+		<value>Ausgewichen</value>
+	</word>
+	<word>
+		<key>Double-Dodge</key>
+		<value>Ausgewichen x2</value>
+	</word>
+	<word>
+		<key>Triple-Dodge</key>
+		<value>Ausgewichen x3</value>
+	</word>
+	<word>
+		<key>Multi-Dodge</key>
+		<value>Multi Ausweichmanöver</value>
+	</word>
+	<word>
+		<key>Close One</key>
+		<value>Das war knapp!</value>
+	</word>
+	<word>
+		<key>Half-Dead</key>
+		<value>Halbtot</value>
+	</word>
+	<word>
+		<key>Not Surprised</key>
+		<value>Nicht überrascht</value>
+	</word>
+	<word>
+		<key>Scoreman</key>
+		<value>Spitzenreiter</value>
+	</word>
+	<word>
+		<key>Feeder</key>
+		<value>Übermensch</value>
+	</word>
+	<word>
+		<key>Tissue</key>
+		<value>Taschentuch</value>
+	</word>
+	<word>
+		<key>Minimalist</key>
+		<value>Minimalist</value>
+	</word>
+	<word>
+		<key>Go-Getter</key>
+		<value>Draufgänger</value>
+	</word>
+	<word>
+		<key>Direct Hit</key>
+		<value>Volltreffer</value>
+	</word>
+	<word>
+		<key>Highflyer</key>
+		<value>Höhenflieger</value>
+	</word>
+	<word>
+		<key>Supporter</key>
+		<value>Supporter</value>
+	</word>
+	
+	
+	
+	<!-- Medal description -->
+	<word>
+		<key>medal_description_Normal-Dodge</key>
+		<value>Einem Block ausgewichen.</value>
+	</word>
+	<word>
+		<key>medal_description_Double-Dodge</key>
+		<value>Zwei Blöcken kurz hintereinander ausgewichen.</value>
+	</word>
+	<word>
+		<key>medal_description_Triple-Dodge</key>
+		<value>Drei Blöcken kurz hintereinander ausgewichen.</value>
+	</word>
+	<word>
+		<key>medal_description_Multi-Dodge</key>
+		<value>Mehr als drei Blöcken kurz hintereinander ausgewichen.</value>
+	</word>
+	<word>
+		<key>medal_description_Close One</key>
+		<value>Im letzten Moment ausgewichen.</value>
+	</word>
+	<word>
+		<key>medal_description_Half-Dead</key>
+		<value>Durch ein Sprung vom unteren Rand gerettet.</value>
+	</word>
+	<word>
+		<key>medal_description_Not Surprised</key>
+		<value>Einer Überraschung ausgewichen.</value>
+	</word>
+	<word>
+		<key>medal_description_Scoreman</key>
+		<value>Einen neuen Rekord aufgestellt.</value>
+	</word>
+	<word>
+		<key>medal_description_Feeder</key>
+		<value>Die Punkteliste komplett gefüllt.</value>
+	</word>
+	<word>
+		<key>medal_description_Tissue</key>
+		<value>Nullrunde.</value>
+	</word>
+	<word>
+		<key>medal_description_Minimalist</key>
+		<value>Lieber an den Wänden geblieben.</value>
+	</word>
+	<word>
+		<key>medal_description_Go-Getter</key>
+		<value>Andauernd am Springen.</value>
+	</word>
+	<word>
+		<key>medal_description_Direct Hit</key>
+		<value>Direkt mit einem Block kollidiert.</value>
+	</word>
+	<word>
+		<key>medal_description_Highflyer</key>
+		<value>Doppelpunkte.</value>
+	</word>
+	<word>
+		<key>medal_description_Supporter</key>
+		<value>Großartig!</value>
+	</word>
+	
+	
+	<!-- tips -->
+	<word>
+		<key>tip0</key>
+		<value>Tippen um zu Springen.*Weiche den Blöcken aus.</value>
+	</word>
+	<word>
+		<key>tip1</key>
+		<value>Sogar kurz vor dem Kontakt mit einer Wand*kannst du tippen um zu springen.</value>
+	</word>
+	<word>
+		<key>tip2</key>
+		<value>In den Einstellungen kannst du die Musik*auf stumm schalten.</value>
+	</word>
+	<word>
+		<key>tip3</key>
+		<value>In deiner Medaillensammlung tippe auf eine*Medaille um mehr Informationen zu erhalten.</value>
+	</word>
+	<word>
+		<key>tip4</key>
+		<value>Sobald der Bildschirm hell aufblinkt mach dich*auf eine Überraschung gefasst.</value>
+	</word>
+	<word>
+		<key>tip5</key>
+		<value>Es gibt eine Möglichkeit die doppelte Anzahl*an Punkten zu erhalten ...</value>
+	</word>
+	<word>
+		<key>tip6</key>
+		<value>Du kannst die Werbung entfernen, indem du*dir die goldene Supporter Medaille vom Hauptmenü holst.</value>
+	</word>
+	<word>
+		<key>tip7</key>
+		<value>Medaillen sind der Schlüssel für eine*hohe Punkteanzahl.</value>
+	</word>
+	<word>
+		<key>tip8</key>
+		<value>Schlage deinen alten Rekord um die*Spitzenreiter-Medaille zu erhalten.</value>
+	</word>
+	<word>
+		<key>tip9</key>
+		<value>In der Bestenliste kannst du sehen*wie viele Punkte deine Freunde haben.</value>
+	</word>
+	<word>
+		<key>tip10</key>
+		<value>Nach einem Spiel kannst du durch deine*verdienten Medaillen scrollen.</value>
+	</word>
+	<word>
+		<key>tip11</key>
+		<value>Kopfhörer dabei?*Die Musik wird dich mitreißen.</value>
+	</word>
+</words>
+
+

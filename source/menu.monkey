@@ -27,7 +27,6 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			OnInitWhileInitialized()
 			Return
 		End
-		initialized = True
 		
 		InitAudio()
 		LoadGame()
@@ -64,21 +63,29 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Local transition:= New VFadeInLinear(1.0)
 		transition.SetColor(Color.White)
 		Vsat.StartFadeIn(transition)
+		
+		initialized = True
 	End
 	
 	Method OnInitWhileInitialized:Void()
-		
+		InitMenuItems()
+		For Local i:Int = 0 Until menuOptions.Length
+			Local item:MenuItem = menuOptions[i]
+			item.position.x = Vsat.ScreenWidth2 - item.size.x/2
+			item.position.y = (lineHeight * i) + titleTopSpacing + highscoreSquareSize*2.5
+		Next
+		InitMedalAndEffect()
 	End
 	
 	Method InitMenuItems:Void()
 		menuOptions = New MenuItem[3]
-		menuOptions[0] = New MenuItem("Play", font)
-		menuOptions[1] = New MenuItem("Medals", font)
-		menuOptions[2] = New MenuItem("Leaderboard", font)
+		menuOptions[0] = New MenuItem(Localize.GetValue("menu_play"), font)
+		menuOptions[1] = New MenuItem(Localize.GetValue("menu_medals"), font)
+		menuOptions[2] = New MenuItem(Localize.GetValue("menu_leaderboard"), font)
 		
-		settings = New MenuItem("Settings", font2)
+		settings = New MenuItem(Localize.GetValue("menu_settings"), font2)
 		settings.SetIcon(RealPath("settings.png"))
-		settings.position.x = Vsat.ScreenWidth * 0.95 - font2.TextWidth("Settings")
+		settings.position.x = Vsat.ScreenWidth * 0.95 - font2.TextWidth(settings.text)
 		settings.position.y = Vsat.ScreenHeight - font2.height * 2
 		settings.color.Alpha = 0.5
 	End
@@ -96,16 +103,27 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	Method InitMedalAndEffect:Void()
-		supporterMedal = New SupporterMedal
-		If GameScene.IsUnlocked
-			supporterMedal.InitUnlocked()
-		Else
-			supporterMedal.InitLocked()
+		If Not initialized
+			supporterMedal = New SupporterMedal
+			If GameScene.IsUnlocked
+				supporterMedal.InitUnlocked()
+			Else
+				supporterMedal.InitLocked()
+			End
 		End
+		
 		supporterMedal.position.x = Vsat.ScreenWidth2
 		Local lastMenuItem:= menuOptions[2]
 		Local y:Float = (Vsat.ScreenHeight - lastMenuItem.position.y + lastMenuItem.usedFont.TextHeight(lastMenuItem.text)) / 2
 		supporterMedal.position.y = y + lastMenuItem.position.y
+		
+		removeAdsText = New VLabel(Localize.GetValue("menu_remove_ads"))
+		removeAdsText.SetFont(font2)
+		removeAdsText.alignHorizontal = AngelFont.ALIGN_CENTER
+		removeAdsText.position.Set(supporterMedal.position)
+		removeAdsText.position.Add(0, supporterMedal.Height * 0.5)
+		removeAdsText.SetScale(0.8)
+		removeAdsText.color.Set(Color.Yellow)
 		
 		'Effect
 		medalEffect = New ExplosionEmitter
@@ -252,10 +270,15 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 				supporterMedal.color.Alpha = 1.0
 			End
 		Else
-			Local alpha:Float = Min(0.7 + Sin(Vsat.Seconds*150)*0.5, 1.0)
+			Local alpha:Float = Min(0.8 + Sin(Vsat.Seconds*150)*0.5, 1.0)
 			supporterMedal.color.Alpha = alpha
 		End
+		removeAdsText.color.Alpha = supporterMedal.color.Alpha - 0.2
+		
 		supporterMedal.Render()
+		If GameScene.IsUnlocked = False
+			removeAdsText.Render()
+		End
 		
 		If justGotSupporterMedal
 			justGotSupporterMedal = False
@@ -283,7 +306,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			Color.Black.UseWithoutAlpha()
 			DrawRect(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight)
 			
-			Local connectText:String = "Connecting"
+			Local connectText:String = Localize.GetValue("connecting")
 			Local xPos:Int = Vsat.ScreenWidth2 - font.TextWidth(connectText)/2
 			If dots > 1200
 				connectText += "..."
@@ -321,6 +344,10 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Next
 		lockedMenuItem = Null
 		settings.isDown = False
+		
+		If PointInRect(MouseX(), MouseY(), Vsat.ScreenWidth * 0.05, settings.position.y + 2, logo.Width(), logo.Height())
+			OpenUrl("http://frameland.at")
+		End
 	End
 	
 	Method OnMouseDown:Void()
@@ -355,13 +382,13 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	
 	Method OnMenuClicked:Void(item:MenuItem)
 		Select item.text
-			Case "Play"
+			Case menuOptions[0].text
 				GoToGame()
-			Case "Medals"
+			Case menuOptions[1].text
 				GoToMedals()
-			Case "Leaderboard"
+			Case menuOptions[2].text
 				OpenLeaderboard()
-			Case "Settings"
+			Case settings.text
 				GoToSettings()
 		End
 	End
@@ -471,6 +498,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	
 	Field medalEffect:ExplosionEmitter
 	Field supporterMedal:SupporterMedal
+	Field removeAdsText:VLabel
 	
 	Field startedConnecting:Bool
 	
@@ -520,6 +548,12 @@ Class MenuItem Extends VRect
 			Scale(scale.x, scale.y)
 			Draw()
 		PopMatrix()
+	End
+	
+	Method Text:Void(text:String) Property
+		Self.text = text
+		size.x = usedFont.TextWidth(text)
+		size.y = usedFont.TextHeight(text)
 	End
 	
 	Method WasTouched:Bool(cursor:Vec2)

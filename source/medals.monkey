@@ -361,36 +361,36 @@ Class Medals
 	Function DescriptionFor:String(medalName:String)
 		Select medalName
 			Case "Normal-Dodge"
-				Return "Dodged an incoming block."
+				Return Localize.GetValue("medal_description_Normal-Dodge")
 			Case "Double-Dodge"
-				Return "Dodged 2 incoming blocks in quick succession."
+				Return Localize.GetValue("medal_description_Double-Dodge")
 			Case "Triple-Dodge"
-				Return "Dodged 3 incoming blocks in quick succession."
+				Return Localize.GetValue("medal_description_Triple-Dodge")
 			Case "Multi-Dodge"
-				Return "Dodged more than 3 incoming blocks in quick succession."
+				Return Localize.GetValue("medal_description_Multi-Dodge")
 			Case "Close One"
-				Return "Dodged at the last possible moment."
+				Return Localize.GetValue("medal_description_Close One")
 			Case "Half-Dead"
-				Return "Jumped while nearly out of the bottom of the screen."
+				Return Localize.GetValue("medal_description_Half-Dead")
 			Case "Not Surprised"
-				Return "Dodged a surprise."
+				Return Localize.GetValue("medal_description_Not Surprised")
 			Case "Scoreman"
-				Return "Beat your old highscore."
+				Return Localize.GetValue("medal_description_Scoreman")
 			Case "Feeder"
-				Return "Filled the entire scorefeed."
+				Return Localize.GetValue("medal_description_Feeder")
 			Case "Tissue"
-				Return "Ground Zero."
+				Return Localize.GetValue("medal_description_Tissue")
 			Case "Minimalist"
-				Return "You don't like jumping."
+				Return Localize.GetValue("medal_description_Minimalist")
 			Case "Go-Getter"
-				Return "You like jumping."
+				Return Localize.GetValue("medal_description_Go-Getter")
 			Case "Direct Hit"
-				Return "Jumped into a block head on."
+				Return Localize.GetValue("medal_description_Direct Hit")
 			Case "Highflyer"
-				Return "Double points."
+				Return Localize.GetValue("medal_description_Highflyer")
 			Case "Supporter"
 				If GameScene.IsUnlocked
-					Return "You are awesome!"
+					Return Localize.GetValue("medal_description_Supporter")
 				End
 				Return ""
 				

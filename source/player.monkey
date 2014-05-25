@@ -9,8 +9,9 @@ Class Player Extends VRect
 	
 	Field velocity:Vec2
 	Field isJumping:Bool
-	Field jumpForce:Vec2 = New Vec2(Vsat.ScreenWidth * 2.1, -Vsat.ScreenHeight*1)
+	Field jumpForce:Vec2 = New Vec2(Vsat.ScreenWidth * 2, -Vsat.ScreenHeight*1.05)
 	Field gravity:Float = Vsat.ScreenHeight / 27
+	Field maxLimit:Float = Vsat.ScreenHeight * 2.5
 	Field lastPositions:List<Vec2>
 	Field maxPositions:Int = 12
 	Field numberOfJumps:Int
@@ -140,10 +141,10 @@ Class Player Extends VRect
 	Method UpdatePhysics:Void(dt:Float)
 		If isJumping
 			velocity.y += gravity * 1.4
-			velocity.Limit(gravity * 50)
+			velocity.Limit(maxLimit)
 		Else
 			velocity.y += gravity * 2
-			velocity.Limit(gravity * 100)
+			velocity.Limit(maxLimit * 2)
 		End
 		
 		position.Add(velocity.x * dt, velocity.y * dt)
@@ -155,7 +156,7 @@ Class Player Extends VRect
 		End
 		
 		'Stick to wall
-		Local friction:Float = 0.2
+		Local friction:Float = 0.22
 		Local touchesAnyWall:Bool = False
 		
 		If Self.TouchesLeftWall()
@@ -217,18 +218,38 @@ Class Player Extends VRect
 				velocity.Set(-jumpForce.x, jumpForce.y)
 				Audio.PlaySound(jumpSound, 29)
 			End
+			
 		Else
-			#rem
-			If velocity.x < 0 And position.x < Vsat.ScreenWidth * 0.2
-				willJump = True
-			ElseIf velocity.x > 0 And position.x > (Vsat.ScreenWidth * 0.8) - Self.size.x
-				willJump = True
+			If velocity.x < 0 'left
+				If position.x < Vsat.ScreenWidth * 0.2
+					willJump = True
+				Else
+					DoubleJump()
+				End
+				
+			ElseIf velocity.x > 0 'right
+				If position.x > (Vsat.ScreenWidth * 0.8) - Self.size.x
+					willJump = True
+				Else
+					DoubleJump()
+				End
 			End
-			#end
-			willJump = True
 		End
 	End
-
+	
+	Method DoubleJump:Void()
+		If Not isDoubleJumping
+			isDoubleJumping = True
+			If velocity.x > 0
+				velocity.Set(jumpForce.x/2, jumpForce.y*1.2)
+				Audio.PlaySound(jumpSound, 29)
+			ElseIf velocity.x < 0
+				velocity.Set(-jumpForce.x/2, jumpForce.y*1.2)
+				Audio.PlaySound(jumpSound, 28)
+			End
+		End
+	End
+	
 
 '--------------------------------------------------------------------------
 ' * Render
@@ -299,6 +320,8 @@ Class Player Extends VRect
 	End
 	
 	Method OnWallImpact:Void(force:Bool = False)
+		isDoubleJumping = False
+		
 		'First jump after game over
 		If lastPositions.IsEmpty() And force = False
 			Return
@@ -337,6 +360,7 @@ Class Player Extends VRect
 '--------------------------------------------------------------------------
 	Private
 	Field willJump:Bool
+	Field isDoubleJumping:Bool
 	Field image:Image
 	
 	Field jumpSound:Sound

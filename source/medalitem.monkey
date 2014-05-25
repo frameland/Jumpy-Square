@@ -10,6 +10,7 @@ Class MedalItem Extends VRect
 	Method New(name:String)
 		Super.New(0, 0, 0, 0)
 		Self.name = name
+		Self.localizedName = Localize.GetValue(name)
 		Self.description = Medals.DescriptionFor(name)
 		Local fileName:String = Medals.FileNameFor(name)
 		image = ImageCache.GetImage(RealPath("medals/" + fileName), Image.MidHandle)
@@ -20,7 +21,7 @@ Class MedalItem Extends VRect
 	End
 	
 	Method Width:Float() Property
-		Return Max(image.Width(), font.TextWidth(name))
+		Return Max(image.Width(), font.TextWidth(localizedName))
 	End
 	
 	Method Height:Float() Property
@@ -34,7 +35,7 @@ Class MedalItem Extends VRect
 		If times = 0
 			font.DrawText("?", 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
 		Else
-			font.DrawText(name, 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+			font.DrawText(localizedName, 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
 		End
 		PopMatrix()
 		PushMatrix()
@@ -63,6 +64,7 @@ Class MedalItem Extends VRect
 	Private
 	Field image:Image
 	Field name:String
+	Field localizedName:String
 	Field description:String
 	Field times:Int
 

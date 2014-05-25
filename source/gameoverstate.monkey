@@ -14,13 +14,13 @@ Class GameOverState Implements VActionEventHandler
 		bgY = Vsat.ScreenHeight * 0.15 + font.height * 1.5
 		bgHeight = Vsat.ScreenHeight * 0.3
 		
-		playAgainText = "Play Again"
-		earnedMedalsText = "Earned Medals"
+		playAgainText = Localize.GetValue("gameover_play_again")
+		earnedMedalsText = Localize.GetValue("gameover_earned_medals")
 		
 		glowImage = ImageCache.GetImage(RealPath("glow.png"))
 		glowImage.SetHandle(0, glowImage.Height()/2)
 		
-		newHighscore = New VLabel("New Highscore")
+		newHighscore = New VLabel(Localize.GetValue("gameover_new_highscore"))
 		newHighscore.SetFont(font)
 		newHighscore.color.Set(Color.Yellow)
 		newHighscore.color.Alpha = 0.0

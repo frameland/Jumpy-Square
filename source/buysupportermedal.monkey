@@ -31,13 +31,11 @@ Class BuySupporterMedalScene Extends VScene
 		font = FontCache.GetFont(RealPath("font"))
 		
 		If GameScene.IsUnlocked
-			descriptionText = "Thank you for purchasing the Supporter Medal."
-			descriptionText += "~nStay tuned for supporter exclusive content~nupdates in the near future."
+			descriptionText = Localize.GetValue("buy_already_bought")
 		Else
-			descriptionText = "Add the Supporter Medal to your collection."
-			descriptionText += "~nIt will also remove all ads from the game."
+			descriptionText = Localize.GetValue("buy_description")
 		End
-		renderedText = descriptionText.Split("~n")
+		renderedText = descriptionText.Split("*")
 		
 		InitMenuChoices()
 		InitMenu()
@@ -56,7 +54,7 @@ Class BuySupporterMedalScene Extends VScene
 	End
 	
 	Method InitMenuChoices:Void()
-		buy = New MenuItem("Buy it")
+		buy = New MenuItem(Localize.GetValue("buy_buy"))
 		buy.alignHorizontal = AngelFont.ALIGN_RIGHT
 		buy.SetFont(RealPath("font"))
 		buy.position.x = Vsat.ScreenWidth*0.75
@@ -64,7 +62,7 @@ Class BuySupporterMedalScene Extends VScene
 		buy.SetScale(0.8)
 		buy.color.Set(Color.Orange)
 		
-		cancel = New MenuItem("No thanks")
+		cancel = New MenuItem(Localize.GetValue("buy_no"))
 		cancel.SetFont(RealPath("font"))
 		cancel.position.x = Vsat.ScreenWidth*0.25
 		cancel.position.y = buy.position.y
@@ -73,13 +71,13 @@ Class BuySupporterMedalScene Extends VScene
 		cancel.color.Alpha = 0.6
 		
 		If GameScene.IsUnlocked
-			cancel.Text = "Go back"
+			cancel.Text = Localize.GetValue("back")
 			cancel.alignHorizontal = AngelFont.ALIGN_CENTER
 			cancel.position.x = Vsat.ScreenWidth2
 			cancel.color.Alpha = 1.0
 		End
 		
-		restore = New MenuItem("Restore Purchases")
+		restore = New MenuItem(Localize.GetValue("buy_restore"))
 		restore.SetFont(RealPath("font"))
 		restore.position.x = Vsat.ScreenWidth * 0.05
 		restore.position.y = Vsat.ScreenHeight * 0.95 - font.height * 0.5
@@ -218,7 +216,7 @@ Class BuySupporterMedalScene Extends VScene
 				Color.Black.UseWithoutAlpha()
 				DrawRect(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight)
 				
-				Local connectText:String = "Connecting"
+				Local connectText:String = Localize.GetValue("connecting")
 				Local xPos:Int = Vsat.ScreenWidth2 - font.TextWidth(connectText)/2
 				If dots > 1200
 					connectText += "..."

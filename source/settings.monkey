@@ -4,6 +4,7 @@ Import game
 Import extra
 Import audio
 Import back
+Import save
 
 
 Class SettingsScene Extends VScene
@@ -18,6 +19,7 @@ Class SettingsScene Extends VScene
 		InitMainMenu()
 		InitLogo()
 		InitMusicOnOff(font)
+		InitLanguage(font)
 		InitCredits(font)
 		
 		back = New BackButton
@@ -37,19 +39,19 @@ Class SettingsScene Extends VScene
 	
 	Method InitMusicOnOff:Void(font:AngelFont)
 		If Audio.IsMuted()
-			music = New VLabel("Music is off:")
+			music = New VLabel(Localize.GetValue("settings_music_is_off"))
 		Else
-			music = New VLabel(" Music is on:")
+			music = New VLabel(Localize.GetValue("settings_music_is_on"))
 		End
 		music.SetFont(font)
 		music.position.x = Vsat.ScreenWidth2 * 1.04
-		music.position.y = Vsat.ScreenHeight * 0.15
+		music.position.y = Vsat.ScreenHeight * 0.08
 		music.alignHorizontal = AngelFont.ALIGN_RIGHT
 		
 		If Audio.IsMuted()
-			musicOnOff = New MenuItem("Play")
+			musicOnOff = New MenuItem(Localize.GetValue("settings_play"))
 		Else
-			musicOnOff = New MenuItem("Mute")
+			musicOnOff = New MenuItem(Localize.GetValue("settings_mute"))
 		End
 		musicOnOff.SetFont(font)
 		musicOnOff.color.Set(New Color(Color.Orange))
@@ -60,15 +62,42 @@ Class SettingsScene Extends VScene
 		musicOnOff.alignHorizontal = AngelFont.ALIGN_LEFT
 	End
 	
+	Method InitLanguage:Void(font:AngelFont)
+		language = New VLabel(Localize.GetValue("settings_language"))
+		language.SetFont(font)
+		language.position.Set(music.position)
+		language.position.y += font.height * 1.4
+		language.alignHorizontal = AngelFont.ALIGN_RIGHT
+		
+		langs = New MenuItem[2]
+		langs[0] = New MenuItem("English")
+		langs[1] = New MenuItem("Deutsch")
+		For Local i:Int = 0 Until langs.Length
+			langs[i].SetFont(font)
+			langs[i].position.x = musicOnOff.position.x
+			langs[i].position.y = language.position.y + (font.height * i)
+			langs[i].downColor.Set(New Color(Color.Orange))
+			langs[i].downColor.Alpha = 0.5
+		Next
+		
+		If Localize.GetCurrentLanguage() = "en"
+			langs[0].color.Set(New Color(Color.Orange))
+			langs[1].color.Set(New Color(Color.White))
+		ElseIf Localize.GetCurrentLanguage() = "de"
+			langs[0].color.Set(New Color(Color.White))
+			langs[1].color.Set(New Color(Color.Orange))
+		End
+	End
+	
 	Method InitCredits:Void(font:AngelFont)
-		creditsGameTitle = New VLabel("A Game By")
+		creditsGameTitle = New VLabel(Localize.GetValue("settings_game_by"))
 		creditsGameTitle.SetFont(font)
 		creditsGameTitle.color.Set(Color.Yellow)
 		creditsGameTitle.position.Set(Vsat.ScreenWidth2, logo.position.y - font.height)
 		creditsGameTitle.alignHorizontal = True
 		creditsGameTitle.SetScale(0.8)
 		
-		creditsMusicTitle = New VLabel("Music")
+		creditsMusicTitle = New VLabel(Localize.GetValue("settings_music"))
 		creditsMusicTitle.SetFont(font)
 		creditsMusicTitle.color.Set(Color.Yellow)
 		creditsMusicTitle.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.55)
@@ -82,7 +111,7 @@ Class SettingsScene Extends VScene
 		creditsMusic.alignHorizontal = True
 		creditsMusic.SetScale(0.8)
 		
-		creditsSpecialTitle = New VLabel("Special Thanks")
+		creditsSpecialTitle = New VLabel(Localize.GetValue("settings_thanks"))
 		creditsSpecialTitle.SetFont(font)
 		creditsSpecialTitle.color.Set(Color.Yellow)
 		creditsSpecialTitle.position.Set(Vsat.ScreenWidth2, creditsMusic.position.y + font.height * 2)
@@ -132,8 +161,9 @@ Class SettingsScene Extends VScene
 	
 	Method UpdateAlpha:Void()
 		If Vsat.IsChangingScenes()
-			music.color.Alpha = globalAlpha.Alpha
-			musicOnOff.color.Alpha = globalAlpha.Alpha
+			language.color.Alpha = globalAlpha.Alpha * 0.9
+			music.color.Alpha = globalAlpha.Alpha * 0.9
+			musicOnOff.color.Alpha = globalAlpha.Alpha * 0.9
 			creditsGameTitle.color.Alpha = globalAlpha.Alpha * 0.9
 			logo.color.Alpha = globalAlpha.Alpha * 0.9
 			creditsMusicTitle.color.Alpha = globalAlpha.Alpha * 0.9
@@ -143,6 +173,7 @@ Class SettingsScene Extends VScene
 				creditsSpecial[i].color.Alpha = globalAlpha.Alpha * 0.9
 			Next
 		Else
+			language.color.Alpha = 0.9
 			music.color.Alpha = 0.9
 			musicOnOff.color.Alpha = 0.9
 			creditsGameTitle.color.Alpha = 0.9
@@ -191,6 +222,7 @@ Class SettingsScene Extends VScene
 		End
 		
 		RenderMusicOnOff()
+		RenderLanguage()
 		RenderCredits()
 		logo.Render()
 		back.Render()
@@ -203,13 +235,20 @@ Class SettingsScene Extends VScene
 			DrawRect(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight)
 			SetAlpha(0.05)
 			Color.White.UseWithoutAlpha()
-			DrawRect(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight * 0.25)
+			DrawRect(0, 0, Vsat.ScreenWidth, language.position.y + (font.height * langs.Length * 1.5))
 		End
 	End
 	
 	Method RenderMusicOnOff:Void()
 		music.Render()
 		musicOnOff.Render()
+	End
+	
+	Method RenderLanguage:Void()
+		language.Render()
+		For Local i:Int = 0 Until langs.Length
+			langs[i].Render()
+		Next
 	End
 	
 	Method RenderCredits:Void()
@@ -241,7 +280,18 @@ Class SettingsScene Extends VScene
 			If musicOnOff.WasTouched(cursor)
 				OnMusicOnOff()
 			End
+			Return
 		End
+		
+		For Local i:Int = 0 Until langs.Length
+			Local item:= langs[i]
+			If item.isDown
+				item.isDown = False
+				If item.WasTouched(cursor)
+					ChangeLanguage(item)
+				End
+			End
+		Next
 	End
 	
 	Method OnMouseDown:Void()
@@ -254,7 +304,15 @@ Class SettingsScene Extends VScene
 			
 		If musicOnOff.WasTouched(cursor)
 			musicOnOff.isDown = True
+			Return
 		End
+		
+		For Local i:Int = 0 Until langs.Length
+			Local item:= langs[i]
+			If item.WasTouched(cursor)
+				item.isDown = True
+			End
+		Next
 	End
 	
 	Method OnCancel:Void()
@@ -267,12 +325,31 @@ Class SettingsScene Extends VScene
 	Method OnMusicOnOff:Void()
 		If Audio.IsMuted()
 			Audio.Unmute()
-			music.Text = " Music is on:"
-			musicOnOff.Text = "Mute"
+			music.Text = Localize.GetValue("settings_music_is_on")
+			musicOnOff.Text = Localize.GetValue("settings_mute")
 		Else
 			Audio.Mute()
-			music.Text = "Music is off:"
-			musicOnOff.Text = "Play"
+			music.Text = Localize.GetValue("settings_music_is_off")
+			musicOnOff.Text = Localize.GetValue("settings_play")
+		End
+	End
+	
+	Method ChangeLanguage:Void(touchedItem:MenuItem)
+		Select touchedItem.Text
+			Case "English"
+				If Localize.GetCurrentLanguage() <> "en"
+					Localize.SetLanguage("en")
+					Vsat.SaveToClipboard(mainMenuObject, "MainMenu")
+					Vsat.ChangeScene(New SettingsScene)
+					SaveGame()
+				End
+			Case "Deutsch"
+				If Localize.GetCurrentLanguage() <> "de"
+					Localize.SetLanguage("de")
+					Vsat.SaveToClipboard(mainMenuObject, "MainMenu")
+					Vsat.ChangeScene(New SettingsScene)
+					SaveGame()
+				End
 		End
 	End
 	
@@ -285,6 +362,9 @@ Class SettingsScene Extends VScene
 	
 	Field music:VLabel
 	Field musicOnOff:MenuItem
+	
+	Field language:VLabel
+	Field langs:MenuItem[]
 	
 	Field creditsGameTitle:VLabel
 	Field creditsMusicTitle:VLabel

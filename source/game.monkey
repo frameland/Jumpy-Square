@@ -21,6 +21,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	
 	Const SPAWN_TIME_RANGE:Float = 1.7 'in seconds
 	
+	'Globals
 	Global Highscore:Int = 0
 	Global IsUnlocked:Bool = False
 	
@@ -63,7 +64,9 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	Method OnInit:Void()
 		player = New Player
 		enemies = New List<Enemy>
+		
 		doubleBall = New DoubleBall
+		doubleBall.color.Set($ffd000)
 		
 		backButton = New BackButton
 		backButton.SetFont(RealPath("font2"))
@@ -196,24 +199,17 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		If Not isFirstTime Return [""]
 		
 		If Medals.NormalDodge < 3
-			Return ["Tap to jump.", "Dodge the blocks."]
+			Return Localize.GetValue("tip0").Split("*")
 		End
 		
-		Local tipArray:String[] = New String[11]
-		tipArray[0] = "You can tap jump~neven before you hit a wall."
-		tipArray[1] = "You can adjust your audio preferences~nin the Settings."
-		tipArray[2] = "In the Medals screen click on a medal~nto get more info."
-		tipArray[3] = "When the screen flashes~nbe ready for a surprise!"
-		tipArray[4] = "There is a way to get 2x points ..."
-		tipArray[5] = "You can remove all ads by getting the~ngolden Supporter Medal from the main menu."
-		tipArray[6] = "With medals you can earn even more points."
-		tipArray[7] = "Beat your old highscore~nto earn the Scoreman medal."
-		tipArray[8] = "Check the leaderboard and see~nhow your friends are doing."
-		tipArray[9] = "After a game you can scroll~nthrough your earned medals."
-		tipArray[10] = "Got headphones?~nPut them on and it~nwill be twice as fun."
+		Local numberOfTips:Int = 11
+		Local tipArray:String[] = New String[numberOfTips]
+		For Local i:Int = 0 Until numberOfTips
+			tipArray[i] = Localize.GetValue("tip" + (i+1))
+		Next
 		
 		Local index:Int = Int(Rnd(tipArray.Length))
-		Local returnTip:String[] = tipArray[index].Split("~n")
+		Local returnTip:String[] = tipArray[index].Split("*")
 		Return returnTip
 	End
 	
@@ -239,13 +235,14 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 '--------------------------------------------------------------------------
 	Method ActivateHyperMode:Void()
 		hyperModeIsActive = True
-		Enemy.COLLISION_FORGIVENESS = 0.2
+		Enemy.COLLISION_FORGIVENESS = 0.25
 		hyperModeTimer = HYPER_TIME
 	End
 	
 	Method DeactivateHyperMode:Void()
 		hyperModeIsActive = False
-		Enemy.COLLISION_FORGIVENESS = 0.1
+		Enemy.COLLISION_FORGIVENESS = 0.15
+		hyperModeTimer = 0.0
 	End
 	
 	Method HyperModeActive:Bool() Property
@@ -581,6 +578,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	
 	Method NewHighscore:Void()
 		gameOverState.NewHighscore()
+		InitGameCenter()
 		SyncGameCenter(Highscore)
 	End
 	
@@ -634,7 +632,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	
 	Method OnDoubleBallCollision:Void()
 		ActivateHyperMode()
-		Local action:= New VVec2ToAction(doubleBall.scale, 0.0, 0.0, 0.8, EASE_OUT_QUAD)
+		Local action:= New VVec2ToAction(doubleBall.scale, 0.0, 0.0, 0.6, EASE_OUT_QUAD)
 		Local delay:= New VDelayAction(0.05)
 		delay.Name = "Double"
 		AddAction(delay)

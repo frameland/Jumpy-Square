@@ -1,5 +1,4 @@
-'buildopt: ios
-'buildopt: release
+'buildopt: Html5_Game
 Strict
 Import vsat
 Import source.menu

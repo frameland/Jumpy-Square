@@ -5,10 +5,11 @@ Import extra
 
 Class Enemy Extends VRect
 	
-	Global COLLISION_FORGIVENESS:Float = 0.1 '0..1, 0 = normal, 1 = no collision
+	Global COLLISION_FORGIVENESS:Float = 0.15 '0..1, 0 = normal, 1 = no collision
 	
 	Field velocity:Vec2
-	Field gravity:Float = Vsat.ScreenHeight / 38
+	Field gravity:Float = Vsat.ScreenHeight / 35
+	Field maxVelocity:Float = Vsat.ScreenHeight * 1.4
 	Field link:ListNode<Enemy>
 	Field widthRelative:Float = 6.4
 	Field collidedWithPlayer:Bool
@@ -119,7 +120,7 @@ Class Enemy Extends VRect
 		End
 		
 		velocity.y += gravity
-		velocity.Limit(gravity * 50)
+		velocity.Limit(maxVelocity)
 		position.Add(velocity.x * dt, velocity.y * dt)
 		If position.y > Vsat.ScreenHeight
 			Self.Remove()

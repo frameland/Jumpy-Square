@@ -8,7 +8,7 @@ Class BackButton Extends VLabel
 	Field downColor:Color = Color.Orange
 	
 	Method New()
-		Super.New("Back")
+		Super.New(Localize.GetValue("back"))
 		color.Set(Color.White)
 		alignVertical = AngelFont.ALIGN_CENTER
 		position.Set(Vsat.ScreenWidth * 0.05, Vsat.ScreenWidth * 0.06)
