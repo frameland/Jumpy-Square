@@ -126,7 +126,7 @@ Class SettingsScene Extends VScene
 				Case 1
 					creditsSpecial[1] = New VLabel("David Neubauer")
 				Case 2
-					creditsSpecial[2] = New VLabel("Sebastian Hoehnl")
+					creditsSpecial[2] = New VLabel("Sebastian Höhnl")
 			End
 			creditsSpecial[i].SetFont(font)
 			creditsSpecial[i].color.Set(Color.White)

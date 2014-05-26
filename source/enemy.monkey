@@ -2,6 +2,7 @@ Strict
 Import vsat
 Import particles
 Import extra
+Import brl.pool
 
 Class Enemy Extends VRect
 	
@@ -123,12 +124,13 @@ Class Enemy Extends VRect
 		velocity.Limit(maxVelocity)
 		position.Add(velocity.x * dt, velocity.y * dt)
 		If position.y > Vsat.ScreenHeight
-			Self.Remove()
 			If accountsForPoints
 				Local ev:= New VEvent
 				ev.id = "RemoveEnemy"
 				Vsat.FireEvent(ev)
 			End
+			Self.Remove()
+			EnemySpawner.RemoveEnemy(Self)
 		End
 	End
 	
@@ -172,5 +174,47 @@ Class Enemy Extends VRect
 		DrawImage(image, 0, 0)
 	End
 
-	
 End
+
+
+
+
+
+Class EnemySpawner
+	
+	Function Init:Void()
+		pool = New Pool<Enemy>(8)
+	End
+	
+	Function CreateEnemy:Enemy()
+		Local enemy:Enemy = pool.Allocate()
+		enemy.accountsForPoints = True
+		enemy.hasBeenScored = False
+		enemy.wasClose = False
+		enemy.isSurprise = False
+		enemy.collidedWithPlayer = False
+		enemy.lastPositions.Clear()
+		enemy.link = Null
+		enemy.velocity.Mul(0)
+		enemy.sparks.Stop()
+		enemy.sparks.Start()
+		enemy.color.Alpha = 0.0
+		enemy.position.Set(0, -Vsat.ScreenWidth/enemy.widthRelative)
+		enemy.scale.Set(1.0, 1.0)
+		enemy.size.Set(Vsat.ScreenWidth/enemy.widthRelative, Vsat.ScreenWidth/enemy.widthRelative)
+		Return enemy
+	End
+	
+	Function RemoveEnemy:Void(enemy:Enemy)
+		pool.Free(enemy)
+	End
+	
+	Private
+	Global pool:Pool<Enemy>
+End
+
+
+
+
+
+

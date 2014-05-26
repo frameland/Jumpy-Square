@@ -28,6 +28,8 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	Field player:Player
 	Field enemies:List<Enemy>
 	Field enemyTimer:Float 'gets set in ResetGame()
+	Field enemyBalancer:Float
+	Field enemyBalancerCount:Int
 	
 	Field doubleBall:DoubleBall
 	Field hyperModeTimer:Float
@@ -64,6 +66,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	Method OnInit:Void()
 		player = New Player
 		enemies = New List<Enemy>
+		EnemySpawner.Init()
 		
 		doubleBall = New DoubleBall
 		doubleBall.color.Set($ffd000)
@@ -202,7 +205,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 			Return Localize.GetValue("tip0").Split("*")
 		End
 		
-		Local numberOfTips:Int = 11
+		Local numberOfTips:Int = 12
 		Local tipArray:String[] = New String[numberOfTips]
 		For Local i:Int = 0 Until numberOfTips
 			tipArray[i] = Localize.GetValue("tip" + (i+1))
@@ -326,6 +329,18 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 			Else
 				enemyTimer = 0.7 + Rnd() * SPAWN_TIME_RANGE
 			End
+			
+			'try to balance the game: look at last 3 spawn times and adjust accordingly
+			enemyBalancerCount += 1
+			enemyBalancer += enemyTimer
+			If enemyBalancerCount >= 3
+				If enemyBalancer > SPAWN_TIME_RANGE * 2.5
+					enemyTimer = 1.0
+				End
+				enemyBalancerCount = 0
+				enemyBalancer = 0.0
+			End
+			
 			
 			If HasSurprise()
 				FlashScreenBeforeSurprise()
@@ -595,15 +610,15 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		End
 		
 		If rand < probability1
-			Local e:= New Enemy
+			Local e:= EnemySpawner.CreateEnemy()
 			e.SetLeft()
 			e.link = enemies.AddLast(e)
 			e.isSurprise = True 'only 1 is set as surprise to prevent double counting medals
-			Local e2:= New Enemy
+			Local e2:= EnemySpawner.CreateEnemy()
 			e2.SetRight()
 			e2.link = enemies.AddLast(e2)
 		ElseIf rand <= probability2
-			Local e:= New Enemy
+			Local e:= EnemySpawner.CreateEnemy()
 			e.isSurprise = True
 			e.SetCenter()
 			e.link = enemies.AddLast(e)
@@ -615,7 +630,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	End
 	
 	Method SpawnEnemy:Void()
-		Local e:= New Enemy
+		Local e:= EnemySpawner.CreateEnemy()
 		If Rnd() > 0.5
 			e.SetLeft()
 		Else
@@ -652,6 +667,8 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		
 		enemies.Clear()
 		enemyTimer = 1.4
+		enemyBalancer = 0.0
+		enemyBalancerCount = 0
 		
 		surpriseColor.Set(Color.White)
 		surpriseColor.Alpha = 0.0

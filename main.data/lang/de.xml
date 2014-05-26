@@ -26,7 +26,7 @@
 	</word>
 	<word>
 		<key>menu_settings</key>
-		<value>Einstellungen</value>
+		<value>Einstell.</value>
 	</word>
 	<word>
 		<key>menu_remove_ads</key>
@@ -82,7 +82,7 @@
 	</word>
 	<word>
 		<key>buy_description</key>
-		<value>Füge die Supporter Medaille deiner Sammlung hinzu.*Zusätzlich wird jegliche Werbung entfernt.</value>
+		<value>Hol dir die Supporter Medaille.*Dadurch wird jegliche Werbung entfernt.</value>
 	</word>
 	<word>
 		<key>buy_already_bought</key>
@@ -258,7 +258,7 @@
 	</word>
 	<word>
 		<key>tip6</key>
-		<value>Du kannst die Werbung entfernen, indem du*dir die goldene Supporter Medaille vom Hauptmenü holst.</value>
+		<value>Du kannst die Werbung entfernen, indem du*dir die goldene Supporter Medaille vom*Hauptmenü holst.</value>
 	</word>
 	<word>
 		<key>tip7</key>
@@ -279,6 +279,10 @@
 	<word>
 		<key>tip11</key>
 		<value>Kopfhörer dabei?*Die Musik wird dich mitreißen.</value>
+	</word>
+	<word>
+		<key>tip12</key>
+		<value>Tippe während du in der Luft bist*um einen Doppelsprung auszuführen.</value>
 	</word>
 </words>
 

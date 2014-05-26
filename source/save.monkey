@@ -2,6 +2,7 @@ Strict
 Import vsat
 Import game
 Import medals
+Import defaultlang
 
 
 Function SaveGame:Void()
@@ -26,7 +27,13 @@ Function LoadGame:Void()
 		Print error.message
 	End
 	
-	Local language:String = keyValues.GetString("lang", "en")
+	Local language:String = keyValues.GetString("lang", "")
+	If language = ""
+		language = Locale.GetDefaultLanguage()
+		If language <> "en" And language <> "de"
+			language = "en"
+		End
+	End
 	Localize.SetLanguage(language)
 	
 	If keyValues.GetBool("isMuted", False)
