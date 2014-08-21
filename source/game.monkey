@@ -14,7 +14,7 @@ Import doubleball
 
 #If TARGET = "ios"
 Import brl.admob
-#ADMOB_PUBLISHER_ID="a15364047eb2dce"
+#ADMOB_PUBLISHER_ID="ca-app-pub-1688038978922382/1326438751"
 #End
 
 Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallback
@@ -22,8 +22,12 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	Const SPAWN_TIME_RANGE:Float = 1.7 'in seconds
 	
 	'Globals
-	Global Highscore:Int = 0
 	Global IsUnlocked:Bool = False
+	Global Highscore:Int = 0
+	Global HighscoreAdventure:Int = 0
+	Global Level:Int
+	Global Exp:Int
+	Global Gold:Int
 	
 	Field player:Player
 	Field enemies:List<Enemy>
@@ -64,6 +68,8 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 ' * Init
 '--------------------------------------------------------------------------
 	Method OnInit:Void()
+		Vsat.UpdateScreenSize(DeviceWidth(), DeviceHeight())
+		
 		player = New Player
 		enemies = New List<Enemy>
 		EnemySpawner.Init()
@@ -222,12 +228,19 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 				admob.HideAdView()
 			End
 		#End
+		Vsat.UpdateScreenSize(DeviceWidth(), DeviceHeight())
 	End
 	
 	Method ShowAds:Void()
 		#If TARGET = "ios"
 			If IsUnlocked = False And admob
 				admob.ShowAdView(adStyle, adLayout)
+				Local adHeight:Int = admob.AdViewHeight()
+				If adHeight > 0
+					Vsat.UpdateScreenSize(DeviceWidth(), DeviceHeight() - adHeight)
+				End
+			Else
+				Vsat.UpdateScreenSize(DeviceWidth(), DeviceHeight())
 			End
 		#End
 	End
@@ -591,10 +604,13 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		Audio.PlaySound(feedSound, channel)
 	End
 	
-	Method NewHighscore:Void()
-		gameOverState.NewHighscore()
-		InitGameCenter()
-		SyncGameCenter(Highscore)
+	Method CheckNewHighscore:Void()
+		If score > Highscore
+			Highscore = score
+			gameOverState.NewHighscore()
+			InitGameCenter()
+			SyncGameCenter(Highscore)
+		End
 	End
 	
 	Method Surprise:Void()
@@ -704,10 +720,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		doubleBall.Reset()
 		
 		score = targetScore
-		If score > Highscore
-			Highscore = score
-			NewHighscore()
-		End
+		CheckNewHighscore()
 		
 		medalFeed.Clear()
 		scoreFeed.Clear()
@@ -740,7 +753,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		End
 		If hyperModeIsActive Then andPoints *= 2
 			
-		medalFeed.Push(id)
+		medalFeed.Push(Localize.GetValue(id))
 		scoreFeed.Push("+" + andPoints)
 		targetScore += andPoints
 	End
@@ -770,6 +783,8 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	Method OnBackClicked:Void()
 		If gameOver
 			If Vsat.transition Return
+			HideAds()
+			
 			AddAction(New VFadeToAlphaAction(globalAlpha, 0.0, 0.5, EASE_OUT_EXPO))
 			mainMenuObject.shouldClearScreen = True
 			Local transition:= New MoveUpTransition(0.7)
@@ -780,7 +795,6 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 			Local fadeColor:= New VFadeToColorAction(backgroundColor, mainMenuObject.backgroundColor, 0.5, LINEAR_TWEEN)
 			AddAction(fadeColor)
 			
-			HideAds()
 			backgroundEffect.SetNormal()
 			Local sound:= Audio.GetSound("audio/fadeout.mp3")
 			Audio.PlaySound(sound, 2)
@@ -800,7 +814,6 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 '--------------------------------------------------------------------------
 ' * Private
 '--------------------------------------------------------------------------
-	Private
 	Field randomTip:String[]
 	Field tip:String
 	Field randomTipAlpha:Float = 1.0

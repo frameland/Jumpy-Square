@@ -1,6 +1,7 @@
 Strict
 Import vsat
 Import game
+Import adventure
 
 
 Class Medals
@@ -95,7 +96,11 @@ Class Medals
 		
 		'Setting vars
 		Local player:Player = gameScene.player
-		MedalState.PreviousHighscore = gameScene.Highscore
+		If AdventureScene(gameScene)
+			MedalState.PreviousHighscore = gameScene.HighscoreAdventure
+		Else
+			MedalState.PreviousHighscore = gameScene.Highscore
+		End
 		
 		'Half Dead
 		If player.position.y + player.size.y * 0.4 > Vsat.ScreenHeight

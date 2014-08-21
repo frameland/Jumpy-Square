@@ -11,11 +11,14 @@ Import supportermedal
 Import flgamecenter
 Import audio
 Import settings
+Import adventure
 
 
 Class MainMenu Extends VScene Implements VActionEventHandler
 	
 	Field backgroundColor:Color = New Color($132b3b)
+	Field backgroundColor2:Color = New Color($030026)
+	Field currentBgColor:Color
 	Field justGotSupporterMedal:Bool
 	
 	
@@ -31,6 +34,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		InitAudio()
 		LoadGame()
 		
+		currentBgColor = New Color(backgroundColor)
+		
 		font = FontCache.GetFont(RealPath("font"))
 		font2 = FontCache.GetFont(RealPath("font2"))
 		
@@ -43,9 +48,16 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		
 		titleImage = LoadImage(RealPath("title.png"))
 		titleImage.SetHandle(titleImage.Width()/2, 0)
-		titleTopSpacing = Vsat.ScreenHeight * 0.1
+		titleImage2 = LoadImage(RealPath("title2.png"))
+		titleImage2.SetHandle(titleImage2.Width()/2, 0)
+		titleTopSpacing = Vsat.ScreenHeight * 0.03
 		lineHeight = font.TextHeight("Play") * 1.5
 		highscoreSquareSize = Vsat.ScreenWidth * 0.22
+		
+		siteActive = ImageCache.GetImage(RealPath("siteActive.png"))
+		siteNotActive = ImageCache.GetImage(RealPath("siteNotActive.png"))
+		MidHandleImage(siteActive)
+		MidHandleImage(siteNotActive)
 		
 		InitMenuItems()
 		MenuIntroAnimation()
@@ -65,6 +77,10 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Vsat.StartFadeIn(transition)
 		
 		initialized = True
+		
+		
+		
+		Audio.Mute()
 	End
 	
 	Method OnInitWhileInitialized:Void()
@@ -74,6 +90,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			item.position.x = Vsat.ScreenWidth2 - item.size.x/2
 			item.position.y = (lineHeight * i) + titleTopSpacing + highscoreSquareSize*2.5
 		Next
+		play2.position.Set(menuOptions[0].position)
+		play2.position.x += Vsat.ScreenWidth
 		InitMedalAndEffect()
 	End
 	
@@ -86,8 +104,12 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		settings = New MenuItem(Localize.GetValue("menu_settings"), font2)
 		settings.SetIcon(RealPath("settings.png"))
 		settings.position.x = Vsat.ScreenWidth * 0.95 - font2.TextWidth(settings.text)
-		settings.position.y = Vsat.ScreenHeight - font2.height * 2
+		settings.position.y = Vsat.ScreenHeight - font2.height * 3
 		settings.color.Alpha = 0.5
+		
+		'Site 2
+		play2 = New MenuItem(Localize.GetValue("menu_play"), font)
+		
 	End
 	
 	Method MenuIntroAnimation:Void()
@@ -100,6 +122,9 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			Local delay:= New VDelayAction(0.2)
 			AddAction(New VActionSequence([VAction(delay), VAction(scaleAction)]))
 		Next
+		
+		play2.position.Set(menuOptions[0].position)
+		play2.position.x += Vsat.ScreenWidth
 	End
 	
 	Method InitMedalAndEffect:Void()
@@ -161,6 +186,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	
+	
 	Method AddAction:Void(action:VAction)
 		action.AddToList(actions)
 		action.SetListener(Self)
@@ -183,19 +209,32 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			End
 		End
 		
+		UpdateSites()
 		UpdateCursor()
 		supporterMedal.Update(dt)
 	End
 	
 	Method UpdateCursor:Void()
 		If TouchDown()
-			lastTouchDown = True
 			OnMouseDown()
+			lastTouchDown = True
 		Else
 			If lastTouchDown
 				OnMouseUp()
 			End
 			lastTouchDown = False
+		End
+	End
+	
+	Method UpdateSites:Void()
+		If TouchDown() Return
+		If targetPosX <> -99999
+			Local lerp:Float = 0.1
+			currentPosX += (targetPosX - currentPosX) * lerp
+			If Abs(targetPosX - currentPosX) < 0.01
+				currentPosX = targetPosX
+				targetPosX = -99999
+			End
 		End
 	End
 	
@@ -219,12 +258,17 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		#end
 		
 		If Vsat.IsActiveScene(Self) Then RenderParticles()
-		RenderHighscore()
-		RenderTitle()
-		RenderMenu()
-		RenderSupporterMedal()
-		RenderLogo()
+		PushMatrix()
+			Translate(-currentPosX, 0)
+			RenderHighscore()
+			RenderTitle()
+			RenderMenu()
+			RenderSupporterMedal()
+			RenderLogo()
+			RenderSite2()
+		PopMatrix()
 		
+		RenderSites()
 		RenderConnectingToGameCenter()
 	End
 	
@@ -237,19 +281,31 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Color.White.Use()
 		SetAlpha(1.0)
 		DrawImage(titleImage, Vsat.ScreenWidth2, titleTopSpacing)
+		DrawImage(titleImage2, Vsat.ScreenWidth*1.5, titleTopSpacing)
 	End
 	
 	Method RenderHighscore:Void()
 		ResetBlend()
 		PushMatrix()
-			Translate(Vsat.ScreenWidth2, titleTopSpacing + highscoreSquareSize * 1.5)
 			Color.White.Use()
+			
+			Translate(Vsat.ScreenWidth2, titleTopSpacing + highscoreSquareSize * 1.8)
 			PushMatrix()
+				Scale(0.8, 0.8)
 				Rotate(-Vsat.Seconds*45)
 				DrawImage(scoreEnemyImage, 0, 0, 0, 1.4, 1.4)
 			PopMatrix()
+			
+			PushMatrix()
+				Translate(Vsat.ScreenWidth, 0)
+				Scale(0.8, 0.8)
+				Rotate(-Vsat.Seconds*45)
+				DrawImage(scoreEnemyImage, 0, 0, 0, 1.4, 1.4)
+			PopMatrix()
+			
 			Color.Orange.Use()
 			font.DrawText(GameScene.Highscore, 0, -5, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
+			font.DrawText(GameScene.HighscoreAdventure, Vsat.ScreenWidth, -5, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_CENTER)
 		PopMatrix()
 	End
 	
@@ -259,6 +315,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			menuOptions[i].Render()
 		Next
 		settings.Render()
+		play2.Render()
 	End
 	
 	Method RenderSupporterMedal:Void()
@@ -298,6 +355,41 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		PopMatrix()
 	End
 	
+	Method RenderSites:Void()
+		ResetColor()
+		SetAlpha(0.8)
+		DrawRect(0, Int(Vsat.ScreenHeight * 0.96), Vsat.ScreenWidth, 1)
+		
+		ResetColor()
+		Local siteRadius:Float = siteActive.Width()/2 * 0.8
+		Local x:Float = Vsat.ScreenWidth2 + siteRadius
+		If sites Mod 2 = 0
+			x -= (siteRadius * 3 * sites/2) / 2
+		Else
+			x -= (siteRadius * 3 * sites/2)
+		End
+		
+		For Local i:Int = 1 To sites
+			If i = currentSite
+				DrawImage(siteActive, x, Vsat.ScreenHeight - siteRadius * 2)
+			Else
+				DrawImage(siteNotActive, x, Vsat.ScreenHeight - siteRadius * 2)
+			End
+			x += siteRadius * 3
+		Next
+		
+	End
+	
+	Method RenderSite2:Void()
+		ResetColor()
+		PushMatrix()
+			Translate(Vsat.ScreenWidth*1.5, Vsat.ScreenHeight - font.height * 5)
+			font.DrawText("Level: " + GameScene.Level, 0, 0, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+			font.DrawText("Exp: " + GameScene.Exp, 0, font.height, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+			font.DrawText("Gold: " + GameScene.Gold, 0, font.height*2, AngelFont.ALIGN_CENTER, AngelFont.ALIGN_TOP)
+		PopMatrix()
+	End
+	
 	Method RenderConnectingToGameCenter:Void()
 		If GameCenterIsConnecting()
 			Local dots:Int = Int(Vsat.Seconds * 1000) Mod 1600
@@ -323,7 +415,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	Method ClearScreen:Void()
-		ClearScreenWithColor(backgroundColor)
+		ClearScreenWithColor(currentBgColor)
 	End
 	
 	
@@ -332,30 +424,73 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 '--------------------------------------------------------------------------
 	Method OnActionEvent:Void(id:Int, action:VAction)
 		If id = VAction.FINISHED
-			
 		End
 	End
 	
 	Method OnMouseUp:Void()
-		CheckMedalClicked()
-		CheckMenuClicked()
 		For Local i:Int = 0 Until menuOptions.Length
 			menuOptions[i].isDown = False
 		Next
 		lockedMenuItem = Null
 		settings.isDown = False
+		play2.isDown = False
 		
-		If PointInRect(MouseX(), MouseY(), Vsat.ScreenWidth * 0.05, settings.position.y + 2, logo.Width(), logo.Height())
+		If PointInRect(MouseX() + (Vsat.ScreenWidth * (currentSite-1)), MouseY(), Vsat.ScreenWidth * 0.05, settings.position.y + 2, logo.Width(), logo.Height())
 			OpenUrl("http://frameland.at")
 		End
+		
+		'Swiping
+		touchEndX = TouchX() + (Vsat.ScreenWidth * (currentSite-1))
+		If touchEndX = touchStartX
+			CheckMenuClicked(True)
+			CheckMedalClicked()
+			Return
+		End
+		touchTime = Vsat.Seconds - touchStartTime
+		Local distance:Float = touchEndX - touchStartX
+		Local speed:Float = distance / touchTime
+		If Abs(speed) > Vsat.ScreenWidth2
+			Local previousSite:Int = currentSite
+			If speed < 0
+				currentSite += 1
+				currentSite = Min(currentSite, sites)
+			ElseIf speed > 0
+				currentSite -= 1
+				currentSite = Max(currentSite, 1)
+			End
+			If currentSite <> previousSite
+				OnSiteChange()
+			End
+			
+		End
+		targetPosX = Vsat.ScreenWidth * (currentSite-1)
 	End
 	
 	Method OnMouseDown:Void()
-		CheckMenuClicked(False)
+		If touchStartX = TouchX() Then CheckMenuClicked(False)
+		
+		If lastTouchDown = False
+			touchStartX = TouchX() + (Vsat.ScreenWidth * (currentSite-1))
+			touchStartTime = Vsat.Seconds
+		Else
+			currentPosX = touchStartX - TouchX()
+		End
 	End
 	
 	Method CheckMenuClicked:Void(up:Bool = True)
-		Local cursor:Vec2 = New Vec2(TouchX(), TouchY())
+		Local cursor:Vec2 = New Vec2(TouchX() + (Vsat.ScreenWidth * (currentSite-1)), TouchY())
+		
+		If currentSite = 2
+			If play2.WasTouched(cursor)
+				If up
+					OnMenuClicked(play2)
+				ElseIf lockedMenuItem = Null
+					play2.isDown = True
+					lockedMenuItem = play2
+				End
+				Return
+			End
+		End
 		
 		If settings.WasTouched(cursor)
 			If up
@@ -372,18 +507,24 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			If item.WasTouched(cursor)
 				If up
 					OnMenuClicked(item)
+					Return
 				ElseIf lockedMenuItem = Null
 					item.isDown = True
 					lockedMenuItem = item
 				End
 			End
 		Next
+		
 	End
 	
 	Method OnMenuClicked:Void(item:MenuItem)
 		Select item.text
-			Case menuOptions[0].text
-				GoToGame()
+			Case menuOptions[0].text, play2.text
+				If currentSite = 1
+					PlayClassic()
+				ElseIf currentSite = 2
+					PlayAdventure()
+				End
 			Case menuOptions[1].text
 				GoToMedals()
 			Case menuOptions[2].text
@@ -398,24 +539,55 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Local ty:Float = TouchY()
 		Local w:Int = supporterMedal.Width()
 		Local h:Int = supporterMedal.Height()
-		If PointInRect(tx, ty, Vsat.ScreenWidth2 - w/2, supporterMedal.position.y - h/2, w, h)
+		If PointInRect(tx, ty, Vsat.ScreenWidth2 - w/2, supporterMedal.position.y - h/2, w, h) And currentSite = 1
 			GoToSupporter()
 		End
 	End
 	
-	Method GoToGame:Void()
+	Method OnSiteChange:Void()
+		If currentSite = 1
+			Local color:= New VFadeToColorAction(currentBgColor, backgroundColor, 0.5, LINEAR_TWEEN)
+			AddAction(color)
+		ElseIf currentSite = 2
+			Local color:= New VFadeToColorAction(currentBgColor, backgroundColor2, 0.5, LINEAR_TWEEN)
+			AddAction(color)
+		End
+	End
+	
+
+'--------------------------------------------------------------------------
+' * Menu Events
+'--------------------------------------------------------------------------	
+	Method PlayClassic:Void()
 		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
 			Return
 		End
 		
 		Vsat.SaveToClipboard(Self, "MainMenu")
 		Vsat.SaveToClipboard(Self.backgroundEffect, "BgEffect")
-		Self.shouldClearScreen = False
+		
 		Local game:GameScene = New GameScene
 		game.InitAds()
 		game.HideAds()
 		backgroundEffect.SetPlay()
 		Vsat.ChangeScene(game)
+		
+		Audio.PlaySound(Audio.GetSound("audio/fadein.mp3"), 1)
+	End
+	
+	Method PlayAdventure:Void()
+		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+			Return
+		End
+		
+		Vsat.SaveToClipboard(Self, "MainMenu")
+		Vsat.SaveToClipboard(Self.backgroundEffect, "BgEffect")
+		
+		Local scene:= New AdventureScene
+		scene.InitAds()
+		scene.HideAds()
+		backgroundEffect.SetPlay()
+		Vsat.ChangeScene(scene)
 		
 		Audio.PlaySound(Audio.GetSound("audio/fadein.mp3"), 1)
 	End
@@ -466,17 +638,16 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		SyncGameCenter(GameScene.Highscore)
 		startedConnecting = True
 	End
-	
+
 	
 '--------------------------------------------------------------------------
 ' * Private
 '--------------------------------------------------------------------------
-	Private
 	Field initialized:Bool
 	
 	Field font:AngelFont
 	Field font2:AngelFont
-	Field titleImage:Image
+	Field titleImage:Image, titleImage2:Image
 	Field scoreEnemyImage:Image
 	
 	Field menuOptions:MenuItem[]
@@ -503,6 +674,20 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	Field startedConnecting:Bool
 	
 	Field logo:Image
+	Field siteActive:Image
+	Field siteNotActive:Image
+	
+	Field sites:Int = 2
+	Field currentSite:Int = 1
+	Field currentPosX:Float
+	Field targetPosX:Float = -99999
+	Field touchStartX:Float
+	Field touchEndX:Float
+	Field touchStartTime:Float
+	Field touchTime:Float
+	
+	'Site 2
+	Field play2:MenuItem
 End
 
 
@@ -557,6 +742,7 @@ Class MenuItem Extends VRect
 	End
 	
 	Method WasTouched:Bool(cursor:Vec2)
+		If color.Alpha <= 0.001 Return False
 		Local touchsizeBufferX:Float = size.x * 0.2
 		Local touchsizeBufferY:Float = size.y * 0.2
 		If icon

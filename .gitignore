@@ -1,5 +1,5 @@
 *.DS_Store
-main.buildv*
+main.build*
 *.pxm/
 *.au
 *.aup

@@ -8,6 +8,7 @@ Import defaultlang
 Function SaveGame:Void()
 	Local saveString:String
 	saveString += "highscore = " + GameScene.Highscore + "~n"
+	saveString += "highscoreAdventure = " + GameScene.HighscoreAdventure + "~n"
 	saveString += "isMuted = " + Int(Audio.IsMuted()) + "~n"
 	saveString += "lang = " + Localize.GetCurrentLanguage() + "~n"
 	saveString += Medals.KeyValues()
@@ -22,6 +23,7 @@ Function LoadGame:Void()
 	Local success:Bool = keyValues.InitWithString(state, error)
 	If success
 		GameScene.Highscore = keyValues.GetInt("highscore")
+		GameScene.HighscoreAdventure = keyValues.GetInt("highscoreAdventure")
 		Medals.InitWithKeyValuePair(keyValues)
 	Else
 		Print error.message

@@ -1,0 +1,9 @@
+1.02:
+
+* Ad does not affect game area, but should - done
+* Listen music while playing (hack monkey) - waiting for reply(forums)
+* Fixed lang bug with medals showing still english when set to german - done
+
+* New Medals: Up in the Sky/Über den Wolken
+
+
