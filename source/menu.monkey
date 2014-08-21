@@ -13,7 +13,7 @@ Import audio
 Import settings
 
 
-Class MainMenu Extends VScene Implements VActionEventHandler
+Class MainMenu Extends VScene Implements ActionEventHandler
 	
 	Field backgroundColor:Color = New Color($132b3b)
 	Field justGotSupporterMedal:Bool
@@ -96,9 +96,9 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 			item.position.x = Vsat.ScreenWidth2 - item.size.x/2
 			item.position.y = (lineHeight * i) + titleTopSpacing + highscoreSquareSize*2.5
 			item.SetScale(1.5 + (1.0 - Float(i)/menuOptions.Length))
-			Local scaleAction:= New VVec2ToAction(item.scale, 1.0, 1.0, 0.8, EASE_OUT_EXPO)
-			Local delay:= New VDelayAction(0.2)
-			AddAction(New VActionSequence([VAction(delay), VAction(scaleAction)]))
+			Local scaleAction:= New ScaleTo(item.scale, 1.0, 1.0, 0.8, EASE_OUT_EXPO)
+			Local delay:= New DelayBy(0.2)
+			AddAction(New ActionSequence([Action(delay), Action(scaleAction)]))
 		Next
 	End
 	
@@ -117,7 +117,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 		Local y:Float = (Vsat.ScreenHeight - lastMenuItem.position.y + lastMenuItem.usedFont.TextHeight(lastMenuItem.text)) / 2
 		supporterMedal.position.y = y + lastMenuItem.position.y
 		
-		removeAdsText = New VLabel(Localize.GetValue("menu_remove_ads"))
+		removeAdsText = New Label(Localize.GetValue("menu_remove_ads"))
 		removeAdsText.SetFont(font2)
 		removeAdsText.alignHorizontal = AngelFont.ALIGN_CENTER
 		removeAdsText.position.Set(supporterMedal.position)
@@ -161,7 +161,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	End
 	
 	
-	Method AddAction:Void(action:VAction)
+	Method AddAction:Void(action:Action)
 		action.AddToList(actions)
 		action.SetListener(Self)
 	End
@@ -171,7 +171,7 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 ' * Update
 '--------------------------------------------------------------------------
 	Method OnUpdate:Void(dt:Float)
-		VAction.UpdateList(actions, dt)
+		Action.UpdateList(actions, dt)
 		UpdateParticles(dt)
 		
 		If startedConnecting
@@ -330,8 +330,8 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 '--------------------------------------------------------------------------
 ' * Events
 '--------------------------------------------------------------------------
-	Method OnActionEvent:Void(id:Int, action:VAction)
-		If id = VAction.FINISHED
+	Method OnActionEvent:Void(id:Int, action:Action)
+		If id = Action.FINISHED
 			
 		End
 	End
@@ -492,13 +492,13 @@ Class MainMenu Extends VScene Implements VActionEventHandler
 	
 	Field lastTouchDown:Bool
 	
-	Field actions:List<VAction> = New List<VAction>
+	Field actions:List<Action> = New List<Action>
 	
 	Field backgroundEffect:ParticleBackground
 	
 	Field medalEffect:ExplosionEmitter
 	Field supporterMedal:SupporterMedal
-	Field removeAdsText:VLabel
+	Field removeAdsText:Label
 	
 	Field startedConnecting:Bool
 	
@@ -508,7 +508,7 @@ End
 
 
 
-Private
+'Private
 Class MenuItem Extends VRect
 	
 	Field text:String

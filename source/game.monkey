@@ -14,10 +14,10 @@ Import doubleball
 
 #If TARGET = "ios"
 Import brl.admob
-#ADMOB_PUBLISHER_ID="a15364047eb2dce"
+#ADMOB_PUBLISHER_ID="ca-app-pub-1688038978922382/1326438751"
 #End
 
-Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallback
+Class GameScene Extends VScene Implements ActionEventHandler, ILabelFeedCallback
 	
 	Const SPAWN_TIME_RANGE:Float = 1.7 'in seconds
 	
@@ -64,6 +64,8 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 ' * Init
 '--------------------------------------------------------------------------
 	Method OnInit:Void()
+		Vsat.UpdateScreenSize(DeviceWidth(), DeviceHeight())
+		
 		player = New Player
 		enemies = New List<Enemy>
 		EnemySpawner.Init()
@@ -101,7 +103,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		If mainMenu
 			Self.mainMenuObject = MainMenu(mainMenu)
 			
-			Local delay:= New VDelayAction(2.3)
+			Local delay:= New DelayBy(2.3)
 			delay.Name = "TransitionInDone"
 			AddAction(delay)
 			
@@ -110,7 +112,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 			Vsat.StartFadeIn(transition)
 			
 			backgroundColor.Set(mainMenuObject.backgroundColor)
-			Local fadeColor:= New VFadeToColorAction(backgroundColor, normalBgColor, 0.5, LINEAR_TWEEN)
+			Local fadeColor:= New FadeColorTo(backgroundColor, normalBgColor, 0.5, LINEAR_TWEEN)
 			AddAction(fadeColor)
 			
 			FadeInPlayerAnimation(1.5)
@@ -129,11 +131,11 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		
 		Local groupTime:Float = 0.5
 		If Vsat.IsChangingScenes() Then groupTime = 0.8
-		Local delay:= New VDelayAction(delayTime)
-		Local alpha:= New VFadeToAlphaAction(player.color, 1.0, groupTime, LINEAR_TWEEN)
-		Local scale:= New VVec2ToAction(player.scale, 1.0, 1.0, groupTime, EASE_OUT_BACK)
-		Local group:= New VActionGroup([VAction(alpha), VAction(scale)])
-		Local sequence:= New VActionSequence([VAction(delay), VAction(group)])
+		Local delay:= New DelayBy(delayTime)
+		Local alpha:= New FadeTo(player.color, 1.0, groupTime, LINEAR_TWEEN)
+		Local scale:= New ScaleTo(player.scale, 1.0, 1.0, groupTime, EASE_OUT_BACK)
+		Local group:= New ActionGroup([Action(alpha), Action(scale)])
+		Local sequence:= New ActionSequence([Action(delay), Action(group)])
 		sequence.Name = "HeroIntroAnimation"
 		AddAction(sequence)
 	End
@@ -185,7 +187,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 '--------------------------------------------------------------------------
 ' * Helpers
 '--------------------------------------------------------------------------
-	Method AddAction:Void(action:VAction)
+	Method AddAction:Void(action:Action)
 		action.AddToList(actions)
 		action.SetListener(Self)
 	End
@@ -220,6 +222,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		#If TARGET = "ios"
 			If IsUnlocked = False And admob
 				admob.HideAdView()
+				Vsat.UpdateScreenSize(DeviceWidth(), DeviceHeight())
 			End
 		#End
 	End
@@ -228,6 +231,12 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		#If TARGET = "ios"
 			If IsUnlocked = False And admob
 				admob.ShowAdView(adStyle, adLayout)
+				Local adHeight:Int = admob.AdViewHeight()
+				If adHeight > 0
+					Vsat.UpdateScreenSize(DeviceWidth(), DeviceHeight() - adHeight)
+				End
+			Else
+				Vsat.UpdateScreenSize(DeviceWidth(), DeviceHeight())
 			End
 		#End
 	End
@@ -546,7 +555,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 '--------------------------------------------------------------------------
 ' * Events
 '--------------------------------------------------------------------------
-	Method HandleEvent:Void(event:VEvent)
+	Method HandleEvent:Void(event:Event)
 		If event.id.StartsWith("medal_")
 			GotMedal(event.id[6..], event.x)
 			Return
@@ -562,8 +571,8 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		End
 	End
 	
-	Method OnActionEvent:Void(id:Int, action:VAction)
-		If id = VAction.FINISHED
+	Method OnActionEvent:Void(id:Int, action:Action)
+		If id = Action.FINISHED
 			Select action.Name
 				Case "Double"
 					Vsat.paused = False
@@ -595,6 +604,15 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		gameOverState.NewHighscore()
 		InitGameCenter()
 		SyncGameCenter(Highscore)
+	End
+	
+	Method CheckNewHighscore:Void()
+		If score > Highscore
+			Highscore = score
+			gameOverState.NewHighscore()
+			InitGameCenter()
+			SyncGameCenter(Highscore)
+		End
 	End
 	
 	Method Surprise:Void()
@@ -647,8 +665,8 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	
 	Method OnDoubleBallCollision:Void()
 		ActivateHyperMode()
-		Local action:= New VVec2ToAction(doubleBall.scale, 0.0, 0.0, 0.6, EASE_OUT_QUAD)
-		Local delay:= New VDelayAction(0.05)
+		Local action:= New ScaleTo(doubleBall.scale, 0.0, 0.0, 0.6, EASE_OUT_QUAD)
+		Local delay:= New DelayBy(0.05)
 		delay.Name = "Double"
 		AddAction(delay)
 		AddAction(action)
@@ -680,9 +698,9 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	End
 	
 	Method FlashScreenBeforeSurprise:Void()
-		Local fadeIn:= New VFadeToAlphaAction(surpriseColor, 0.8, 0.2, EASE_IN_QUAD)
-		Local fadeOut:= New VFadeToAlphaAction(surpriseColor, 0.0, 0.1, EASE_OUT_QUAD)
-		Local sequence:= New VActionSequence
+		Local fadeIn:= New FadeTo(surpriseColor, 0.8, 0.2, EASE_IN_QUAD)
+		Local fadeOut:= New FadeTo(surpriseColor, 0.0, 0.1, EASE_OUT_QUAD)
+		Local sequence:= New ActionSequence
 		sequence.Name = "SurpriseFlash"
 		sequence.AddAction(fadeIn)
 		sequence.AddAction(fadeOut)
@@ -692,7 +710,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	End
 	
 	Method OnGameOver:Void()
-		Local delay:= New VDelayAction(0.3)
+		Local delay:= New DelayBy(0.3)
 		delay.Name = "GameOverDelay"
 		AddAction(delay)
 		
@@ -704,10 +722,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		doubleBall.Reset()
 		
 		score = targetScore
-		If score > Highscore
-			Highscore = score
-			NewHighscore()
-		End
+		CheckNewHighscore()
 		
 		medalFeed.Clear()
 		scoreFeed.Clear()
@@ -715,7 +730,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		player.color.Alpha = 0.0
 		enemies.Clear()
 		
-		Local fadeColor:= New VFadeToColorAction(backgroundColor, gameOverColor, 0.2, LINEAR_TWEEN)
+		Local fadeColor:= New FadeColorTo(backgroundColor, gameOverColor, 0.2, LINEAR_TWEEN)
 		AddAction(fadeColor)
 		
 		explosionEffect.position.Set(player.position)
@@ -740,7 +755,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 		End
 		If hyperModeIsActive Then andPoints *= 2
 			
-		medalFeed.Push(id)
+		medalFeed.Push(Localize.GetValue(id))
 		scoreFeed.Push("+" + andPoints)
 		targetScore += andPoints
 	End
@@ -770,17 +785,18 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	Method OnBackClicked:Void()
 		If gameOver
 			If Vsat.transition Return
-			AddAction(New VFadeToAlphaAction(globalAlpha, 0.0, 0.5, EASE_OUT_EXPO))
+			HideAds()
+			
+			AddAction(New FadeTo(globalAlpha, 0.0, 0.5, EASE_OUT_EXPO))
 			mainMenuObject.shouldClearScreen = True
 			Local transition:= New MoveUpTransition(0.7)
 			transition.startPoint = Vsat.ScreenHeight
 			transition.SetScene(mainMenuObject)
 			Vsat.ChangeSceneWithTransition(mainMenuObject, transition)
 
-			Local fadeColor:= New VFadeToColorAction(backgroundColor, mainMenuObject.backgroundColor, 0.5, LINEAR_TWEEN)
+			Local fadeColor:= New FadeColorTo(backgroundColor, mainMenuObject.backgroundColor, 0.5, LINEAR_TWEEN)
 			AddAction(fadeColor)
 			
-			HideAds()
 			backgroundEffect.SetNormal()
 			Local sound:= Audio.GetSound("audio/fadeout.mp3")
 			Audio.PlaySound(sound, 2)
@@ -790,9 +806,9 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	Method ReturnFromGameOver:Void()
 		FadeInPlayerAnimation(0.25)
 		ResetGame()
-		Local fadeColor:= New VFadeToColorAction(backgroundColor, normalBgColor, 0.3, LINEAR_TWEEN)
+		Local fadeColor:= New FadeColorTo(backgroundColor, normalBgColor, 0.3, LINEAR_TWEEN)
 		AddAction(fadeColor)
-		Local fadeBack:= New VFadeToAlphaAction(backButton.color, 0.0, 0.2, LINEAR_TWEEN)
+		Local fadeBack:= New FadeTo(backButton.color, 0.0, 0.2, LINEAR_TWEEN)
 		AddAction(fadeBack)
 	End
 	
@@ -806,7 +822,7 @@ Class GameScene Extends VScene Implements VActionEventHandler, ILabelFeedCallbac
 	Field randomTipAlpha:Float = 1.0
 	
 	Field scoreFont:AngelFont
-	Field actions:List<VAction> = New List<VAction>
+	Field actions:List<Action> = New List<Action>
 	
 	Field mainMenuObject:MainMenu
 	Field backgroundEffect:ParticleBackground

@@ -39,9 +39,9 @@ Class SettingsScene Extends VScene
 	
 	Method InitMusicOnOff:Void(font:AngelFont)
 		If Audio.IsMuted()
-			music = New VLabel(Localize.GetValue("settings_music_is_off"))
+			music = New Label(Localize.GetValue("settings_music_is_off"))
 		Else
-			music = New VLabel(Localize.GetValue("settings_music_is_on"))
+			music = New Label(Localize.GetValue("settings_music_is_on"))
 		End
 		music.SetFont(font)
 		music.position.x = Vsat.ScreenWidth2 * 1.04
@@ -63,7 +63,7 @@ Class SettingsScene Extends VScene
 	End
 	
 	Method InitLanguage:Void(font:AngelFont)
-		language = New VLabel(Localize.GetValue("settings_language"))
+		language = New Label(Localize.GetValue("settings_language"))
 		language.SetFont(font)
 		language.position.Set(music.position)
 		language.position.y += font.height * 1.4
@@ -90,43 +90,43 @@ Class SettingsScene Extends VScene
 	End
 	
 	Method InitCredits:Void(font:AngelFont)
-		creditsGameTitle = New VLabel(Localize.GetValue("settings_game_by"))
+		creditsGameTitle = New Label(Localize.GetValue("settings_game_by"))
 		creditsGameTitle.SetFont(font)
 		creditsGameTitle.color.Set(Color.Yellow)
 		creditsGameTitle.position.Set(Vsat.ScreenWidth2, logo.position.y - font.height)
 		creditsGameTitle.alignHorizontal = True
 		creditsGameTitle.SetScale(0.8)
 		
-		creditsMusicTitle = New VLabel(Localize.GetValue("settings_music"))
+		creditsMusicTitle = New Label(Localize.GetValue("settings_music"))
 		creditsMusicTitle.SetFont(font)
 		creditsMusicTitle.color.Set(Color.Yellow)
 		creditsMusicTitle.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.55)
 		creditsMusicTitle.alignHorizontal = True
 		creditsMusicTitle.SetScale(0.8)
 		
-		creditsMusic = New VLabel("Dominique Lufua")
+		creditsMusic = New Label("Dominique Lufua")
 		creditsMusic.SetFont(font)
 		creditsMusic.color.Set(Color.White)
 		creditsMusic.position.Set(Vsat.ScreenWidth2, creditsMusicTitle.position.y + font.height)
 		creditsMusic.alignHorizontal = True
 		creditsMusic.SetScale(0.8)
 		
-		creditsSpecialTitle = New VLabel(Localize.GetValue("settings_thanks"))
+		creditsSpecialTitle = New Label(Localize.GetValue("settings_thanks"))
 		creditsSpecialTitle.SetFont(font)
 		creditsSpecialTitle.color.Set(Color.Yellow)
 		creditsSpecialTitle.position.Set(Vsat.ScreenWidth2, creditsMusic.position.y + font.height * 2)
 		creditsSpecialTitle.alignHorizontal = True
 		creditsSpecialTitle.SetScale(0.8)
 		
-		creditsSpecial = New VLabel[3]
+		creditsSpecial = New Label[3]
 		For Local i:Int = 0 Until creditsSpecial.Length
 			Select i
 				Case 0
-					creditsSpecial[0] = New VLabel("Max Gittel")
+					creditsSpecial[0] = New Label("Max Gittel")
 				Case 1
-					creditsSpecial[1] = New VLabel("David Neubauer")
+					creditsSpecial[1] = New Label("David Neubauer")
 				Case 2
-					creditsSpecial[2] = New VLabel("Sebastian Höhnl")
+					creditsSpecial[2] = New Label("Sebastian Höhnl")
 			End
 			creditsSpecial[i].SetFont(font)
 			creditsSpecial[i].color.Set(Color.White)
@@ -360,17 +360,17 @@ Class SettingsScene Extends VScene
 	Field font:AngelFont
 	Field lockedMenuItem:MenuItem
 	
-	Field music:VLabel
+	Field music:Label
 	Field musicOnOff:MenuItem
 	
-	Field language:VLabel
+	Field language:Label
 	Field langs:MenuItem[]
 	
-	Field creditsGameTitle:VLabel
-	Field creditsMusicTitle:VLabel
-	Field creditsMusic:VLabel
-	Field creditsSpecialTitle:VLabel
-	Field creditsSpecial:VLabel[]
+	Field creditsGameTitle:Label
+	Field creditsMusicTitle:Label
+	Field creditsMusic:Label
+	Field creditsSpecialTitle:Label
+	Field creditsSpecial:Label[]
 
 	Field back:BackButton
 	
@@ -432,7 +432,7 @@ Class FadeOutTransition Extends VTransition
 End
 
 
-Class MenuItem Extends VLabel
+Class MenuItem Extends Label
 	
 	Field isDown:Bool
 	Field downColor:Color = New Color(1.0, 1.0, 1.0, 0.8)

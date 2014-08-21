@@ -7,7 +7,7 @@ Import game
 Import gameoverstate
 
 
-Class MedalScene Extends VScene Implements VActionEventHandler
+Class MedalScene Extends VScene Implements ActionEventHandler
 	
 	Field normalBgColor:Color = New Color(Color.Navy)
 	
@@ -36,7 +36,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		MidHandleImage(siteNotActive)
 		
 		globalAlpha.Alpha = 0.0
-		AddAction(New VFadeToAlphaAction(globalAlpha, 1.0, 0.7, LINEAR_TWEEN))
+		AddAction(New FadeTo(globalAlpha, 1.0, 0.7, LINEAR_TWEEN))
 		
 		InitMedals()
 	End
@@ -50,7 +50,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 			Vsat.StartFadeIn(transition)
 			
 			backgroundColor.Set(mainMenuObject.backgroundColor)
-			Local fadeColor:= New VFadeToColorAction(backgroundColor, normalBgColor, 0.5, LINEAR_TWEEN)
+			Local fadeColor:= New FadeColorTo(backgroundColor, normalBgColor, 0.5, LINEAR_TWEEN)
 			AddAction(fadeColor)
 		End
 	End
@@ -109,7 +109,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		
 	End
 	
-	Method AddAction:Void(action:VAction)
+	Method AddAction:Void(action:Action)
 		action.AddToList(actions)
 		action.SetListener(Self)
 	End
@@ -119,7 +119,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 ' * Update
 '--------------------------------------------------------------------------	
 	Method OnUpdate:Void(dt:Float)
-		VAction.UpdateList(actions, dt)
+		Action.UpdateList(actions, dt)
 		If backgroundEffect Then backgroundEffect.Update(dt)
 		UpdateSites()
 		UpdateCursor()
@@ -269,7 +269,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 			
 			Local expectedSpeed:Float = 400.0
 			Local time:Float = Max(0.5 * expectedSpeed/Abs(speed), 0.3)
-			Local action:= New VVec2ToAction(description.position, 0, -description.size.y, time, EASE_OUT_CIRC)
+			Local action:= New MoveTo(description.position, 0, -description.size.y, time, EASE_OUT_CIRC)
 			AddAction(action)
 		End
 		targetPosX = Vsat.ScreenWidth * (currentSite-1)
@@ -294,14 +294,14 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	Method OnBackClicked:Void()
 		If Vsat.transition Return
 			
-		AddAction(New VFadeToAlphaAction(globalAlpha, 0.0, 0.5, EASE_OUT_EXPO))
+		AddAction(New FadeTo(globalAlpha, 0.0, 0.5, EASE_OUT_EXPO))
 		mainMenuObject.shouldClearScreen = True
 		Local transition:= New MoveDownTransition(0.7)
 		transition.startPoint = -Vsat.ScreenHeight
 		transition.SetScene(mainMenuObject)
 		Vsat.ChangeSceneWithTransition(mainMenuObject, transition)
 		
-		Local fadeColor:= New VFadeToColorAction(backgroundColor, mainMenuObject.backgroundColor, 0.5, LINEAR_TWEEN)
+		Local fadeColor:= New FadeColorTo(backgroundColor, mainMenuObject.backgroundColor, 0.5, LINEAR_TWEEN)
 		AddAction(fadeColor)
 		
 		Local sound:= Audio.GetSound("audio/fadeout.mp3")
@@ -328,25 +328,25 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		Next
 		
 		'Clicked in empty space
-		Local action:= New VVec2ToAction(description.position, 0, -description.size.y, 0.3, EASE_OUT_CIRC)
+		Local action:= New MoveTo(description.position, 0, -description.size.y, 0.3, EASE_OUT_CIRC)
 		AddAction(action)
 	End
 	
 	Method ItemWasClicked:Void(item:CustomMedalItem)
 		If description.position.y = 0.0
 			If description.Description = item.Description
-				Local action:= New VVec2ToAction(description.position, 0, -description.size.y, 0.2, EASE_OUT_CIRC)
+				Local action:= New MoveTo(description.position, 0, -description.size.y, 0.2, EASE_OUT_CIRC)
 				AddAction(action)
 				Return
 			End
-			Local fadeOut:= New VFadeToAlphaAction(description.color, 0.5, 0.1, LINEAR_TWEEN)
-			Local fadeIn:= New VFadeToAlphaAction(description.color, 1.0, 0.1, LINEAR_TWEEN)
-			Local group:= New VActionSequence
+			Local fadeOut:= New FadeTo(description.color, 0.5, 0.1, LINEAR_TWEEN)
+			Local fadeIn:= New FadeTo(description.color, 1.0, 0.1, LINEAR_TWEEN)
+			Local group:= New ActionSequence
 			group.AddAction(fadeOut)
 			group.AddAction(fadeIn)
 			AddAction(group)
 		Else
-			Local action:= New VVec2ToAction(description.position, 0, 0, 0.2, EASE_OUT_CIRC)
+			Local action:= New MoveTo(description.position, 0, 0, 0.2, EASE_OUT_CIRC)
 			AddAction(action)
 		End
 		description.Description = item.Description
@@ -362,8 +362,8 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 		Vsat.ChangeScene(scene)
 	End
 	
-	Method OnActionEvent:Void(id:Int, action:VAction)
-		If id = VAction.FINISHED
+	Method OnActionEvent:Void(id:Int, action:Action)
+		If id = Action.FINISHED
 			
 		End
 	End
@@ -394,7 +394,7 @@ Class MedalScene Extends VScene Implements VActionEventHandler
 	
 	Field lastTouchDown:Bool
 	
-	Field actions:List<VAction> = New List<VAction>
+	Field actions:List<Action> = New List<Action>
 	
 	Field medalItems:CustomMedalItem[]
 	Field sites:Int
@@ -444,7 +444,7 @@ Class MedalDescription Extends VRect
 	Method New()
 		Super.New(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight * 0.06)
 		color.Set(Color.White)
-		descriptionLabel = New VLabel("description")
+		descriptionLabel = New Label("description")
 		descriptionLabel.position.Set(Vsat.ScreenWidth2, 0)
 		descriptionLabel.alignHorizontal = True
 	End
@@ -480,7 +480,7 @@ Class MedalDescription Extends VRect
 	End
 	
 	Private
-	Field descriptionLabel:VLabel
+	Field descriptionLabel:Label
 	Field factor:Float
 End
 

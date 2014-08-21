@@ -398,7 +398,7 @@ Class FadeOutTransition Extends VTransition
 End
 
 
-Class MenuItem Extends VLabel
+Class MenuItem Extends Label
 	
 	Field isDown:Bool
 	Field downColor:Color = New Color(1.0, 1.0, 1.0, 0.8)

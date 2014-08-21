@@ -243,7 +243,7 @@ End
 
 
 
-Class LabelFeedItem Extends VLabel
+Class LabelFeedItem Extends Label
 	
 	Method New(text:String)
 		Super.New(text)

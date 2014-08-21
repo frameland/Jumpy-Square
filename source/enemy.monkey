@@ -125,7 +125,7 @@ Class Enemy Extends VRect
 		position.Add(velocity.x * dt, velocity.y * dt)
 		If position.y > Vsat.ScreenHeight
 			If accountsForPoints
-				Local ev:= New VEvent
+				Local ev:= New Event
 				ev.id = "RemoveEnemy"
 				Vsat.FireEvent(ev)
 			End

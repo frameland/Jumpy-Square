@@ -1,7 +1,7 @@
 Strict
 Import game
 
-Class GameOverState Implements VActionEventHandler
+Class GameOverState Implements ActionEventHandler
 
 '--------------------------------------------------------------------------
 ' * Init & Helpers
@@ -20,7 +20,7 @@ Class GameOverState Implements VActionEventHandler
 		glowImage = ImageCache.GetImage(RealPath("glow.png"))
 		glowImage.SetHandle(0, glowImage.Height()/2)
 		
-		newHighscore = New VLabel(Localize.GetValue("gameover_new_highscore"))
+		newHighscore = New Label(Localize.GetValue("gameover_new_highscore"))
 		newHighscore.SetFont(font)
 		newHighscore.color.Set(Color.Yellow)
 		newHighscore.color.Alpha = 0.0
@@ -73,7 +73,7 @@ Class GameOverState Implements VActionEventHandler
 		
 	End
 	
-	Method AddAction:Void(action:VAction)
+	Method AddAction:Void(action:Action)
 		action.AddToList(actions)
 		action.SetListener(Self)
 	End
@@ -94,7 +94,7 @@ Class GameOverState Implements VActionEventHandler
 			End
 		End
 		
-		VAction.UpdateList(actions, dt)
+		Action.UpdateList(actions, dt)
 		UpdateSwiping(dt)
 		newHighscoreEffect.Update(dt)
 	End
@@ -176,7 +176,7 @@ Class GameOverState Implements VActionEventHandler
 			
 		Audio.PlaySound(Audio.GetSound("audio/fadeout.mp3"), 1)
 		active = False
-		Local event:= New VEvent
+		Local event:= New Event
 		event.id = "ReturnToGame"
 		Vsat.FireEvent(event)
 	End
@@ -229,7 +229,7 @@ Class GameOverState Implements VActionEventHandler
 	End
 	
 	Method NewHighscore:Void()
-		Local delay:= New VDelayAction(0.6)
+		Local delay:= New DelayBy(0.6)
 		delay.Name = "NewHighscore"
 		AddAction(delay)
 	End
@@ -238,13 +238,13 @@ Class GameOverState Implements VActionEventHandler
 		newHighscore.SetScale(0.0)
 		newHighscore.color.Alpha = 0.0
 		
-		Local fadeIn:= New VFadeToAlphaAction(newHighscore.color, 1.0, 0.5, LINEAR_TWEEN)
-		Local fadeOut:= New VFadeToAlphaAction(newHighscore.color, 0.0, 0.8, LINEAR_TWEEN)
-		Local scale:= New VVec2ToAction(newHighscore.scale, 1.0, 1.0, 0.5, EASE_OUT_EXPO)
+		Local fadeIn:= New FadeTo(newHighscore.color, 1.0, 0.5, LINEAR_TWEEN)
+		Local fadeOut:= New FadeTo(newHighscore.color, 0.0, 0.8, LINEAR_TWEEN)
+		Local scale:= New ScaleTo(newHighscore.scale, 1.0, 1.0, 0.5, EASE_OUT_EXPO)
 		
-		Local sequence:= New VActionSequence
-		sequence.AddAction(New VActionGroup([VAction(fadeIn), VAction(scale)]))
-		sequence.AddAction(New VDelayAction(0.8))
+		Local sequence:= New ActionSequence
+		sequence.AddAction(New ActionGroup([Action(fadeIn), Action(scale)]))
+		sequence.AddAction(New DelayBy(0.8))
 		sequence.AddAction(fadeOut)
 		AddAction(sequence)
 		
@@ -255,8 +255,8 @@ Class GameOverState Implements VActionEventHandler
 		Audio.PlaySound(sound, 27)
 	End
 	
-	Method OnActionEvent:Void(id:Int, action:VAction)
-		If id = VAction.FINISHED
+	Method OnActionEvent:Void(id:Int, action:Action)
+		If id = Action.FINISHED
 			If action.Name = "NewHighscore"
 				DelayedNewHighscore()
 			End
@@ -287,11 +287,11 @@ Class GameOverState Implements VActionEventHandler
 	Field targetPosX:Float
 	
 	Field glowImage:Image
-	Field newHighscore:VLabel
+	Field newHighscore:Label
 	
 	Field newHighscoreEffect:ParticleEmitter
 	
-	Field actions:List<VAction> = New List<VAction>
+	Field actions:List<Action> = New List<Action>
 End
 
 

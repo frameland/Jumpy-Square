@@ -2,7 +2,7 @@ Strict
 Import vsat
 Import extra
 
-Class BackButton Extends VLabel
+Class BackButton Extends Label
 	
 	Field isDown:Bool
 	Field downColor:Color = Color.Orange

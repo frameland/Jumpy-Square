@@ -503,7 +503,7 @@ Class Medals
 ' * Private
 '--------------------------------------------------------------------------
 	Private
-	Global MedalEvent:VEvent = New VEvent
+	Global MedalEvent:Event = New Event
 	
 	Function FireEvent:Void(id:String)
 		Local shouldCount:Bool = EarnedMedal(id)
