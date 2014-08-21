@@ -149,7 +149,7 @@ Class Player Extends VRect
 		
 		position.Add(velocity.x * dt, velocity.y * dt)
 		
-		If (position.y - size.y * 0.4 > Vsat.ScreenHeight) Or (position.y < -Self.size.y)
+		If (position.y - size.y * 0.3 > Vsat.ScreenHeight) Or (position.y < -Self.size.y)
 			Local gameOver:= New VEvent
 			gameOver.id = "GameOver"
 			Vsat.FireEvent(gameOver)
@@ -273,8 +273,8 @@ Class Player Extends VRect
 			alphaCounter -= incrementAlpha
 			SetAlpha(alphaCounter * Self.color.Alpha)
 			PushMatrix()
-				TranslateV(vector)
-				DrawOutline()
+			TranslateV(vector)
+			DrawOutline()
 			PopMatrix()
 			previous = vector
 		Next

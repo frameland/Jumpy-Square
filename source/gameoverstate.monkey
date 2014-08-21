@@ -264,7 +264,7 @@ Class GameOverState Implements VActionEventHandler
 	End
 	
 	
-	'Private
+	Private
 	Field game:GameScene
 	Field shouldReturn:Bool
 	Field font:AngelFont

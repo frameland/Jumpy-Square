@@ -1,7 +1,7 @@
 Strict
 Import vsat
 
-Const VERSION:String = "version 1.02"
+Const VERSION:String = "version 1.0"
 Global globalAlpha:Color = New Color(Color.White)
 
 
@@ -45,7 +45,6 @@ Class MoveDownTransition Extends VTransition
 	End
 	
 	Method Update:Void(dt:Float)
-		AssertWithException(scene, "No Scene is set -> Use SetScene(scene)")
 		Super.Update(dt)
 		scene.OnUpdate(dt)
 	End
