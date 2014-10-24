@@ -5,7 +5,7 @@ Import particles
 Import audio
 
 
-Class Player Extends VRect
+Class Player Extends Rect
 	
 	Field velocity:Vec2
 	Field isJumping:Bool

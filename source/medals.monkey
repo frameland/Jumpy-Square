@@ -609,7 +609,7 @@ Class MedalState
 	Global PreviousHighscore:Int
 	Global LastScoreTime:FloatStack = New FloatStack
 	Global LastScore:Int
-	Global playerCopy:VRect = New VRect(0, 0, 1, 1)
+	Global playerCopy:Rect = New Rect(0, 0, 1, 1)
 	Global LastDoubleDodge:Float
 	Global LastTripleDodge:Float
 	Global LastMultiDodge:Float

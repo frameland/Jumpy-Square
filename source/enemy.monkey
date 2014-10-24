@@ -4,7 +4,7 @@ Import particles
 Import extra
 Import brl.pool
 
-Class Enemy Extends VRect
+Class Enemy Extends Rect
 	
 	Global COLLISION_FORGIVENESS:Float = 0.15 '0..1, 0 = normal, 1 = no collision
 	
@@ -94,7 +94,7 @@ Class Enemy Extends VRect
 		If link Then link.Remove()
 	End
 	
-	Method CollidesWith:Bool(rect:VRect)
+	Method CollidesWith:Bool(rect:Rect)
 		Local forgiveness:Int = size.x * COLLISION_FORGIVENESS
 		Local x:Float = position.x + forgiveness/2
 		Local y:Float = position.y + forgiveness/2

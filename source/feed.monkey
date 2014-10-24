@@ -2,7 +2,7 @@ Strict
 Import vsat
 
 #rem
-Class LabelScene Extends VScene
+Class LabelScene Extends Scene
 	Field feed:LabelFeed = New LabelFeed
 	
 	Method OnInit:Void()
@@ -31,7 +31,7 @@ Interface ILabelFeedCallback
 End
 
 
-Class LabelFeed Extends VRect
+Class LabelFeed Extends Rect
 	
 	Field lineHeightMultiplier:Float = 1.0
 	Field feedTime:Float = 1.8

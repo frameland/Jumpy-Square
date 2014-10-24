@@ -2,6 +2,9 @@ Strict
 Import vsat.foundation
 #If TARGET = "ios"
 	Import brl.gamecenter
+	Private
+	Global gameCenter:GameCenter
+	Public
 #End
 
 Const GAMECENTER_LEADERBOARD:String = "highscore"
@@ -45,5 +48,4 @@ Function GameCenterIsConnecting:Bool()
 End
 
 
-Private
-Global gameCenter:GameCenter
+

@@ -3,7 +3,7 @@ Import vsat
 Import brl.monkeystore
 
 #rem
-Class StoreScene Extends VScene Implements IStore
+Class StoreScene Extends Scene Implements IStore
 	
 	Field store:VStore
 	

@@ -3,7 +3,7 @@ Import game
 Import extra
 
 
-Class DoubleBall Extends VSprite
+Class DoubleBall Extends Sprite
 	
 	Field speed:Vec2
 	
@@ -39,7 +39,7 @@ Class DoubleBall Extends VSprite
 		Return hasCollided
 	End
 	
-	Method CollidesWith:Bool(rect:VRect)
+	Method CollidesWith:Bool(rect:Rect)
 		Local size:Float = image.Width() * 0.9
 		Local x:Float = position.x - size/2
 		Local y:Float = position.y - size/2

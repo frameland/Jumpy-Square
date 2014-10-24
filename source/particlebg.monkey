@@ -1,6 +1,5 @@
 Strict
 Import vsat
-Import particles
 Import extra
 
 
@@ -39,7 +38,7 @@ Class ParticleBackground
 	End
 	
 	Method InitGradient:Void()
-		topGradient = New VSprite("gfx/top_gradient.png")
+		topGradient = New Sprite("gfx/top_gradient.png")
 		topGradient.SetHandle(0, 0)
 		topGradient.SetScale(Vsat.ScreenWidth/topGradient.Width)
 		topGradient.color.Set($6effe1)
@@ -75,7 +74,7 @@ Class ParticleBackground
 	End
 	
 	Private
-	Field topGradient:VSprite
+	Field topGradient:Sprite
 	
 End
 

@@ -3,7 +3,7 @@ Import vsat
 Import medals
 Import extra
 
-Class MedalItem Extends VRect
+Class MedalItem Extends Rect
 	
 	Global font:AngelFont
 	
@@ -63,7 +63,6 @@ Class MedalItem Extends VRect
 	
 	Private
 	Field image:Image
-	Field name:String
 	Field localizedName:String
 	Field description:String
 	Field times:Int

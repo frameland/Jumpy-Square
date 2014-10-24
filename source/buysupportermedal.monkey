@@ -13,9 +13,9 @@ Import store
 
 
 #If TARGET = "ios"
-Class BuySupporterMedalScene Extends VScene Implements IStore
+Class BuySupporterMedalScene Extends Scene Implements IStore
 #Else
-Class BuySupporterMedalScene Extends VScene
+Class BuySupporterMedalScene Extends Scene
 #End
 
 '--------------------------------------------------------------------------
@@ -41,7 +41,7 @@ Class BuySupporterMedalScene Extends VScene
 		InitMenu()
 		InitStore()
 		
-		Local transition:= New FadeInTransition(0.2)
+		Local transition:= New _FadeInTransition(0.2)
 		Vsat.StartFadeIn(transition)
 	End
 	
@@ -156,10 +156,10 @@ Class BuySupporterMedalScene Extends VScene
 		
 		If Vsat.IsChangingScenes()
 			Local scaleAll:Float
-			If FadeInTransition(Vsat.transition)
+			If _FadeInTransition(Vsat.transition)
 				scaleAll = 2.0 - Vsat.transition.Progress
 				globalAlpha.Alpha = Vsat.transition.Progress
-			ElseIf FadeOutTransition(Vsat.transition)
+			ElseIf _FadeOutTransition(Vsat.transition)
 				scaleAll = 1.0 + Tweening(EASE_OUT_EXPO, Vsat.transition.Progress, 0.0, 1.0, Vsat.transition.Duration)
 				globalAlpha.Alpha = 2.0 - scaleAll
 			End
@@ -274,7 +274,7 @@ Class BuySupporterMedalScene Extends VScene
 	
 	Method OnCancel:Void()
 		If Vsat.transition Return
-		Local transition:= New FadeOutTransition(0.6)
+		Local transition:= New _FadeOutTransition(0.6)
 		Vsat.ChangeSceneWithTransition(mainMenuObject, transition)
 		Audio.PlaySound(Audio.GetSound("audio/fadeout.mp3"), 2)
 		
@@ -347,7 +347,7 @@ End
 
 
 Private
-Class FadeInTransition Extends VTransition
+Class _FadeInTransition Extends Transition
 	
 	Field startPoint:Float = 0
 	
@@ -372,7 +372,7 @@ Class FadeInTransition Extends VTransition
 
 End
 
-Class FadeOutTransition Extends VTransition
+Class _FadeOutTransition Extends Transition
 	
 	Field startPoint:Float = 0
 	

@@ -4,7 +4,7 @@ Import extra
 Import particles
 
 
-Class SupporterMedal Extends VSprite
+Class SupporterMedal Extends Sprite
 	
 	Method InitLocked:Void()
 		Self.SetImage(RealPath("locked.png"))

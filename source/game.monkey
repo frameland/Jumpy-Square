@@ -17,7 +17,7 @@ Import brl.admob
 #ADMOB_PUBLISHER_ID="ca-app-pub-1688038978922382/1326438751"
 #End
 
-Class GameScene Extends VScene Implements ActionEventHandler, ILabelFeedCallback
+Class GameScene Extends Scene Implements ActionEventHandler, ILabelFeedCallback
 	
 	Const SPAWN_TIME_RANGE:Float = 1.7 'in seconds
 	
@@ -187,11 +187,6 @@ Class GameScene Extends VScene Implements ActionEventHandler, ILabelFeedCallback
 '--------------------------------------------------------------------------
 ' * Helpers
 '--------------------------------------------------------------------------
-	Method AddAction:Void(action:Action)
-		action.AddToList(actions)
-		action.SetListener(Self)
-	End
-	
 	Method HasSurprise:Bool()
 		Return Rnd() < 0.1 And dodged >= 5 And lastSurpriseRound > 2
 	End
@@ -290,12 +285,6 @@ Class GameScene Extends VScene Implements ActionEventHandler, ILabelFeedCallback
 		UpdateHyperMode(dt)
 		UpdateScore()
 		UpdateMedals(dt)
-	End
-	
-	Method UpdateActions:Void(dt:Float)
-		For Local action:= EachIn actions
-			action.Update(dt)
-		Next
 	End
 	
 	Method UpdateCursor:Void()
@@ -822,7 +811,6 @@ Class GameScene Extends VScene Implements ActionEventHandler, ILabelFeedCallback
 	Field randomTipAlpha:Float = 1.0
 	
 	Field scoreFont:AngelFont
-	Field actions:List<Action> = New List<Action>
 	
 	Field mainMenuObject:MainMenu
 	Field backgroundEffect:ParticleBackground

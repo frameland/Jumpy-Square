@@ -290,8 +290,8 @@ Class GameOverState Implements ActionEventHandler
 	Field newHighscore:Label
 	
 	Field newHighscoreEffect:ParticleEmitter
-	
 	Field actions:List<Action> = New List<Action>
+	
 End
 
 

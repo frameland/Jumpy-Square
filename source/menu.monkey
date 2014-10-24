@@ -13,7 +13,7 @@ Import audio
 Import settings
 
 
-Class MainMenu Extends VScene Implements ActionEventHandler
+Class MainMenu Extends Scene Implements ActionEventHandler
 	
 	Field backgroundColor:Color = New Color($132b3b)
 	Field justGotSupporterMedal:Bool
@@ -60,7 +60,7 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 			logo = LoadImage("fl_size1.png")
 		End
 		
-		Local transition:= New VFadeInLinear(1.0)
+		Local transition:= New FadeInTransition(1.0)
 		transition.SetColor(Color.White)
 		Vsat.StartFadeIn(transition)
 		
@@ -161,17 +161,10 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 	End
 	
 	
-	Method AddAction:Void(action:Action)
-		action.AddToList(actions)
-		action.SetListener(Self)
-	End
-	
-	
 '--------------------------------------------------------------------------
 ' * Update
 '--------------------------------------------------------------------------
 	Method OnUpdate:Void(dt:Float)
-		Action.UpdateList(actions, dt)
 		UpdateParticles(dt)
 		
 		If startedConnecting
@@ -210,7 +203,7 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 '--------------------------------------------------------------------------
 	Method OnRender:Void()
 		#rem
-		If Vsat.transition And VFadeInLinear(Vsat.transition)
+		If Vsat.transition And FadeInTransition(Vsat.transition)
 			Local scale:Float = Vsat.transition.Progress
 			If scale < 0.01 scale = 0.0
 			scale = 1.5 - Tweening(EASE_OUT_EXPO, scale, 0.0, 1.0, 0.8) * 0.5
@@ -404,7 +397,7 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 	End
 	
 	Method GoToGame:Void()
-		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+		If Vsat.transition And FadeInTransition(Vsat.transition) = Null
 			Return
 		End
 		
@@ -421,7 +414,7 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 	End
 	
 	Method GoToMedals:Void()
-		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+		If Vsat.transition And FadeInTransition(Vsat.transition) = Null
 			Return
 		End
 		
@@ -435,7 +428,7 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 	End
 	
 	Method GoToSupporter:Void()
-		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+		If Vsat.transition And FadeInTransition(Vsat.transition) = Null
 			Return
 		End
 		
@@ -447,7 +440,7 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 	End
 	
 	Method GoToSettings:Void()
-		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+		If Vsat.transition And FadeInTransition(Vsat.transition) = Null
 			Return
 		End
 		
@@ -459,7 +452,7 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 	End
 	
 	Method OpenLeaderboard:Void()
-		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+		If Vsat.transition And FadeInTransition(Vsat.transition) = Null
 			Return
 		End
 		InitGameCenter()
@@ -490,10 +483,6 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 	Field highscoreSquareSize:Int
 	Field lineHeight:Int
 	
-	Field lastTouchDown:Bool
-	
-	Field actions:List<Action> = New List<Action>
-	
 	Field backgroundEffect:ParticleBackground
 	
 	Field medalEffect:ExplosionEmitter
@@ -503,13 +492,15 @@ Class MainMenu Extends VScene Implements ActionEventHandler
 	Field startedConnecting:Bool
 	
 	Field logo:Image
+	
+	Field lastTouchDown:Bool
 End
 
 
 
 
 'Private
-Class MenuItem Extends VRect
+Class MenuItem Extends Rect
 	
 	Field text:String
 	Field usedFont:AngelFont

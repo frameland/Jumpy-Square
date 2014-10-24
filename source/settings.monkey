@@ -7,7 +7,7 @@ Import back
 Import save
 
 
-Class SettingsScene Extends VScene
+Class SettingsScene Extends Scene
 
 '--------------------------------------------------------------------------
 ' * Init
@@ -25,7 +25,7 @@ Class SettingsScene Extends VScene
 		back = New BackButton
 		back.SetFont(RealPath("font2"))
 		
-		Local transition:= New FadeInTransition(0.2)
+		Local transition:= New _FadeInTransition(0.2)
 		Vsat.StartFadeIn(transition)
 	End
 	
@@ -140,9 +140,9 @@ Class SettingsScene Extends VScene
 	
 	Method InitLogo:Void()
 		If IsHD()
-			logo = New VSprite("fl_size3.png")
+			logo = New Sprite("fl_size3.png")
 		Else
-			logo = New VSprite("fl_size2.png")
+			logo = New Sprite("fl_size2.png")
 		End
 		logo.SetHandle(logo.Width/2, 0)
 		logo.position.Set(Vsat.ScreenWidth2, Vsat.ScreenHeight * 0.55 - logo.Height * 1.5)
@@ -211,10 +211,10 @@ Class SettingsScene Extends VScene
 		
 		If Vsat.IsChangingScenes()
 			Local scaleAll:Float
-			If FadeInTransition(Vsat.transition)
+			If _FadeInTransition(Vsat.transition)
 				scaleAll = 2.0 - Vsat.transition.Progress
 				globalAlpha.Alpha = Vsat.transition.Progress
-			ElseIf FadeOutTransition(Vsat.transition)
+			ElseIf _FadeOutTransition(Vsat.transition)
 				scaleAll = 1.0 + Tweening(EASE_OUT_EXPO, Vsat.transition.Progress, 0.0, 1.0, Vsat.transition.Duration)
 				globalAlpha.Alpha = 2.0 - scaleAll
 			End
@@ -317,7 +317,7 @@ Class SettingsScene Extends VScene
 	
 	Method OnCancel:Void()
 		If Vsat.transition Return
-		Local transition:= New FadeOutTransition(0.6)
+		Local transition:= New _FadeOutTransition(0.6)
 		Vsat.ChangeSceneWithTransition(mainMenuObject, transition)
 		Audio.PlaySound(Audio.GetSound("audio/fadeout.mp3"), 2)
 	End
@@ -374,14 +374,14 @@ Class SettingsScene Extends VScene
 
 	Field back:BackButton
 	
-	Field logo:VSprite
+	Field logo:Sprite
 
 End
 
 
 
 Private
-Class FadeInTransition Extends VTransition
+Class _FadeInTransition Extends Transition
 	
 	Field startPoint:Float = 0
 	
@@ -406,7 +406,7 @@ Class FadeInTransition Extends VTransition
 
 End
 
-Class FadeOutTransition Extends VTransition
+Class _FadeOutTransition Extends Transition
 	
 	Field startPoint:Float = 0
 	

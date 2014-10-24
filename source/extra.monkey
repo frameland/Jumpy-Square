@@ -32,7 +32,7 @@ End
 '--------------------------------------------------------------------------
 ' * Transitions
 '--------------------------------------------------------------------------
-Class MoveDownTransition Extends VTransition
+Class MoveDownTransition Extends Transition
 	
 	Field startPoint:Float = 0
 	
@@ -59,7 +59,7 @@ Class MoveDownTransition Extends VTransition
 		PopMatrix()
 	End
 	
-	Method SetScene:Void(scene:VScene)
+	Method SetScene:Void(scene:Scene)
 		Self.scene = scene
 	End
 	
@@ -68,7 +68,7 @@ Class MoveDownTransition Extends VTransition
 	End
 	
 	Private
-	Field scene:VScene
+	Field scene:Scene
 	Field easingType:Int = EASE_OUT_EXPO
 End
 

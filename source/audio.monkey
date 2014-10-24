@@ -46,7 +46,7 @@ Class Audio
 	
 	Function DiscardSound:Void(sound:Sound)
 		If sound
-			SoundCache.Remove(path)
+			'SoundCache.Remove(path)
 			sound.Discard()
 		End
 	End

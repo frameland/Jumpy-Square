@@ -7,7 +7,7 @@ Import game
 Import gameoverstate
 
 
-Class MedalScene Extends VScene Implements ActionEventHandler
+Class MedalScene Extends Scene Implements ActionEventHandler
 	
 	Field normalBgColor:Color = New Color(Color.Navy)
 	
@@ -109,17 +109,10 @@ Class MedalScene Extends VScene Implements ActionEventHandler
 		
 	End
 	
-	Method AddAction:Void(action:Action)
-		action.AddToList(actions)
-		action.SetListener(Self)
-	End
-	
-	
 '--------------------------------------------------------------------------
 ' * Update
 '--------------------------------------------------------------------------	
 	Method OnUpdate:Void(dt:Float)
-		Action.UpdateList(actions, dt)
 		If backgroundEffect Then backgroundEffect.Update(dt)
 		UpdateSites()
 		UpdateCursor()
@@ -353,7 +346,7 @@ Class MedalScene Extends VScene Implements ActionEventHandler
 	End
 	
 	Method GoToSupporter:Void()
-		If Vsat.transition And VFadeInLinear(Vsat.transition) = Null
+		If Vsat.transition And FadeInTransition(Vsat.transition) = Null
 			Return
 		End
 		Vsat.SaveToClipboard(mainMenuObject, "MainMenu")
@@ -393,8 +386,6 @@ Class MedalScene Extends VScene Implements ActionEventHandler
 	Field back:BackButton
 	
 	Field lastTouchDown:Bool
-	
-	Field actions:List<Action> = New List<Action>
 	
 	Field medalItems:CustomMedalItem[]
 	Field sites:Int
@@ -439,7 +430,7 @@ Class CustomMedalItem Extends MedalItem
 End
 
 
-Class MedalDescription Extends VRect
+Class MedalDescription Extends Rect
 	
 	Method New()
 		Super.New(0, 0, Vsat.ScreenWidth, Vsat.ScreenHeight * 0.06)
