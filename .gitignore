@@ -3,6 +3,7 @@ main.buildv*
 *.pxm/
 *.au
 *.aup
+.tmproj
 dev/
 
 
